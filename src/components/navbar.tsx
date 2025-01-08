@@ -27,8 +27,7 @@ export function NavBar({ links }: NavBarProps) {
   const pathname = usePathname();
 
   return (
-    <div key={pathname} className="flex flex-row items-center gap-1 p-4">
-      {/* key forces react to remount so text color works properly */}
+    <div className="flex flex-row items-center gap-1 p-4">
       <div className="flex-grow" />
       <NavigationMenu>
         <NavigationMenuList>
@@ -38,7 +37,8 @@ export function NavBar({ links }: NavBarProps) {
                 <NavigationMenuLink
                   className={cn(
                     navigationMenuTriggerStyle(),
-                    pathname === link.url && "text-primary hover:text-primary",
+                    pathname === link.url &&
+                      "text-primary hover:text-primary focus:text-primary",
                   )}
                 >
                   {link.label}
