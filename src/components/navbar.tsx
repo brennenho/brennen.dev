@@ -3,6 +3,7 @@
 import Link from "next/link";
 import * as React from "react";
 
+import { usePathname } from "next/navigation";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -23,15 +24,23 @@ interface NavBarProps {
 }
 
 export function NavBar({ links }: NavBarProps) {
+  const pathname = usePathname();
+
   return (
-    <div className="flex flex-row items-center gap-4 p-4">
+    <div key={pathname} className="flex flex-row items-center gap-1 p-4">
+      {/* key forces react to remount so text color works properly */}
       <div className="flex-grow" />
       <NavigationMenu>
         <NavigationMenuList>
           {links.map((link) => (
             <NavigationMenuItem key={link.url}>
               <Link href={link.url} legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                <NavigationMenuLink
+                  className={cn(
+                    navigationMenuTriggerStyle(),
+                    pathname === link.url && "text-primary hover:text-primary",
+                  )}
+                >
                   {link.label}
                 </NavigationMenuLink>
               </Link>
