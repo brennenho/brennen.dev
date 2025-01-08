@@ -1,4 +1,3 @@
-# brennen.dev | Personal Website
+# Personal Website | :link: [brennen.dev](brennen.dev)
 
-> [!NOTE]
-> Work in progress!
+Work in progress.
