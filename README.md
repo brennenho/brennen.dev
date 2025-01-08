@@ -1,3 +1,3 @@
-# Personal Website | :link: [brennen.dev](brennen.dev)
+# Personal Website
 
 Work in progress.
