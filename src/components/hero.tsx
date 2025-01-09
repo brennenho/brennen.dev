@@ -9,7 +9,7 @@ export function Hero() {
           Hey, I'm <span className="text-primary">Brennen</span>
         </h1>
         <div className="mt-4 text-lg">
-          Impact-driven engineer interested in responsible AI.
+          Impact-driven engineer excited about responsible AI.
         </div>
         <SocialIcons />
       </div>
@@ -18,9 +18,9 @@ export function Hero() {
         <Image
           src="/img/bho.jpg"
           alt="Brennen Ho"
-          width={200}
-          height={200}
-          className="rounded-full border-4 border-foreground"
+          width={150}
+          height={150}
+          className="rounded-full border-4 border-foreground md:h-48 md:w-48"
         />
       </div>
     </div>
