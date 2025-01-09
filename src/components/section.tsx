@@ -1,20 +1,30 @@
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
 
 type CardProps = React.ComponentProps<typeof Card>;
 
 interface SectionProps extends CardProps {
-  title: string;
+  offset: string;
+  mdx: React.ComponentType;
 }
 
-export function Section({ className, title, ...props }: SectionProps) {
+export function Section({
+  className,
+  offset,
+  mdx: Content,
+  ...props
+}: SectionProps) {
   return (
-    <Card className={cn("w-3/5", className)} {...props}>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
+    <Card
+      className={cn(
+        "ml-auto mr-auto mt-20 w-3/5 pt-4",
+        offset === "left" ? "md:ml-20" : "md:mr-20",
+        className,
+      )}
+      {...props}
+    >
       <CardContent>
-        <p>Card Content</p>
+        <Content />
       </CardContent>
     </Card>
   );
