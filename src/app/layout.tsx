@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Rubik } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import { Menu } from "~/components/menu";
 import { ThemeProvider } from "~/components/theme-provider";
 
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const font = Rubik({
+const font = Open_Sans({
   subsets: ["latin"],
 });
 
