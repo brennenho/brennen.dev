@@ -1,4 +1,5 @@
 import Image from "next/image";
+import SocialIcons from "~/components/social-icons";
 
 export function Hero() {
   return (
@@ -10,6 +11,7 @@ export function Hero() {
         <div className="mt-4 text-lg">
           Impact-driven engineer interested in responsible AI.
         </div>
+        <SocialIcons />
       </div>
 
       <div className="md:mt-0">

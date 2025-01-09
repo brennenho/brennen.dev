@@ -14,8 +14,8 @@ export function ThemeToggle() {
 
   return (
     <Button variant="ghost" className="group/toggle" onClick={toggleTheme}>
-      <SunIcon className="hidden [html.dark_&]:block" />
-      <MoonIcon className="hidden [html.light_&]:block" />
+      <SunIcon className="hidden h-4 w-4 [html.dark_&]:block" />
+      <MoonIcon className="hidden h-4 w-4 [html.light_&]:block" />
       <span className="sr-only">toggle theme</span>
     </Button>
   );
