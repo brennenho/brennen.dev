@@ -14,16 +14,16 @@ import {
 import { cn } from "~/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 
-type NavLinks = {
+type MenuLinks = {
   url: string;
   label: string;
 };
 
-interface NavBarProps {
-  links: NavLinks[];
+interface MenuProps {
+  links: MenuLinks[];
 }
 
-export function NavBar({ links }: NavBarProps) {
+export function Menu({ links }: MenuProps) {
   const pathname = usePathname();
 
   return (

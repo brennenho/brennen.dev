@@ -1,8 +1,8 @@
 import "~/styles/globals.css";
 
-import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
-import { NavBar } from "~/components/navbar";
+import { Rubik } from "next/font/google";
+import { Menu } from "~/components/menu";
 import { ThemeProvider } from "~/components/theme-provider";
 
 export const metadata: Metadata = {
@@ -12,17 +12,17 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
+const font = Rubik({
+  subsets: ["latin"],
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const navLinks = [{ url: "/", label: "about" }];
+  const links = [{ url: "/", label: "about" }];
 
   return (
-    <html
-      lang="en"
-      className={`${GeistSans.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={font.className} suppressHydrationWarning>
       <body>
         <ThemeProvider
           attribute="class"
@@ -30,7 +30,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NavBar links={navLinks} />
+          <Menu links={links} />
           <div>{children}</div>
         </ThemeProvider>
       </body>
