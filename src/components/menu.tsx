@@ -37,6 +37,7 @@ export function Menu({ links }: MenuProps) {
                 <NavigationMenuLink
                   className={cn(
                     navigationMenuTriggerStyle(),
+                    "font-semibold",
                     pathname === link.url &&
                       "text-primary hover:text-primary focus:text-primary",
                   )}

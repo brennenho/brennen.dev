@@ -30,7 +30,7 @@ const socialIcons: SocialIcon[] = [
 export default function SocialIcons() {
   return (
     <nav aria-label="social media links">
-      <div className="flex flex-row gap-4 pt-8">
+      <div className="flex flex-row justify-center gap-4 pt-8 md:justify-normal">
         {socialIcons.map((socialIcon) => (
           <Button variant="ghost" size="xl">
             <Link href={socialIcon.href} target="_blank" rel="noreferrer">

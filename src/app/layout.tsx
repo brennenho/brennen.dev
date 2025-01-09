@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const font = Open_Sans({
+const openSans = Open_Sans({
   subsets: ["latin"],
 });
 
@@ -22,7 +22,7 @@ export default function RootLayout({
   const links = [{ url: "/", label: "about" }];
 
   return (
-    <html lang="en" className={font.className} suppressHydrationWarning>
+    <html lang="en" className={openSans.className} suppressHydrationWarning>
       <body>
         <ThemeProvider
           attribute="class"
