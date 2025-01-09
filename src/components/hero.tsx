@@ -3,7 +3,7 @@ import SocialIcons from "~/components/social-icons";
 
 export function Hero() {
   return (
-    <div className="mt-20 flex w-full max-w-4xl flex-col-reverse items-center gap-4 px-6 md:flex-row">
+    <div className="mt-20 flex w-full max-w-4xl flex-col-reverse items-center gap-4 px-6 md:mt-48 md:flex-row">
       <div className="flex-1 text-center md:mr-8 md:text-left">
         <h1 className="text-4xl font-bold leading-tight md:text-5xl">
           Hey, I'm <span className="text-primary">Brennen</span>
@@ -14,7 +14,7 @@ export function Hero() {
         <SocialIcons />
       </div>
 
-      <div className="md:mt-0">
+      <div className="mb-8 md:mb-0">
         <Image
           src="/img/bho.jpg"
           alt="Brennen Ho"
