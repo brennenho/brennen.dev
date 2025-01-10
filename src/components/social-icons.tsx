@@ -32,7 +32,7 @@ export default function SocialIcons() {
     <nav aria-label="social media links">
       <div className="flex flex-row justify-center gap-4 pt-8 md:justify-normal">
         {socialIcons.map((socialIcon) => (
-          <Button variant="ghost" size="xl">
+          <Button key={socialIcon.name} variant="ghost" size="xl">
             <Link href={socialIcon.href} target="_blank" rel="noreferrer">
               <socialIcon.icon className="h-6 w-6" />
               <span className="sr-only">{socialIcon.name}</span>
