@@ -1,3 +1,4 @@
+import ProfilePic from "$/img/bho.jpg";
 import Image from "next/image";
 import SocialIcons from "~/components/social-icons";
 
@@ -16,10 +17,8 @@ export function Hero() {
 
       <div className="mb-8 md:mb-0">
         <Image
-          src="/img/bho.jpg"
+          src={ProfilePic}
           alt="Brennen Ho"
-          width={150}
-          height={150}
           className="rounded-full border-4 border-foreground md:h-48 md:w-48"
         />
       </div>
