@@ -2,6 +2,7 @@
 
 import { MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
+import posthog from "posthog-js";
 import * as React from "react";
 import { Button } from "~/components/ui";
 
@@ -10,6 +11,7 @@ export function ThemeToggle() {
 
   const toggleTheme = React.useCallback(() => {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
+    posthog.capture("theme_toggled", { theme: resolvedTheme });
   }, [resolvedTheme, setTheme]);
 
   return (
