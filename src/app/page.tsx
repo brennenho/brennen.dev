@@ -1,7 +1,7 @@
 import PostIt from "$/img/post-it.png";
 import Image from "next/image";
 import Link from "next/link";
-import { Hero, Icons, ScrollArrow, Section } from "~/components/";
+import { Hero, Icons, ScrollArrow } from "~/components/";
 import { Button, Separator } from "~/components/ui";
 
 export default function HomePage() {
@@ -28,30 +28,24 @@ export default function HomePage() {
         </div>
         <div className="mt-16 text-3xl font-bold">Projects</div>
         <Separator className="m-4 w-48" />
-        <div className="container mx-auto my-16 grid grid-cols-1 gap-8 px-4 md:grid-cols-2 md:gap-32">
-          <div className="flex flex-col items-center justify-center">
-            <Section>
-              <Image src={PostIt} alt="Post-It" className="h-48 w-48" />
-              <Button variant="secondary" className="mt-4" asChild>
-                <Link
-                  href="https://github.com/brennenho/post-it"
-                  target="_blank"
-                >
-                  <Icons.gitHub className="h-4 w-4" />
-                  view source
-                </Link>
-              </Button>
-            </Section>
-          </div>
+        <div className="flex flex-col items-center justify-center gap-8 p-16 pt-0 text-center md:flex-row md:text-left">
+          <Image src={PostIt} alt="Post-It" className="h-72 w-72" />
 
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col items-center justify-center md:items-start">
             <div className="text-lg">
-              Datasets form the backbone of modern machine learning. A
-              high-quality dataset is vital to successfully train an AI model.
-              To assist with this important task, I built a Python package and
-              command line tool to efficiently curate datasets for AI
-              pretraining.
+              Data is the backbone of modern artificial intelligence.
+              High-quality training datasets are essential for training accurate
+              models and can be used to adapt existing foundational models to
+              new domains. Post-It is a robust and extensible Python package and
+              CLI designed to assist in data processing and filtration for AI
+              workflows.
             </div>
+            <Button variant="secondary" className="mt-4 w-40" asChild>
+              <Link href="https://github.com/brennenho/post-it" target="_blank">
+                <Icons.gitHub className="h-4 w-4" />
+                view source
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
