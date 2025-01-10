@@ -2,13 +2,11 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Open_Sans } from "next/font/google";
-import { Menu } from "~/components/menu";
-import { ThemeProvider } from "~/components/theme-provider";
+import { Menu, ThemeProvider } from "~/components/";
 
 export const metadata: Metadata = {
   title: "Brennen Ho",
-  description:
-    "Motivated engineer interested in responsible artificial intelligence.",
+  description: "Impact-driven engineer excited about responsible AI.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

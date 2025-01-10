@@ -1,12 +1,8 @@
 import PostIt from "$/img/post-it.png";
 import Image from "next/image";
 import Link from "next/link";
-import { Hero } from "~/components/hero";
-import { Icons } from "~/components/icons";
-import { ScrollArrow } from "~/components/scroll-arrow";
-import { Section } from "~/components/section";
-import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
+import { Hero, Icons, ScrollArrow, Section } from "~/components/";
+import { Button, Separator } from "~/components/ui";
 
 export default function HomePage() {
   return (

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
-import { Icons } from "~/components/icons";
-import { Button } from "~/components/ui/button";
+import { Icons } from "~/components";
+import { Button } from "~/components/ui";
 
 interface SocialIcon {
   name: string;
@@ -27,7 +27,7 @@ const socialIcons: SocialIcon[] = [
   },
 ];
 
-export default function SocialIcons() {
+export function SocialIcons() {
   return (
     <nav aria-label="social media links">
       <div className="flex flex-row justify-center gap-4 pt-8 md:justify-normal">

@@ -1,4 +1,4 @@
-import { Card, CardContent } from "~/components/ui/card";
+import { Card, CardContent } from "~/components/ui";
 import { cn } from "~/lib/utils";
 
 export function Section({ children }: Readonly<{ children: React.ReactNode }>) {

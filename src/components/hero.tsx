@@ -1,6 +1,6 @@
 import ProfilePic from "$/img/bho.jpg";
 import Image from "next/image";
-import SocialIcons from "~/components/social-icons";
+import { SocialIcons } from "~/components";
 
 export function Hero() {
   return (

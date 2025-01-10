@@ -4,15 +4,15 @@ import Link from "next/link";
 import * as React from "react";
 
 import { usePathname } from "next/navigation";
+import { ThemeToggle } from "~/components";
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   navigationMenuTriggerStyle,
-} from "~/components/ui/navigation-menu";
+} from "~/components/ui";
 import { cn } from "~/lib/utils";
-import { ThemeToggle } from "./theme-toggle";
 
 type MenuLinks = {
   url: string;
