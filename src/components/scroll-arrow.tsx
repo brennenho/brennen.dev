@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from "posthog-js";
 import { cn } from "~/lib/utils";
 
 interface ScrollArrowProps {
@@ -13,6 +14,7 @@ export function ScrollArrow({ targetId, className }: ScrollArrowProps) {
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: "smooth" });
     }
+    posthog.capture("scroll_arrow");
   };
 
   return (
