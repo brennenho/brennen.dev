@@ -27,29 +27,31 @@ export function Menu({ links }: MenuProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-row items-center gap-1 p-4">
-      <div className="flex-grow" />
-      <NavigationMenu>
-        <NavigationMenuList>
-          {links.map((link) => (
-            <NavigationMenuItem key={link.url}>
-              <Link href={link.url} legacyBehavior passHref>
-                <NavigationMenuLink
-                  className={cn(
-                    navigationMenuTriggerStyle(),
-                    "font-semibold",
-                    pathname === link.url &&
-                      "text-primary hover:text-primary focus:text-primary",
-                  )}
-                >
-                  {link.label}
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          ))}
-        </NavigationMenuList>
-      </NavigationMenu>
-      <ThemeToggle />
+    <div className="fixed top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex flex-row items-center gap-1 p-4">
+        <div className="flex-grow" />
+        <NavigationMenu>
+          <NavigationMenuList>
+            {links.map((link) => (
+              <NavigationMenuItem key={link.url}>
+                <Link href={link.url} legacyBehavior passHref>
+                  <NavigationMenuLink
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      "font-semibold",
+                      pathname === link.url &&
+                        "text-primary hover:text-primary focus:text-primary",
+                    )}
+                  >
+                    {link.label}
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            ))}
+          </NavigationMenuList>
+        </NavigationMenu>
+        <ThemeToggle />
+      </div>
     </div>
   );
 }
