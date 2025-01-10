@@ -11,7 +11,9 @@ export function ThemeToggle() {
 
   const toggleTheme = React.useCallback(() => {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
-    posthog.capture("theme_toggled", { theme: resolvedTheme });
+    posthog.capture("theme_toggled", {
+      property: resolvedTheme === "dark" ? "light" : "dark",
+    });
   }, [resolvedTheme, setTheme]);
 
   return (
