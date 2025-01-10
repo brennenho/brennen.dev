@@ -13,6 +13,7 @@ export function Footer() {
         <div className="h-1 w-1 rounded-full bg-foreground" />
         <Link
           href="https://github.com/brennenho/brennen.dev"
+          target="_blank"
           className="text-muted-foreground no-underline decoration-1 underline-offset-[6px] transition-all duration-200 hover:underline"
         >
           view source on github

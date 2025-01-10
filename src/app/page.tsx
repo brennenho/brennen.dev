@@ -32,9 +32,14 @@ export default function HomePage() {
           <div className="flex flex-col items-center justify-center">
             <Section>
               <Image src={PostIt} alt="Post-It" className="h-48 w-48" />
-              <Button variant="secondary" className="mt-4">
-                <Icons.gitHub className="h-4 w-4" />
-                View on GitHub
+              <Button variant="secondary" className="mt-4" asChild>
+                <Link
+                  href="https://github.com/brennenho/post-it"
+                  target="_blank"
+                >
+                  <Icons.gitHub className="h-4 w-4" />
+                  view source
+                </Link>
               </Button>
             </Section>
           </div>
