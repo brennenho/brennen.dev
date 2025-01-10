@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Open_Sans } from "next/font/google";
-import { Menu, ThemeProvider } from "~/components/";
+import { Footer, Menu, ThemeProvider } from "~/components/";
 
 export const metadata: Metadata = {
   title: "Brennen Ho",
@@ -30,6 +30,7 @@ export default function RootLayout({
         >
           <Menu links={links} />
           <div>{children}</div>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

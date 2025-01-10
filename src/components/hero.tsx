@@ -9,7 +9,7 @@ export function Hero() {
         <h1 className="text-4xl font-bold leading-tight md:text-5xl">
           Hey, I'm <span className="text-primary">Brennen</span>
         </h1>
-        <div className="mt-4 text-xl">
+        <div className="mt-4 pb-8 text-xl">
           Impact-driven engineer excited about responsible AI.
         </div>
         <SocialIcons />
