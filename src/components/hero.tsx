@@ -19,7 +19,7 @@ export function Hero() {
         <Image
           src={ProfilePic}
           alt="Brennen Ho"
-          className="rounded-full border-4 border-foreground md:h-48 md:w-48"
+          className="h-32 w-32 rounded-full border-4 border-foreground md:h-48 md:w-48"
         />
       </div>
     </div>
