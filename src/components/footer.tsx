@@ -3,9 +3,9 @@ import { Icons, SocialIcons } from "~/components";
 
 export function Footer() {
   return (
-    <footer className="flex flex-col items-center justify-center gap-4 bg-secondary py-10">
+    <footer className="flex flex-col items-center justify-center border-t bg-secondary py-2">
       <SocialIcons size="sm" />
-      <div className="inline-flex items-center gap-4 text-sm">
+      <div className="inline-flex items-center gap-3 pb-4 text-sm">
         <div className="inline-flex items-center gap-1 font-medium">
           made with <Icons.heart className="h-4 w-4 fill-pink-400" /> in
           california
