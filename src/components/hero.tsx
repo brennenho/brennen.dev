@@ -4,7 +4,7 @@ import { SocialIcons } from "~/components";
 
 export function Hero() {
   return (
-    <div className="mt-20 flex w-full max-w-4xl flex-col-reverse items-center px-6 md:mt-48 md:flex-row">
+    <div className="mt-32 flex w-full max-w-4xl flex-col-reverse items-center px-6 md:mt-60 md:flex-row">
       <div className="flex-1 text-center md:mr-8 md:text-left">
         <h1 className="text-4xl font-bold leading-tight md:text-5xl">
           Hey, I'm <span className="text-primary">Brennen</span>
