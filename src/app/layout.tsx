@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Open_Sans } from "next/font/google";
+import { PostHogProvider } from "~/app/_analytics/providers";
 import { Footer, Menu, ThemeProvider } from "~/components/";
 
 export const metadata: Metadata = {
@@ -22,16 +23,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={openSans.className} suppressHydrationWarning>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Menu links={links} />
-          <div>{children}</div>
-          <Footer />
-        </ThemeProvider>
+        <PostHogProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Menu links={links} />
+            <div>{children}</div>
+            <Footer />
+          </ThemeProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
