@@ -9,7 +9,7 @@ export default function HomePage() {
     <main className="">
       <div className="flex h-full flex-col items-center">
         <Hero />
-        <ScrollArrow targetId="scroll-target" className="mt-32 md:mt-72" />
+        <ScrollArrow targetId="scroll-target" className="mt-16 md:mt-56" />
         <div id="scroll-target" className="mt-16 w-3/4 p-4 text-center text-lg">
           I'm a student and software engineer interested in applied AI and
           product development. Currently studying{" "}

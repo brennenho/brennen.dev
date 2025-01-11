@@ -27,8 +27,8 @@ export function Menu({ links }: MenuProps) {
   const pathname = usePathname();
 
   return (
-    <div className="fixed top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex flex-row items-center gap-1 p-4">
+    <div className="fixed top-0 z-50 h-16 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex flex-row items-center p-4">
         <div className="flex-grow" />
         <NavigationMenu>
           <NavigationMenuList>
