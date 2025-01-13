@@ -1,3 +1,5 @@
-# Personal Website
+# [brennen.dev](https://brennnen.dev)
 
-Work in progress.
+[![status check](https://github.com/brennenho/brennen.dev/actions/workflows/status-check.yml/badge.svg)](https://github.com/brennenho/brennen.dev/actions/workflows/status-check.yml)
+
+Built with Typescript, React, Next.js, Tailwind, and Shadcn UI.
