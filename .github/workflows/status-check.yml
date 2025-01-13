@@ -1,0 +1,23 @@
+name: status check
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ping
+        run: |
+          echo "pinging https://brennen.dev"
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://brennen.dev)
+          echo "response code: $response"
+          if [ "$response" -ne 200 ]; then
+            echo "website is down"
+            exit 1
+          else
+            echo "website is up"
+          fi
