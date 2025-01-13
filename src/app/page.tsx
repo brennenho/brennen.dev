@@ -7,7 +7,7 @@ import { Button, Separator } from "~/components/ui";
 export default function HomePage() {
   return (
     <main className="">
-      <div className="flex h-full flex-col items-center">
+      <div className="flex h-full flex-col items-center pt-16">
         <Hero />
         <ScrollArrow targetId="scroll-target" className="mt-16 md:mt-56" />
         <div id="scroll-target" className="mt-16 w-3/4 p-4 text-center text-lg">
@@ -24,7 +24,7 @@ export default function HomePage() {
           >
             University of Southern California
           </Link>{" "}
-          as a Presidental and Viterbi scholar .
+          as a Presidental and Viterbi scholar.
         </div>
         <div className="mt-16 text-3xl font-bold">Projects</div>
         <Separator className="m-4 w-48" />
