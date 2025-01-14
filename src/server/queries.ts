@@ -14,3 +14,15 @@ export async function savePasteText(
 
   return paste;
 }
+
+export async function getPasteText(fileName: string) {
+  const paste = await db.query.pastes.findFirst({
+    where: (pastes, { eq }) => eq(pastes.fileName, fileName),
+  });
+
+  if (!paste) {
+    throw new Error("File not found");
+  }
+
+  return paste;
+}
