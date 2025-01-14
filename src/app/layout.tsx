@@ -1,5 +1,6 @@
 import "~/styles/globals.css";
 
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import { PostHogProvider } from "~/app/_analytics/providers";
@@ -35,6 +36,7 @@ export default function RootLayout({
             <Footer />
           </ThemeProvider>
         </PostHogProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
