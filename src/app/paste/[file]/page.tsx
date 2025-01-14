@@ -13,7 +13,7 @@ export default function PasteDisplay({ params }: PasteDisplayParams) {
   const paste = use(getPasteText(file));
 
   return (
-    <div className="h-[calc(100vh-6rem)] pt-16">
+    <div className="flex min-h-[calc(100vh-6rem)] flex-col overflow-auto px-4 pt-16">
       <PasteClient initialText={paste?.text ?? ""} />
     </div>
   );

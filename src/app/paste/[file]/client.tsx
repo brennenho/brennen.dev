@@ -11,7 +11,7 @@ export function PasteClient({ initialText }: PasteClientProps) {
   const [text, setText] = useState(initialText);
 
   return (
-    <div className="relative h-full">
+    <div className="relative">
       <TextEditor value={text} onChange={setText} disabled={true} />
     </div>
   );
