@@ -22,7 +22,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={openSans.className} suppressHydrationWarning>
-      <body className="flex h-screen flex-col">
+      <body className="flex min-h-screen flex-col">
         <PostHogProvider>
           <ThemeProvider
             attribute="class"
@@ -31,7 +31,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Menu links={links} />
-            <div className="flex h-full flex-col">{children}</div>
+            <div className="flex-1">{children}</div>
             <Footer />
           </ThemeProvider>
         </PostHogProvider>
