@@ -1,5 +1,11 @@
 "use client";
-import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import {
+  forwardRef,
+  KeyboardEvent,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 
 type TextEditorProps = {
   value: string;
@@ -34,6 +40,29 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
       adjustHeight();
     };
 
+    // enable tab in editor
+    const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+
+        const target = e.currentTarget;
+        const start = target.selectionStart;
+        const end = target.selectionEnd;
+
+        const updatedValue =
+          value.substring(0, start) + "\t" + value.substring(end);
+
+        onChange?.(updatedValue);
+
+        requestAnimationFrame(() => {
+          if (textareaRef.current) {
+            textareaRef.current.selectionStart = start + 1;
+            textareaRef.current.selectionEnd = start + 1;
+          }
+        });
+      }
+    };
+
     useImperativeHandle(ref, () => ({
       focus: () => {
         textareaRef.current?.focus();
@@ -50,6 +79,7 @@ export const TextEditor = forwardRef<TextEditorRef, TextEditorProps>(
           className="w-full resize-none overflow-hidden bg-transparent font-mono outline-none"
           value={value}
           onChange={(e) => handleChange(e.target.value)}
+          onKeyDown={handleKeyDown}
           disabled={disabled}
         ></textarea>
       </div>

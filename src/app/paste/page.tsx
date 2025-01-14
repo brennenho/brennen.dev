@@ -28,7 +28,7 @@ export default function Paste() {
       // redirect
       if (response.ok) {
         const { fileName } = (await response.json()) as PasteResponse;
-        router.push(`/paste/${fileName}`);
+        router.push(`/paste/${fileName}`, { scroll: true });
       } else {
         console.error("API Error:", response.statusText);
       }
