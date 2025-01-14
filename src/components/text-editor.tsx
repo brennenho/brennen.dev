@@ -1,7 +1,7 @@
 "use client";
 import {
   forwardRef,
-  KeyboardEvent,
+  type KeyboardEvent,
   useEffect,
   useImperativeHandle,
   useRef,

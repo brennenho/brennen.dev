@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 import { Icons, TextEditor, type TextEditorRef } from "~/components";
 import { Button } from "~/components/ui";
@@ -14,6 +14,7 @@ export default function Paste() {
   const [text, setText] = useState("");
   const router = useRouter();
   const editorRef = useRef<TextEditorRef>(null);
+  const isStatic = useSearchParams().has("static");
 
   async function handleSave() {
     try {
@@ -22,7 +23,7 @@ export default function Paste() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, isStatic }),
       });
 
       // redirect

@@ -6,6 +6,7 @@ import { savePasteText } from "~/server/queries";
 
 const PasteSchema = z.object({
   text: z.string(),
+  isStatic: z.boolean(),
 });
 
 type Extensions = Record<string, string>;
@@ -67,7 +68,15 @@ export async function POST(request: NextRequest) {
     const { language } = hljs.highlightAuto(text);
     const fileName = `${generateId()}.${(language && extensions[language]) ?? "txt"}`;
 
-    await savePasteText(fileName, text, new Date(Date.now() + 1000 * 60));
+    if (result.data.isStatic) {
+      await savePasteText(fileName, text);
+    } else {
+      await savePasteText(
+        fileName,
+        text,
+        new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+      );
+    }
 
     return NextResponse.json(
       { success: true, fileName: fileName },
