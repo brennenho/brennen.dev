@@ -20,7 +20,7 @@ export const pastes = createTable(
   "pastes",
   {
     id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
-    fileName: varchar("fileName", { length: 256 }),
+    fileName: varchar("fileName", { length: 25 }),
     text: text("text").notNull(),
     expiresAt: timestamp("expires_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -29,5 +29,20 @@ export const pastes = createTable(
   },
   (example) => ({
     nameIndex: index("name_idx").on(example.fileName),
+  }),
+);
+
+export const links = createTable(
+  "links",
+  {
+    id: varchar("id", { length: 10 }).primaryKey().notNull(),
+    url: text("url").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (example) => ({
+    urlIndex: index("url_idx").on(example.url),
   }),
 );

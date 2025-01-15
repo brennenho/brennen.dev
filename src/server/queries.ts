@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "./db";
-import { pastes } from "./db/schema";
+import { links, pastes } from "./db/schema";
 
 export async function savePasteText(
   fileName: string,
@@ -20,9 +20,22 @@ export async function getPasteText(fileName: string) {
     where: (pastes, { eq }) => eq(pastes.fileName, fileName),
   });
 
-  if (!paste) {
-    throw new Error("File not found");
-  }
-
   return paste;
+}
+
+export async function addLink(id: string, url: string, expiresAt?: Date) {
+  const [link] = await db
+    .insert(links)
+    .values({ id, url, expiresAt })
+    .returning();
+
+  return link;
+}
+
+export async function getLink(id: string) {
+  const link = await db.query.links.findFirst({
+    where: (links, { eq }) => eq(links.id, id),
+  });
+
+  return link;
 }
