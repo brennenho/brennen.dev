@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useRef, useState, useTransition } from "react";
 import { Icons, Spinner, TextEditor, type TextEditorRef } from "~/components";
 import { Button, Skeleton } from "~/components/ui";
 import { genericError } from "~/lib/errors";
@@ -17,6 +17,7 @@ function PasteContent() {
   const editorRef = useRef<TextEditorRef>(null);
   const isStatic = useSearchParams().has("static");
   const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   async function handleSave() {
     try {
@@ -32,11 +33,14 @@ function PasteContent() {
       // redirect
       if (response.ok) {
         const { fileName } = (await response.json()) as PasteResponse;
-        router.push(`/paste/${fileName}`, { scroll: true });
+        startTransition(() => {
+          router.prefetch(`/paste/${fileName}`);
+          router.push(`/paste/${fileName}`, { scroll: true });
+        });
       } else {
         genericError();
       }
-    } catch (error) {
+    } catch {
       genericError();
     } finally {
       setLoading(false);
@@ -49,7 +53,7 @@ function PasteContent() {
 
   return (
     <div>
-      {loading ? (
+      {loading || isPending ? (
         <Spinner />
       ) : (
         <div className="flex min-h-[calc(100vh-6rem)] flex-col p-4 pr-0 pt-16">
