@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useRef, useState } from "react";
 import { Icons, Spinner, TextEditor, type TextEditorRef } from "~/components";
 import { Button, Skeleton } from "~/components/ui";
+import { genericError } from "~/lib/errors";
 
 interface PasteResponse {
   success: boolean;
@@ -33,10 +34,10 @@ function PasteContent() {
         const { fileName } = (await response.json()) as PasteResponse;
         router.push(`/paste/${fileName}`, { scroll: true });
       } else {
-        console.error("API Error:", response.statusText);
+        genericError();
       }
     } catch (error) {
-      console.error("Error saving text:", error);
+      genericError();
     } finally {
       setLoading(false);
     }
