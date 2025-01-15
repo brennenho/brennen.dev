@@ -35,7 +35,7 @@ export const pastes = createTable(
 export const links = createTable(
   "links",
   {
-    id: varchar("id", { length: 10 }).primaryKey().notNull(),
+    id: varchar("id", { length: 30 }).primaryKey().notNull(),
     url: text("url").notNull(),
     expiresAt: timestamp("expires_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })

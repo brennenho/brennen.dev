@@ -1,3 +1,4 @@
+import { desc } from "drizzle-orm";
 import "server-only";
 import { db } from "./db";
 import { links, pastes } from "./db/schema";
@@ -35,6 +36,14 @@ export async function addLink(id: string, url: string, expiresAt?: Date) {
 export async function getLink(id: string) {
   const link = await db.query.links.findFirst({
     where: (links, { eq }) => eq(links.id, id),
+  });
+
+  return link;
+}
+
+export async function getAllLinks() {
+  const link = await db.query.links.findMany({
+    orderBy: desc(links.createdAt),
   });
 
   return link;
