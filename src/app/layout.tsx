@@ -5,6 +5,7 @@ import { type Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import { PostHogProvider } from "~/app/_analytics/providers";
 import { Footer, Menu, ThemeProvider } from "~/components/";
+import { Toaster } from "~/components/ui";
 
 export const metadata: Metadata = {
   title: "Brennen Ho",
@@ -34,6 +35,7 @@ export default function RootLayout({
             <Menu links={links} />
             <div className="flex-1">{children}</div>
             <Footer />
+            <Toaster />
           </ThemeProvider>
         </PostHogProvider>
         <SpeedInsights />
