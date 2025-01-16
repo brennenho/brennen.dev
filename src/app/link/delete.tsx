@@ -16,7 +16,7 @@ export function DeleteButton({ id, onSuccess }: DeleteButtonProps) {
       const response = await fetch("/api/link/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(id),
+        body: JSON.stringify({ id: id }),
       });
       await onSuccess();
 

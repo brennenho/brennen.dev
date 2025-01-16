@@ -13,8 +13,7 @@ const linkSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as z.infer<typeof linkSchema>;
-    const data = linkSchema.parse(body);
+    const data = linkSchema.parse(await req.json());
 
     let date: Date | undefined = undefined;
     switch (data.expiresAt) {

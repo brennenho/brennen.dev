@@ -8,8 +8,7 @@ const deleteSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as z.infer<typeof deleteSchema>;
-    const { id } = deleteSchema.parse(body);
+    const { id } = deleteSchema.parse(await req.json());
 
     await deleteLink(id);
     return NextResponse.json({ success: true });

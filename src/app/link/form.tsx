@@ -39,11 +39,6 @@ interface LinkFormProps {
 export function LinkForm({ onSuccess }: LinkFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      short: "",
-      target: "",
-      expiresAt: "never",
-    },
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
