@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import {
   Button,
@@ -18,14 +19,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui";
+import { genericError } from "~/lib/errors";
 
 const formSchema = z.object({
-  short: z.string().min(1).max(30).optional(),
+  short: z
+    .string()
+    .max(30, {
+      message: "Short links have a max of 30 characters",
+    })
+    .optional(),
   target: z.string().url(),
-  expiresAt: z.string(),
+  expiresAt: z.enum(["24 hours", "7 days", "30 days", "12 months", "never"]),
 });
 
-export function LinkForm() {
+interface LinkFormProps {
+  onSuccess: () => Promise<void>;
+}
+
+export function LinkForm({ onSuccess }: LinkFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,8 +46,22 @@ export function LinkForm() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log(data);
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    try {
+      const response = await fetch("/api/link/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok)
+        toast.error("Unable to add link. Please try again later.");
+
+      await onSuccess();
+      form.reset();
+    } catch {
+      genericError();
+    }
   }
 
   return (
@@ -80,11 +105,11 @@ export function LinkForm() {
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="select duration" />
+                    <SelectValue placeholder="Select duration" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="never">never</SelectItem>
+                  <SelectItem value="Never">Never</SelectItem>
                   <SelectItem value="24 hours">24 hours</SelectItem>
                   <SelectItem value="7 days">7 days</SelectItem>
                   <SelectItem value="30 days">30 days</SelectItem>

@@ -1,5 +1,6 @@
-import { desc } from "drizzle-orm";
 import "server-only";
+
+import { desc, eq } from "drizzle-orm";
 import { db } from "./db";
 import { links, pastes } from "./db/schema";
 
@@ -29,6 +30,12 @@ export async function addLink(id: string, url: string, expiresAt?: Date) {
     .insert(links)
     .values({ id, url, expiresAt })
     .returning();
+
+  return link;
+}
+
+export async function deleteLink(id: string) {
+  const link = await db.delete(links).where(eq(links.id, id));
 
   return link;
 }

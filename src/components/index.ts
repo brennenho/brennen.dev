@@ -1,3 +1,4 @@
+export * from "./copy-text";
 export * from "./footer";
 export * from "./hero";
 export * from "./icons";
