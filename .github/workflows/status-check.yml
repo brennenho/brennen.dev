@@ -13,7 +13,7 @@ jobs:
       - name: ping
         run: |
           echo "pinging https://brennen.dev"
-          response=$(curl -s -o /dev/null -w "%{http_code}" https://brennen.dev/api/paste/clean)
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://brennen.dev/api/clean)
           echo "response code: $response"
           if [ "$response" -ne 200 ]; then
             echo "website is down"

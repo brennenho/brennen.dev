@@ -1,6 +1,6 @@
 import "server-only";
 
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, lte } from "drizzle-orm";
 import { db } from "./db";
 import { links, pastes } from "./db/schema";
 
@@ -54,4 +54,9 @@ export async function getAllLinks() {
   });
 
   return link;
+}
+
+export async function cleanExpired() {
+  await db.delete(pastes).where(lte(pastes.expiresAt, new Date()));
+  await db.delete(links).where(lte(links.expiresAt, new Date()));
 }
