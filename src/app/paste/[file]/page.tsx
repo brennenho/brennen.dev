@@ -3,17 +3,13 @@ import { PasteClient } from "~/app/paste/[file]/client";
 import { getPasteText } from "~/server/queries";
 
 type PasteDisplayParams = {
-  params:
-    | {
-        file: string;
-      }
-    | Promise<{
-        file: string;
-      }>;
+  params: {
+    file: string;
+  };
 };
 
 export default async function PasteDisplay({ params }: PasteDisplayParams) {
-  const { file } = await params;
+  const { file } = params;
   const paste = await getPasteText(file);
 
   if (!paste) {

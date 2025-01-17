@@ -29,7 +29,7 @@ const formSchema = z.object({
     })
     .optional(),
   target: z.string().url(),
-  expiresAt: z.enum(["24 hours", "7 days", "30 days", "12 months", "never"]),
+  expiresAt: z.enum(["24 hours", "7 days", "30 days", "12 months", "Never"]),
 });
 
 interface LinkFormProps {
@@ -39,6 +39,11 @@ interface LinkFormProps {
 export function LinkForm({ onSuccess }: LinkFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      short: "",
+      target: "",
+      expiresAt: "Never",
+    },
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {

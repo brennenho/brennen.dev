@@ -7,7 +7,7 @@ const linkSchema = z.object({
   short: z.string().optional(),
   target: z.string().url(),
   expiresAt: z
-    .enum(["24 hours", "7 days", "30 days", "12 months", "never"])
+    .enum(["24 hours", "7 days", "30 days", "12 months", "Never"])
     .optional(),
 });
 

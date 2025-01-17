@@ -1,5 +1,5 @@
 import hljs from "highlight.js";
-import { customAlphabet } from "nanoid";
+import { nanoid } from "nanoid";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { savePasteText } from "~/server/queries";
@@ -11,7 +11,7 @@ const PasteSchema = z.object({
 
 type Extensions = Record<string, string>;
 
-export const extensions: Extensions = {
+const extensions: Extensions = {
   javascript: "js",
   typescript: "ts",
   java: "java",
@@ -47,11 +47,6 @@ export const extensions: Extensions = {
   dockerfile: "dockerfile",
 };
 
-export const generateId = customAlphabet(
-  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-  10,
-);
-
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as z.infer<typeof PasteSchema>;
@@ -66,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     const { text } = result.data;
     const { language } = hljs.highlightAuto(text);
-    const fileName = `${generateId()}.${(language && extensions[language]) ?? "txt"}`;
+    const fileName = `${nanoid(10)}.${(language && extensions[language]) ?? "txt"}`;
 
     if (result.data.isStatic) {
       await savePasteText(fileName, text);

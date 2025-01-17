@@ -45,7 +45,7 @@ export default async function LinkPage() {
             {links.map((link) => (
               <TableRow key={link.id}>
                 <TableCell>
-                  <div className="flex flex-row items-center justify-between">
+                  <div className="flex flex-row items-center justify-between gap-2">
                     <CopyText
                       text={link.id}
                       target={`${protocol}://${domain}/link/${link.id}`}
@@ -60,7 +60,7 @@ export default async function LinkPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-row items-center justify-between">
+                  <div className="flex flex-row items-center justify-between gap-2">
                     <CopyText
                       text={link.url}
                       target={link.url}
