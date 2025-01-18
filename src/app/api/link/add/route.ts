@@ -14,6 +14,7 @@ const linkSchema = z.object({
 export async function POST(req: Request) {
   try {
     const data = linkSchema.parse(await req.json());
+    const shortId = data.short?.trim() === "" ? undefined : data.short;
 
     let date: Date | undefined = undefined;
     switch (data.expiresAt) {
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
         break;
     }
 
-    const link = await addLink(data.short ?? nanoid(8), data.target, date);
+    const link = await addLink(shortId ?? nanoid(8), data.target, date);
     return NextResponse.json({ link });
   } catch {
     return NextResponse.json(

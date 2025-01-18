@@ -1,5 +1,6 @@
 import "~/styles/globals.css";
 
+import { ClerkProvider } from "@clerk/nextjs";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
 import { Open_Sans } from "next/font/google";
@@ -23,23 +24,25 @@ export default function RootLayout({
   const links = [{ url: "/", label: "about" }];
 
   return (
-    <html lang="en" className={openSans.className} suppressHydrationWarning>
-      <body className="flex min-h-screen flex-col">
-        <PostHogProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Menu links={links} />
-            <div className="flex-1">{children}</div>
-            <Footer />
-            <Toaster />
-          </ThemeProvider>
-        </PostHogProvider>
-        <SpeedInsights />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={openSans.className} suppressHydrationWarning>
+        <body className="flex min-h-screen flex-col">
+          <PostHogProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Menu links={links} />
+              <div className="flex-1">{children}</div>
+              <Footer />
+              <Toaster />
+            </ThemeProvider>
+          </PostHogProvider>
+          <SpeedInsights />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
