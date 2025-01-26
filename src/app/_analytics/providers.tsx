@@ -7,18 +7,22 @@ import PostHogPageView from "./page-view";
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-      api_host: "/ingest",
-      ui_host: "https://us.posthog.com",
-
-      capture_pageview: false, // Disable automatic pageview capture, as we capture manually
-      capture_pageleave: true,
-    });
+    if (process.env.NODE_ENV === "production") {
+      posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+        api_host: "/ingest",
+        ui_host: "https://us.posthog.com",
+        capture_pageview: false,
+        capture_pageleave: true,
+      });
+    } else {
+      console.debug("PostHog disabled in development");
+    }
   }, []);
 
+  // Only render PostHogPageView in production
   return (
     <PHProvider client={posthog}>
-      <PostHogPageView />
+      {process.env.NODE_ENV === "production" && <PostHogPageView />}
       {children}
     </PHProvider>
   );
