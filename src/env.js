@@ -31,10 +31,6 @@ export const env = createEnv({
       process.env.NODE_ENV === "production"
         ? z.string()
         : z.string().optional(),
-    NEXT_PUBLIC_POSTHOG_HOST:
-      process.env.NODE_ENV === "production"
-        ? z.string()
-        : z.string().optional(),
   },
 
   /**
@@ -46,7 +42,6 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
-    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     NODE_ENV: process.env.NODE_ENV,
   },
   /**
