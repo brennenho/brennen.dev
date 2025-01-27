@@ -3,7 +3,7 @@ import { Section } from "~/components";
 
 export function About() {
   return (
-    <div className="w-3/4">
+    <div className="w-full md:w-3/4">
       <Section>
         <div id="scroll-target" className="text-center text-lg">
           I'm a student and software engineer interested in applied AI and

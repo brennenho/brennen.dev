@@ -5,7 +5,7 @@ import experiences from "~/data/experience.json";
 
 export function Experience() {
   return (
-    <div className="mb-16 flex h-full w-3/4 flex-col items-center gap-8 md:flex-row">
+    <div className="mb-16 flex h-full w-full flex-col items-center gap-8 md:w-3/4 md:flex-row">
       <Section className="w-full flex-shrink-0 md:w-1/2">
         <div className="flex flex-col gap-3">
           {Object.entries(experiences).map(([key, data], i, a) => (
