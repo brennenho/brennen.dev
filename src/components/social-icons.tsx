@@ -1,12 +1,9 @@
-import type { VariantProps } from "class-variance-authority";
-import { cva } from "class-variance-authority";
 import Link from "next/link";
 import React from "react";
 import { Icons } from "~/components";
-import { Button } from "~/components/ui";
 import { cn } from "~/lib/utils";
 
-interface SocialIcon {
+export interface SocialIcon {
   name: string;
   icon: React.ElementType;
   href: string;
@@ -30,36 +27,26 @@ const socialIcons: SocialIcon[] = [
   },
 ];
 
-const socialIconVariants = cva("...", {
-  variants: {
-    size: {
-      default: "h-6 w-6",
-      sm: "h-5 w-5",
-    },
-  },
-  defaultVariants: {
-    size: "default",
-  },
-});
+interface SocialIconsProps {
+  className: string;
+}
 
-type SocialIconsProps = VariantProps<typeof socialIconVariants>;
-
-export function SocialIcons({ size }: SocialIconsProps) {
+export function SocialIcons({ className }: SocialIconsProps) {
   return (
     <nav aria-label="social media links">
-      <div className="flex flex-row justify-center gap-2 md:justify-normal">
+      <div className="flex flex-row justify-center gap-8 md:justify-normal">
         {socialIcons.map((socialIcon) => (
-          <Button
-            key={socialIcon.name}
-            variant="ghost"
-            size="xl"
-            className="hover:bg-inherit hover:text-muted-foreground"
+          <Link
+            href={socialIcon.href}
+            target="_blank"
+            rel="noreferrer"
+            key={socialIcon.href}
           >
-            <Link href={socialIcon.href} target="_blank" rel="noreferrer">
-              <socialIcon.icon className={cn(socialIconVariants({ size }))} />
-              <span className="sr-only">{socialIcon.name}</span>
-            </Link>
-          </Button>
+            <socialIcon.icon
+              className={cn("hover:text-muted-foreground", className)}
+            />
+            <span className="sr-only">{socialIcon.name}</span>
+          </Link>
         ))}
       </div>
     </nav>

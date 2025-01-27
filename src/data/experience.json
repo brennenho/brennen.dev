@@ -1,0 +1,26 @@
+{
+  "ctc": {
+    "name": "Code the Change",
+    "title": "Developer",
+    "duration": "Sep. 2024 – Present",
+    "link": "https://ctcusc.com/"
+  },
+  "makers": {
+    "name": "Makers @ USC",
+    "title": "Director of Finance",
+    "duration": "May 2024 – Present",
+    "link": "https://viterbimakers.usc.edu/"
+  },
+  "chipstack": {
+    "name": "Chipstack AI",
+    "title": "Software Engineering Intern",
+    "duration": "May 2024 - Aug. 2024",
+    "link": "https://www.chipstack.ai/"
+  },
+  "rise": {
+    "name": "Boston University RISE",
+    "title": "Research Intern",
+    "duration": "Jul. 2022 - Aug. 2022",
+    "link": "https://www.bu.edu/icas/"
+  }
+}
