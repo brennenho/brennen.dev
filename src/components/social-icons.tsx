@@ -34,7 +34,7 @@ interface SocialIconsProps {
 export function SocialIcons({ className }: SocialIconsProps) {
   return (
     <nav aria-label="social media links">
-      <div className="flex flex-row justify-center gap-4 md:justify-normal">
+      <div className="flex flex-row justify-center gap-8 md:justify-normal">
         {socialIcons.map((socialIcon) => (
           <Link
             href={socialIcon.href}

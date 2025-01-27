@@ -5,8 +5,8 @@ import experiences from "~/data/experience.json";
 
 export function Experience() {
   return (
-    <div className="flex h-full w-3/4 flex-col gap-8 md:flex-row md:items-center">
-      <Section className="w-1/2 flex-shrink-0">
+    <div className="mb-16 flex h-full w-3/4 flex-col items-center gap-8 md:flex-row">
+      <Section className="w-full flex-shrink-0 md:w-1/2">
         <div className="flex flex-col gap-3">
           {Object.entries(experiences).map(([key, data], i, a) => (
             <Link href={data.link} key={key} target="_blank">
@@ -36,7 +36,7 @@ export function Experience() {
           ))}
         </div>
       </Section>
-      <div className="flex flex-1 justify-center p-4 text-lg">
+      <div className="flex flex-1 justify-center p-4 text-center text-lg md:text-left">
         <div>
           <p>
             I am currently building pro-bono software for local non-profits as a
