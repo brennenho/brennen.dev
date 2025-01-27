@@ -1,6 +1,7 @@
 export * from "./footer";
 export * from "./icons";
 export * from "./menu";
+export * from "./section";
 export * from "./social-icons";
 export * from "./spinner";
 export * from "./text-editor";
