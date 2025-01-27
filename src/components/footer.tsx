@@ -3,7 +3,7 @@ import { Icons, SocialIcons } from "~/components";
 
 export function Footer() {
   return (
-    <footer className="flex flex-col items-center justify-center gap-4 border-t border-muted-foreground bg-muted p-4 pb-8 md:gap-6 md:p-8 md:pb-12">
+    <footer className="flex flex-col items-center justify-center gap-4 border-t border-muted-foreground bg-muted p-6 pb-8 md:gap-6 md:p-8 md:pb-12">
       <SocialIcons className="h-4 w-4 md:h-5 md:w-5" />
       <div className="inline-flex items-center gap-3 text-xs md:text-sm">
         <div className="inline-flex items-center gap-1 font-medium">

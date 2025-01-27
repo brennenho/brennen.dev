@@ -27,7 +27,7 @@ export function Hero() {
       </div>
       <ScrollArrow
         targetId="scroll-target"
-        className="absolute bottom-16 left-1/2 -translate-x-1/2"
+        className="absolute bottom-32 left-1/2 -translate-x-1/2 md:bottom-16"
       />
     </div>
   );
