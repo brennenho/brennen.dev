@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import { Icons } from "~/components";
+import socials from "~/data/socials.json";
 import { cn } from "~/lib/utils";
 
 export interface SocialIcon {
@@ -9,23 +10,10 @@ export interface SocialIcon {
   href: string;
 }
 
-const socialIcons: SocialIcon[] = [
-  {
-    name: "email",
-    icon: Icons.email,
-    href: "mailto:web@brennen.dev",
-  },
-  {
-    name: "linkedIn",
-    icon: Icons.linkedIn,
-    href: "https://www.linkedin.com/in/brennenho/",
-  },
-  {
-    name: "gitHub",
-    icon: Icons.gitHub,
-    href: "https://github.com/brennenho",
-  },
-];
+const socialIcons: SocialIcon[] = socials.socials.map((icon) => ({
+  ...icon,
+  icon: Icons[icon.icon as keyof typeof Icons],
+}));
 
 interface SocialIconsProps {
   className: string;

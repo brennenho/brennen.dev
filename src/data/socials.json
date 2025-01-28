@@ -1,0 +1,19 @@
+{
+  "socials": [
+    {
+      "name": "Email",
+      "icon": "email",
+      "href": "mailto:web@brennen.dev"
+    },
+    {
+      "name": "Linked In",
+      "icon": "linkedIn",
+      "href": "https://www.linkedin.com/in/brennenho/"
+    },
+    {
+      "name": "Github",
+      "icon": "gitHub",
+      "href": "https://github.com/brennenho"
+    }
+  ]
+}
