@@ -3,9 +3,9 @@ import { Section } from "~/components";
 
 export function About() {
   return (
-    <div className="w-3/4">
+    <div className="w-full md:w-3/4">
       <Section>
-        <div id="scroll-target" className="text-center text-lg">
+        <div id="scroll-target" className="text-center text-sm md:text-lg">
           I'm a student and software engineer interested in applied AI and
           product development. Currently studying{" "}
           <span className="font-semibold">

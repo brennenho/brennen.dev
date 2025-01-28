@@ -5,15 +5,15 @@ import experiences from "~/data/experience.json";
 
 export function Experience() {
   return (
-    <div className="mb-16 flex h-full w-3/4 flex-col items-center gap-8 md:flex-row">
+    <div className="flex h-full w-full flex-col items-center gap-8 md:mb-16 md:w-3/4 md:flex-row">
       <Section className="w-full flex-shrink-0 md:w-1/2">
         <div className="flex flex-col gap-3">
           {Object.entries(experiences).map(([key, data], i, a) => (
             <Link href={data.link} key={key} target="_blank">
               <div
-                className={`flex w-full flex-row gap-2 ${i !== a.length - 1 ? "border-b border-dashed pb-3" : ""}`}
+                className={`flex w-full flex-row items-center gap-2 ${i !== a.length - 1 ? "border-b border-dashed pb-3" : ""}`}
               >
-                <div className="relative h-10 w-10 overflow-hidden rounded-full border bg-white">
+                <div className="relative h-8 w-8 overflow-hidden rounded-full border bg-white md:h-10 md:w-10">
                   <Image
                     src={`/img/${key}.png`}
                     alt={data.name}
@@ -36,7 +36,7 @@ export function Experience() {
           ))}
         </div>
       </Section>
-      <div className="flex flex-1 justify-center p-4 text-center text-lg md:text-left">
+      <div className="flex flex-1 justify-center p-4 text-center text-sm md:text-left md:text-lg">
         <div>
           <p>
             I am currently building pro-bono software for local non-profits as a

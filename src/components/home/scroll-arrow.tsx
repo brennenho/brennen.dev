@@ -6,13 +6,25 @@ import { cn } from "~/lib/utils";
 interface ScrollArrowProps {
   targetId: string;
   className?: string;
+  offsetHeight?: number;
 }
 
-export function ScrollArrow({ targetId, className }: ScrollArrowProps) {
+export function ScrollArrow({
+  targetId,
+  className,
+  offsetHeight = 0,
+}: ScrollArrowProps) {
   const handleClick = () => {
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
-      targetElement.scrollIntoView({ behavior: "smooth" });
+      const elementPosition = targetElement.getBoundingClientRect().top;
+      const offsetPosition =
+        elementPosition + window.pageYOffset - offsetHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
     }
     posthog.capture("scroll_arrow");
   };
