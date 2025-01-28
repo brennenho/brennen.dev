@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Section } from "~/components";
 import experiences from "~/data/experience.json";
+import { Card, CardContent } from "../ui";
 
 export function Experience() {
   return (
     <div className="flex h-full w-full flex-col items-center gap-8 md:mb-16 md:w-3/4 md:flex-row">
-      <Section className="w-full flex-shrink-0 md:w-1/2">
-        <div className="flex flex-col gap-3">
+      <Card className="w-full flex-shrink-0 md:w-1/2">
+        <CardContent className="flex flex-col gap-3">
           {Object.entries(experiences).map(([key, data], i, a) => (
             <Link href={data.link} key={key} target="_blank">
               <div
@@ -34,8 +34,8 @@ export function Experience() {
               </div>
             </Link>
           ))}
-        </div>
-      </Section>
+        </CardContent>
+      </Card>
       <div className="flex flex-1 justify-center p-4 text-center text-sm md:text-left md:text-lg">
         <div>
           <p>
