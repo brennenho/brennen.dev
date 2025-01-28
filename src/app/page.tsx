@@ -1,4 +1,4 @@
-import { About, Experience, Hero } from "~/components/home";
+import { About, Experience, Hero, Projects } from "~/components/home";
 
 export default function HomePage() {
   return (
@@ -7,6 +7,7 @@ export default function HomePage() {
       <div className="flex flex-col items-center gap-16 p-4 md:p-8">
         <About />
         <Experience />
+        <Projects />
       </div>
     </main>
   );
