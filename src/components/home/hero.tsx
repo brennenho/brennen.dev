@@ -1,7 +1,7 @@
 import ProfilePic from "$/img/bho.jpg";
 import Image from "next/image";
-import { SocialIcons } from "~/components";
-import { ScrollArrow } from "./scroll-arrow";
+import { ScrollArrow } from "~/components/home";
+import { SocialIcons } from "~/components/site";
 
 export function Hero() {
   return (

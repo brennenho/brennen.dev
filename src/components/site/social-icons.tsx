@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React from "react";
-import { Icons } from "~/components";
+import { Icons } from "~/components/icons";
 import socials from "~/data/socials.json";
 import { cn } from "~/lib/utils";
 

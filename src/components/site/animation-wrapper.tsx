@@ -26,7 +26,7 @@ export function AnimationWrapper({
   className,
 }: AnimationWrapperProps) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
 
   return (
     <motion.div

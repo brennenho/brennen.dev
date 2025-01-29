@@ -1,5 +1,5 @@
-import { AnimationWrapper } from "~/components";
 import { About, Experience, Hero, Projects } from "~/components/home";
+import { AnimationWrapper } from "~/components/site";
 
 export default function HomePage() {
   return (

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card, CardContent } from "../ui";
+import { Card, CardContent } from "~/components/ui";
 
 export function About() {
   return (

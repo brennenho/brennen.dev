@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Card, CardContent } from "~/components/ui";
 import experiences from "~/data/experience.json";
-import { Card, CardContent } from "../ui";
 
 export function Experience() {
   return (

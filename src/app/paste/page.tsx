@@ -2,7 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useRef, useState, useTransition } from "react";
-import { Icons, Spinner, TextEditor, type TextEditorRef } from "~/components";
+import { Icons } from "~/components/icons";
+import { Spinner, TextEditor, type TextEditorRef } from "~/components/paste";
 import { Button, Skeleton } from "~/components/ui";
 import { genericError } from "~/lib/errors";
 

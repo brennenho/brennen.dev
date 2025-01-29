@@ -4,7 +4,7 @@ import Link from "next/link";
 import * as React from "react";
 
 import { usePathname } from "next/navigation";
-import { ThemeToggle } from "~/components";
+import { ThemeToggle } from "~/components/site";
 import {
   NavigationMenu,
   NavigationMenuItem,

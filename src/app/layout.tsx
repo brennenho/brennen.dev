@@ -4,7 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import { PostHogProvider } from "~/app/_analytics/providers";
-import { Footer, Menu, ThemeProvider } from "~/components/";
+import { Footer, Menu, ThemeProvider } from "~/components/site";
 import { Toaster } from "~/components/ui";
 
 export const metadata: Metadata = {
