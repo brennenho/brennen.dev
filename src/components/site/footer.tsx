@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Icons, SocialIcons } from "~/components";
+import { Icons } from "~/components/icons";
+import { SocialIcons } from "~/components/site";
 
 export function Footer() {
   return (

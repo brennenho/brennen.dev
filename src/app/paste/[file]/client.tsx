@@ -9,7 +9,7 @@ import {
   solarizedDark,
   solarizedLight,
 } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import { Icons } from "~/components";
+import { Icons } from "~/components/icons";
 import { Button } from "~/components/ui";
 
 type PasteClientProps = {
