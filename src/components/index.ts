@@ -1,3 +1,4 @@
+export * from "./animation-wrapper";
 export * from "./footer";
 export * from "./icons";
 export * from "./menu";
