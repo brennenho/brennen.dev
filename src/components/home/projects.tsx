@@ -1,19 +1,25 @@
 "use client";
 import Autoplay from "embla-carousel-autoplay";
 import * as React from "react";
+import projects from "~/data/projects.json";
 
+import Link from "next/link";
+import { Icons } from "~/components";
 import {
+  Card,
+  CardContent,
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
 } from "~/components/ui";
-import { Card, CardContent } from "~/components/ui/card";
+
+type IconName = keyof typeof Icons;
 
 export function Projects() {
   const plugin = React.useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: true }),
+    Autoplay({ delay: 3000, stopOnInteraction: true }),
   );
 
   return (
@@ -25,20 +31,37 @@ export function Projects() {
         onMouseLeave={plugin.current.reset}
       >
         <CarouselContent>
-          {Array.from({ length: 5 }).map((_, index) => (
-            <CarouselItem key={index} className="basis-1/3">
-              <div className="p-1">
-                <Card>
-                  <CardContent className="flex h-36 items-center justify-center p-6">
-                    <span className="text-4xl font-semibold">{index + 1}</span>
-                  </CardContent>
-                </Card>
-              </div>
-            </CarouselItem>
-          ))}
+          {Object.entries(projects).map(([key, data]) => {
+            const CustomIcon = Icons[data.icon as IconName] ?? Icons.img;
+            return (
+              <CarouselItem key={key} className="md:basis-1/2 lg:basis-1/3">
+                <Link href={data.link} target="_blank">
+                  <div className="p-1">
+                    <Card className="transition-all duration-300 hover:border-foreground/50 hover:shadow-lg">
+                      <CardContent className="flex p-6">
+                        <div className="flex w-full flex-col items-center gap-6 py-4 text-center">
+                          <div className="flex aspect-square h-20 w-20 items-center justify-center rounded-full bg-muted pl-1 text-primary">
+                            <CustomIcon className="h-9 w-9" />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <div className="text-2xl font-semibold">
+                              {data.name}
+                            </div>
+                            <div className="text-sm opacity-70">
+                              {data.description}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </Link>
+              </CarouselItem>
+            );
+          })}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className="lg:hidden" />
+        <CarouselNext className="lg:hidden" />
       </Carousel>
     </div>
   );
