@@ -19,7 +19,7 @@ type IconName = keyof typeof Icons;
 
 export function Projects() {
   const plugin = React.useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: true }),
+    Autoplay({ delay: 4000, stopOnInteraction: true }),
   );
 
   return (
