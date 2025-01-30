@@ -21,6 +21,8 @@ export default async function ShortLinks(props: ShortLinksParams) {
     },
   });
 
+  await posthog.shutdown();
+
   if (!link) {
     redirect("/");
   }
