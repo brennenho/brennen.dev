@@ -14,6 +14,9 @@ const coreConfig = {
     ignoreDuringBuilds: true,
   },
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
+  experimental: {
+    turbo: {},
+  },
 
   async rewrites() {
     return [
