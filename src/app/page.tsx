@@ -1,3 +1,4 @@
+import { Experience } from "@/components/experience";
 import { Heading } from "@/components/typography";
 
 export default function HomePage() {
@@ -29,6 +30,7 @@ export default function HomePage() {
 
         <div className="flex flex-col gap-4">
           <Heading>[experience]</Heading>
+          <Experience />
         </div>
       </div>
     </main>
