@@ -19,7 +19,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={exo_2.className}>
-      <body className="p-4">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
