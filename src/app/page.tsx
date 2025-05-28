@@ -18,7 +18,7 @@ export default function HomePage() {
 
         <div className="flex flex-col gap-4">
           <Heading>[about]</Heading>
-          <div className="flex flex-row items-center gap-4">
+          <div className="flex flex-col items-start gap-4 sm:flex-row">
             <div>
               I study Computer Engineering & Computer Science at the University
               of Southern California, where I&apos;m transforming online
@@ -29,10 +29,7 @@ export default function HomePage() {
               an intern. I&apos;ve previously worked at Chipstack, innovating at
               the intersection of LLMs and semiconductors.
             </div>
-            <div className="flex flex-col gap-1">
-              <div className="font-semibold">I'm currently listening to:</div>
-              <CurrentlyPlaying />
-            </div>
+            <CurrentlyPlaying />
           </div>
         </div>
 

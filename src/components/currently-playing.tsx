@@ -3,10 +3,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCurrentlyPlaying } from "@/lib/spotify";
-import { HeadphoneOff } from "lucide-react";
+import { getCurrentlyPlaying, getRecentlyPlayed } from "@/lib/spotify";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { Badge } from "./ui/badge";
 
 type SpotifyTrack = {
   item: {
@@ -28,17 +28,34 @@ export function CurrentlyPlaying() {
 
   useEffect(() => {
     const fetchCurrentlyPlaying = async () => {
-      const result = await getCurrentlyPlaying();
-      if (typeof result !== "number") {
-        setTrack(result);
+      let next: SpotifyTrack | null = null;
+
+      const current = await getCurrentlyPlaying();
+      if (typeof current !== "number" && current.is_playing) {
+        next = current;
       } else {
-        setTrack(null);
+        const recent = await getRecentlyPlayed(1);
+        if (
+          recent &&
+          typeof recent !== "number" &&
+          recent.items.length > 0 &&
+          recent.items[0]?.track
+        ) {
+          next = {
+            item: recent.items[0].track,
+            is_playing: false,
+            progress_ms: 0,
+          };
+        }
       }
+
+      setTrack(next);
     };
 
-    setInterval(() => {
-      fetchCurrentlyPlaying();
-    }, 1000);
+    fetchCurrentlyPlaying();
+
+    const id = setInterval(fetchCurrentlyPlaying, 1000);
+    return () => clearInterval(id);
   }, []);
 
   const formatTime = (ms: number | undefined) => {
@@ -53,11 +70,17 @@ export function CurrentlyPlaying() {
   }
 
   return (
-    <Card className="w-72 p-4">
-      <CardContent className="flex flex-row items-center gap-4 p-0">
-        <div className="shadow-album flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border">
-          {track ? (
-            track.is_playing ? (
+    <div className="flex w-full flex-col gap-1 sm:w-72">
+      {track?.is_playing ? (
+        <div className="font-semibold">I&apos;m currently playing:</div>
+      ) : (
+        <div className="font-semibold">I most recently played:</div>
+      )}
+
+      <Card className="w-full p-4 sm:w-72">
+        <CardContent className="flex flex-row items-center gap-4 p-0">
+          <div className="shadow-album flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border">
+            {track ? (
               <Image
                 src={
                   track.item.album.images?.sort(
@@ -70,55 +93,65 @@ export function CurrentlyPlaying() {
                 className="object-cover"
               />
             ) : (
-              <HeadphoneOff className="h-6 w-6" />
-            )
-          ) : (
-            <Skeleton className="h-[50px] w-[50px]" />
-          )}
-        </div>
-
-        <div className="flex flex-1 flex-col gap-1">
-          <div className="flex flex-col gap-0.5 leading-none">
-            {track ? (
-              <>
-                <div className="text-sm font-semibold">
-                  {track.is_playing ? track.item.name : "Offline"}
-                </div>
-                <div className="text-xs italic">
-                  {track.is_playing
-                    ? track.item.artists.map((a) => a.name).join(", ")
-                    : "Not currently playing anything"}
-                </div>
-              </>
-            ) : (
-              <>
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </>
+              <Skeleton className="h-[50px] w-[50px]" />
             )}
           </div>
 
-          {track ? (
-            <div className="flex flex-row items-center gap-1 text-xs font-medium">
-              {track.is_playing ? formatTime(track?.progress_ms) : "0:00"}
-
-              <Progress
-                value={
-                  track.is_playing
-                    ? ((track?.progress_ms ?? 0) /
-                        (track?.item.duration_ms ?? 0)) *
-                      100
-                    : 0
-                }
-                className="h-1.5"
-              />
-              {track.is_playing ? formatTime(track?.item.duration_ms) : "0:00"}
+          <div className="flex flex-1 flex-col gap-1">
+            <div className="flex flex-row justify-between">
+              <div className="flex w-full flex-col gap-0.5 leading-none">
+                {track ? (
+                  <>
+                    <div className="line-clamp-2 text-sm font-semibold">
+                      {track?.item.name}
+                    </div>
+                    <div className="line-clamp-1 text-xs italic">
+                      {track?.item.artists.map((a) => a.name).join(", ")}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </>
+                )}
+              </div>
+              {track &&
+                (track.is_playing ? (
+                  <Badge className="bg-primary/20 text-primary flex items-center gap-1.5 self-start">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="bg-primary absolute inline-flex h-full w-full animate-[ping_1.5s_ease-in-out_infinite] rounded-full opacity-75"></span>
+                      <span className="bg-primary relative inline-flex h-1.5 w-1.5 rounded-full"></span>
+                    </span>
+                    live
+                  </Badge>
+                ) : (
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1.5 self-start"
+                  >
+                    offline
+                  </Badge>
+                ))}
             </div>
-          ) : (
-            <Skeleton className="h-4" />
-          )}
-        </div>
-      </CardContent>
-    </Card>
+
+            {track && track.is_playing && (
+              <div className="flex flex-row items-center gap-1 text-xs font-medium">
+                {formatTime(track.progress_ms)}
+
+                <Progress
+                  value={
+                    ((track.progress_ms ?? 0) / (track.item.duration_ms ?? 0)) *
+                    100
+                  }
+                  className="h-1.5"
+                />
+                {formatTime(track.item.duration_ms)}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

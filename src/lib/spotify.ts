@@ -128,6 +128,39 @@ async function getCurrentlyPlayingFetcher(token: string) {
   return playing_data;
 }
 
+const getRecentlyPlayedFetcher = async (token: string, limit: number = 1) => {
+  const recentOptions = {
+    url: "https://api.spotify.com/v1/me/player/recently-played",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  };
+
+  const url = new URL(recentOptions.url);
+  url.searchParams.append("limit", String(limit));
+
+  const response = await fetch(url, {
+    method: "get",
+    headers: recentOptions.headers,
+    next: { revalidate: 60 },
+  });
+
+  if (response.status !== 200) {
+    return response.status;
+  }
+
+  let recent_data = null;
+  console.debug(response.status);
+  const res_data = await response.json();
+  recent_data = recent_schema.parse(res_data);
+
+  return recent_data;
+};
+
 export const getCurrentlyPlaying = callWithTokenRevalidation(
   getCurrentlyPlayingFetcher,
+);
+
+export const getRecentlyPlayed = callWithTokenRevalidation(
+  getRecentlyPlayedFetcher,
 );
