@@ -8,7 +8,7 @@ export default function HomePage() {
       <div className="flex max-w-7xl flex-col gap-16 py-32">
         <div className="flex flex-col gap-2 leading-none">
           <div className="text-[40px] font-bold">
-            Hey, I'm <span className="text-primary">Brennen</span>
+            Hey, I&apos;m <span className="text-primary">Brennen</span>
           </div>
           <div>
             I create intuitive products that simplify, accelerate, and

@@ -52,9 +52,9 @@ export function CurrentlyPlaying() {
       setTrack(next);
     };
 
-    fetchCurrentlyPlaying();
+    void fetchCurrentlyPlaying();
 
-    const id = setInterval(fetchCurrentlyPlaying, 1000);
+    const id = setInterval(() => void fetchCurrentlyPlaying(), 1000);
     return () => clearInterval(id);
   }, []);
 

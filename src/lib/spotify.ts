@@ -73,15 +73,15 @@ async function getAccessToken() {
     headers: authOptions.headers,
     next: { revalidate: 3600, tags: [TOKEN_CACHE_TAG] },
   });
-  const res_data = await response.json();
+  const res_data = (await response.json()) as z.infer<typeof token_schema>;
   const token_data = token_schema.parse(res_data);
 
   return token_data.access_token;
 }
 
-function callWithTokenRevalidation<T, P extends any[]>(
+function callWithTokenRevalidation<T, P extends unknown[]>(
   f: (token: string, ...rest: P) => Promise<T | number>,
-  revalidateCall: boolean = false,
+  revalidateCall = false,
 ) {
   return async (...params: P): Promise<T | number> => {
     const token = await getAccessToken();
@@ -121,14 +121,13 @@ async function getCurrentlyPlayingFetcher(token: string) {
     return response.status;
   }
 
-  let playing_data = null;
-  const res_data = await response.json();
-  playing_data = playing_schema.parse(res_data);
+  const res_data = (await response.json()) as z.infer<typeof playing_schema>;
+  const playing_data = playing_schema.parse(res_data);
 
   return playing_data;
 }
 
-const getRecentlyPlayedFetcher = async (token: string, limit: number = 1) => {
+const getRecentlyPlayedFetcher = async (token: string, limit = 1) => {
   const recentOptions = {
     url: "https://api.spotify.com/v1/me/player/recently-played",
     headers: {
@@ -149,10 +148,9 @@ const getRecentlyPlayedFetcher = async (token: string, limit: number = 1) => {
     return response.status;
   }
 
-  let recent_data = null;
   console.debug(response.status);
-  const res_data = await response.json();
-  recent_data = recent_schema.parse(res_data);
+  const res_data = (await response.json()) as z.infer<typeof recent_schema>;
+  const recent_data = recent_schema.parse(res_data);
 
   return recent_data;
 };
