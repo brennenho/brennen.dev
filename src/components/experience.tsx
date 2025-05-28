@@ -13,7 +13,7 @@ export function Experience() {
             <div
               className={`flex w-full flex-row items-center gap-2 py-2 ${i !== a.length - 1 ? "border-b-2 border-dashed" : ""}`}
             >
-              <div className="relative h-8 w-8 overflow-hidden md:h-10 md:w-10">
+              <div className="relative h-10 w-10 flex-shrink-0">
                 <Image
                   src={`/img/${key}.png`}
                   alt={data.name}
@@ -23,13 +23,23 @@ export function Experience() {
               </div>
 
               <div className="flex w-full flex-row items-center justify-between">
-                <div className="flex flex-row items-center">
-                  <div className="w-48 text-lg font-medium">{data.name}</div>
+                <div className="flex flex-1 flex-col items-start sm:flex-row sm:items-center">
+                  <div className="flex w-full flex-row justify-between sm:w-fit">
+                    <div className="text-lg font-medium sm:w-48">
+                      {data.name}
+                    </div>
+
+                    <div className="text-muted-foreground flex flex-row items-center gap-1 text-sm italic sm:hidden">
+                      {data.start} <ArrowRight className="h-4 w-4" /> {data.end}
+                    </div>
+                  </div>
+
                   <div className="text-muted-foreground text-sm italic">
                     {data.title}
                   </div>
                 </div>
-                <div className="text-muted-foreground flex flex-row items-center gap-1 text-sm italic">
+
+                <div className="text-muted-foreground hidden flex-row items-center gap-1 text-sm italic sm:flex">
                   {data.start} <ArrowRight className="h-4 w-4" /> {data.end}
                 </div>
               </div>

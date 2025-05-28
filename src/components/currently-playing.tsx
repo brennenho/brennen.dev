@@ -102,11 +102,29 @@ export function CurrentlyPlaying() {
               <div className="flex w-full flex-col gap-0.5 leading-none">
                 {track ? (
                   <>
-                    <div className="line-clamp-2 text-sm font-semibold">
-                      {track?.item.name}
+                    <div className="flex flex-row items-center justify-between">
+                      <div className="line-clamp-2 text-sm font-semibold">
+                        {track.item.name}
+                      </div>
+                      {track.is_playing ? (
+                        <Badge className="bg-primary/20 text-primary flex items-center gap-1.5 self-start">
+                          <span className="relative flex h-1.5 w-1.5">
+                            <span className="bg-primary absolute inline-flex h-full w-full animate-[ping_1.5s_ease-in-out_infinite] rounded-full opacity-75"></span>
+                            <span className="bg-primary relative inline-flex h-1.5 w-1.5 rounded-full"></span>
+                          </span>
+                          live
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="secondary"
+                          className="flex items-center gap-1.5 self-start"
+                        >
+                          offline
+                        </Badge>
+                      )}
                     </div>
                     <div className="line-clamp-1 text-xs italic">
-                      {track?.item.artists.map((a) => a.name).join(", ")}
+                      {track.item.artists.map((a) => a.name).join(", ")}
                     </div>
                   </>
                 ) : (
@@ -116,23 +134,6 @@ export function CurrentlyPlaying() {
                   </>
                 )}
               </div>
-              {track &&
-                (track.is_playing ? (
-                  <Badge className="bg-primary/20 text-primary flex items-center gap-1.5 self-start">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="bg-primary absolute inline-flex h-full w-full animate-[ping_1.5s_ease-in-out_infinite] rounded-full opacity-75"></span>
-                      <span className="bg-primary relative inline-flex h-1.5 w-1.5 rounded-full"></span>
-                    </span>
-                    live
-                  </Badge>
-                ) : (
-                  <Badge
-                    variant="secondary"
-                    className="flex items-center gap-1.5 self-start"
-                  >
-                    offline
-                  </Badge>
-                ))}
             </div>
 
             {track && track.is_playing && (
