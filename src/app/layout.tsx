@@ -1,3 +1,4 @@
+import { Footer } from "@/components/footer";
 import "@/styles/globals.css";
 
 import { type Metadata } from "next";
@@ -19,7 +20,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={exo_2.className}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }
