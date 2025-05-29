@@ -1,10 +1,11 @@
 import { HeartIcon } from "@/components/icons";
+import { ScrollAnimation } from "@/components/scroll-animation";
 import { SocialIcons } from "@/components/social-icons";
 
 export function Footer() {
   return (
     <footer className="flex w-full flex-row justify-center p-8">
-      <div className="flex w-full max-w-7xl flex-row items-end justify-between gap-4">
+      <ScrollAnimation className="flex w-full max-w-7xl flex-row items-end justify-between gap-4">
         <SocialIcons />
         <div className="flex flex-col text-right leading-none">
           <div className="font-semibold">
@@ -16,7 +17,7 @@ export function Footer() {
             in California
           </div>
         </div>
-      </div>
+      </ScrollAnimation>
     </footer>
   );
 }

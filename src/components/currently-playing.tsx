@@ -1,11 +1,12 @@
 "use client";
 
+import { ScrollAnimation } from "@/components/scroll-animation";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Badge } from "./ui/badge";
 
 type SpotifyTrack = {
   item: {
@@ -101,89 +102,92 @@ export function CurrentlyPlaying() {
   }
 
   return (
-    <div ref={containerRef} className="flex w-full flex-col gap-1 sm:w-72">
-      {track?.is_playing ? (
-        <div className="font-semibold">I&apos;m currently playing:</div>
-      ) : (
-        <div className="font-semibold">I most recently played:</div>
-      )}
+    <ScrollAnimation className="flex w-full flex-col sm:w-72">
+      <div ref={containerRef} className="flex flex-col gap-1">
+        {track?.is_playing ? (
+          <div className="font-semibold">I&apos;m currently playing:</div>
+        ) : (
+          <div className="font-semibold">I most recently played:</div>
+        )}
 
-      <Card className="w-full p-4 sm:w-72">
-        <CardContent className="flex flex-row items-center gap-4 p-0">
-          <div className="shadow-album flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border">
-            {track ? (
-              <Image
-                src={
-                  track.item.album.images?.sort(
-                    (album1, album2) => album2.width - album1.width,
-                  )[0]?.url ?? ""
-                }
-                alt="Cover"
-                width={50}
-                height={50}
-                className="object-cover"
-              />
-            ) : (
-              <Skeleton className="h-[50px] w-[50px]" />
-            )}
-          </div>
-
-          <div className="flex flex-1 flex-col gap-1">
-            <div className="flex flex-row justify-between">
-              <div className="flex w-full flex-col gap-0.5 leading-none">
-                {track ? (
-                  <>
-                    <div className="flex flex-row items-center justify-between">
-                      <div className="line-clamp-2 text-sm font-semibold">
-                        {track.item.name}
-                      </div>
-                      {track.is_playing ? (
-                        <Badge className="bg-primary/20 text-primary flex items-center gap-1.5 self-start">
-                          <span className="relative flex h-1.5 w-1.5">
-                            <span className="bg-primary absolute inline-flex h-full w-full animate-[ping_1.5s_ease-in-out_infinite] rounded-full opacity-75"></span>
-                            <span className="bg-primary relative inline-flex h-1.5 w-1.5 rounded-full"></span>
-                          </span>
-                          live
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="secondary"
-                          className="flex items-center gap-1.5 self-start"
-                        >
-                          offline
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="line-clamp-1 text-xs italic">
-                      {track.item.artists.map((a) => a.name).join(", ")}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </>
-                )}
-              </div>
+        <Card className="w-full p-4 sm:w-72">
+          <CardContent className="flex flex-row items-center gap-4 p-0">
+            <div className="shadow-album flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border">
+              {track ? (
+                <Image
+                  src={
+                    track.item.album.images?.sort(
+                      (album1, album2) => album2.width - album1.width,
+                    )[0]?.url ?? ""
+                  }
+                  alt="Cover"
+                  width={50}
+                  height={50}
+                  className="object-cover"
+                />
+              ) : (
+                <Skeleton className="h-[50px] w-[50px]" />
+              )}
             </div>
 
-            {track && track.is_playing && (
-              <div className="flex flex-row items-center gap-1 text-xs font-medium">
-                {formatTime(track.progress_ms)}
-
-                <Progress
-                  value={
-                    ((track.progress_ms ?? 0) / (track.item.duration_ms ?? 0)) *
-                    100
-                  }
-                  className="h-1.5"
-                />
-                {formatTime(track.item.duration_ms)}
+            <div className="flex flex-1 flex-col gap-1">
+              <div className="flex flex-row justify-between">
+                <div className="flex w-full flex-col gap-0.5 leading-none">
+                  {track ? (
+                    <>
+                      <div className="flex flex-row items-center justify-between">
+                        <div className="line-clamp-2 text-sm font-semibold">
+                          {track.item.name}
+                        </div>
+                        {track.is_playing ? (
+                          <Badge className="bg-primary/20 text-primary flex items-center gap-1.5 self-start">
+                            <span className="relative flex h-1.5 w-1.5">
+                              <span className="bg-primary absolute inline-flex h-full w-full animate-[ping_1.5s_ease-in-out_infinite] rounded-full opacity-75"></span>
+                              <span className="bg-primary relative inline-flex h-1.5 w-1.5 rounded-full"></span>
+                            </span>
+                            live
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="secondary"
+                            className="flex items-center gap-1.5 self-start"
+                          >
+                            offline
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="line-clamp-1 text-xs italic">
+                        {track.item.artists.map((a) => a.name).join(", ")}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Skeleton className="h-5 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+
+              {track && track.is_playing && (
+                <div className="flex flex-row items-center gap-1 text-xs font-medium">
+                  {formatTime(track.progress_ms)}
+
+                  <Progress
+                    value={
+                      ((track.progress_ms ?? 0) /
+                        (track.item.duration_ms ?? 0)) *
+                      100
+                    }
+                    className="h-1.5"
+                  />
+                  {formatTime(track.item.duration_ms)}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </ScrollAnimation>
   );
 }

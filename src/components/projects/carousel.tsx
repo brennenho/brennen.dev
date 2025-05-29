@@ -1,6 +1,8 @@
 "use client";
 
+import { ProjectCard } from "@/components/projects/card";
 import type { Project } from "@/components/projects/map";
+import { ScrollAnimation } from "@/components/scroll-animation";
 import type { CarouselApi } from "@/components/ui/carousel";
 import {
   Carousel,
@@ -9,7 +11,6 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ProjectCard } from "./card";
 
 interface ProjectCarouselProps {
   projects: Project[];
@@ -49,7 +50,7 @@ export function ProjectCarousel({ projects }: ProjectCarouselProps) {
   );
 
   return (
-    <div className="flex w-full flex-col gap-1 lg:hidden">
+    <ScrollAnimation className="flex w-full flex-col gap-1 lg:hidden">
       <Carousel
         setApi={setApi}
         plugins={[plugin.current]}
@@ -87,6 +88,6 @@ export function ProjectCarousel({ projects }: ProjectCarouselProps) {
           ))}
         </div>
       )}
-    </div>
+    </ScrollAnimation>
   );
 }

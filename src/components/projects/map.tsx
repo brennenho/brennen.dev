@@ -3,7 +3,12 @@
 import { PeaceIcon, PostItIcon, ShipIt, VectorIcon } from "@/components/icons";
 import { ProjectCard } from "@/components/projects/card";
 import { ProjectCarousel } from "@/components/projects/carousel";
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { Mic } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -29,14 +34,25 @@ type ParsedLine = {
 export function Projects() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [parsedLines, setParsedLines] = useState<ParsedLine[]>([]);
+  const [hasAnimated, setHasAnimated] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
   });
 
-  const linePhase = useTransform(scrollYProgress, [0.15, 0.4], [0, 1]);
-  const cardOpacity = useTransform(scrollYProgress, [0.35, 0.45], [0, 1]);
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (latest >= 0.4 && !hasAnimated) {
+      setHasAnimated(true);
+    }
+  });
+
+  const linePhase = useTransform(scrollYProgress, [0.15, 0.4], [0, 1], {
+    clamp: true,
+  });
+  const cardOpacity = useTransform(scrollYProgress, [0.35, 0.45], [0, 1], {
+    clamp: true,
+  });
 
   const projects: Project[] = [
     {
@@ -146,7 +162,7 @@ export function Projects() {
               style={{ overflow: "visible" }}
             >
               <motion.path
-                style={{ pathLength: linePhase }}
+                style={{ pathLength: hasAnimated ? 1 : linePhase }}
                 d={line.d}
                 stroke={line.stroke}
                 strokeWidth={line.strokeWidth}
@@ -161,7 +177,7 @@ export function Projects() {
               <motion.div
                 key={idx}
                 className={`absolute ${getProjectPosition(idx)}`}
-                style={{ opacity: cardOpacity }}
+                style={{ opacity: hasAnimated ? 1 : cardOpacity }}
               >
                 <ProjectCard {...proj} />
               </motion.div>
