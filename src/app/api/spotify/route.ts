@@ -1,4 +1,7 @@
-import { getCurrentlyPlaying, getRecentlyPlayed } from "@/lib/spotify";
+import {
+  getCurrentlyPlaying,
+  getRecentlyPlayed,
+} from "@/app/api/spotify/player";
 import { NextResponse } from "next/server";
 
 export async function GET() {

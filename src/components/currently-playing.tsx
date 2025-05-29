@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "./ui/badge";
 
 type SpotifyTrack = {
@@ -24,6 +24,43 @@ type SpotifyTrack = {
 
 export function CurrentlyPlaying() {
   const [track, setTrack] = useState<SpotifyTrack | null>(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsVisible(!document.hidden);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) {
+          setIsVisible(entry.isIntersecting && !document.hidden);
+        }
+      },
+      {
+        threshold: 0.1,
+      },
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const fetchCurrentlyPlaying = async () => {
@@ -43,9 +80,13 @@ export function CurrentlyPlaying() {
 
     void fetchCurrentlyPlaying();
 
-    const id = setInterval(() => void fetchCurrentlyPlaying(), 1000);
+    const id = setInterval(() => {
+      if (isVisible) {
+        void fetchCurrentlyPlaying();
+      }
+    }, 2000);
     return () => clearInterval(id);
-  }, []);
+  }, [isVisible]);
 
   const formatTime = (ms: number | undefined) => {
     if (!ms) return "0:00";
@@ -59,7 +100,7 @@ export function CurrentlyPlaying() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-1 sm:w-72">
+    <div ref={containerRef} className="flex w-full flex-col gap-1 sm:w-72">
       {track?.is_playing ? (
         <div className="font-semibold">I&apos;m currently playing:</div>
       ) : (
