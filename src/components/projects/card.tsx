@@ -16,7 +16,7 @@ export function ProjectCard({
 }: ProjectCardProps) {
   return (
     <Link href={link} target="_blank">
-      <Card className="w-full p-4 lg:w-64">
+      <Card className="w-full p-4 transition-all duration-300 lg:w-64 lg:hover:-translate-y-1 lg:hover:scale-105 lg:hover:-rotate-2">
         <CardContent className="flex flex-col items-center gap-2 p-0">
           <div className="bg-primary/20 text-primary flex aspect-square h-10 w-10 flex-col items-center justify-center rounded-full">
             {icon}

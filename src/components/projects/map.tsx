@@ -1,20 +1,12 @@
+"use client";
+
 import { PeaceIcon, PostItIcon, ShipIt, VectorIcon } from "@/components/icons";
 import { ProjectCard } from "@/components/projects/card";
+import { ProjectCarousel } from "@/components/projects/carousel";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Mic } from "lucide-react";
-import { ProjectCarousel } from "./carousel";
-
-interface ConnectionLineProps {
-  svg: string;
-  className?: string;
-}
-
-function ConnectionLine({ svg, className }: ConnectionLineProps) {
-  return (
-    <div className={className}>
-      <div dangerouslySetInnerHTML={{ __html: svg }} />
-    </div>
-  );
-}
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 export interface Project {
   icon: React.ReactNode;
@@ -23,7 +15,29 @@ export interface Project {
   link: string;
 }
 
+type ParsedLine = {
+  viewBox: string;
+  width: string;
+  height: string;
+  d: string;
+  stroke: string;
+  strokeWidth: string;
+  strokeDasharray: string;
+  className: string;
+};
+
 export function Projects() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [parsedLines, setParsedLines] = useState<ParsedLine[]>([]);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const linePhase = useTransform(scrollYProgress, [0.15, 0.4], [0, 1]);
+  const cardOpacity = useTransform(scrollYProgress, [0.35, 0.45], [0, 1]);
+
   const projects: Project[] = [
     {
       icon: <VectorIcon className="h-4 w-4 pl-[1px]" />,
@@ -79,30 +93,82 @@ export function Projects() {
     },
   ];
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const parsed = connectionLines
+      .map(({ svg, className }) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(svg, "image/svg+xml");
+        const svgElement = doc.querySelector("svg");
+        const pathElement = doc.querySelector("path");
+
+        if (!svgElement || !pathElement) return null;
+
+        return {
+          viewBox: svgElement.getAttribute("viewBox") || "0 0 100 100",
+          width: svgElement.getAttribute("width") || "100",
+          height: svgElement.getAttribute("height") || "100",
+          d: pathElement.getAttribute("d") || "",
+          stroke: pathElement.getAttribute("stroke") || "#000",
+          strokeWidth: pathElement.getAttribute("stroke-width") || "1",
+          strokeDasharray:
+            pathElement.getAttribute("stroke-dasharray") || "none",
+          className,
+        };
+      })
+      .filter((line): line is ParsedLine => line !== null);
+
+    setParsedLines(parsed);
+  }, []);
+
   return (
     <>
-      <div className="relative hidden w-full flex-col items-center lg:flex">
+      <motion.div
+        ref={containerRef}
+        className="relative hidden w-full flex-col items-center lg:flex"
+      >
         <div className="relative h-[555px] w-[1030px] max-md:flex max-md:h-auto max-md:w-full max-md:flex-col max-md:items-center max-md:gap-5">
-          <div className="absolute top-[32px] left-[424px]">
-            <ShipIt />
-          </div>
+          <Link href="https://github.com/brennenho" target="_blank">
+            <div className="absolute top-[32px] left-[424px] transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:-rotate-2">
+              <ShipIt />
+            </div>
+          </Link>
+
+          {parsedLines.map((line, i) => (
+            <motion.svg
+              key={i}
+              className={line.className}
+              viewBox={line.viewBox}
+              width={line.width}
+              height={line.height}
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ overflow: "visible" }}
+            >
+              <motion.path
+                style={{ pathLength: linePhase }}
+                d={line.d}
+                stroke={line.stroke}
+                strokeWidth={line.strokeWidth}
+                strokeDasharray={line.strokeDasharray}
+                fill="none"
+              />
+            </motion.svg>
+          ))}
 
           <div className="relative">
-            {projects.map((project, index) => (
-              <div
-                key={index}
-                className={`absolute ${getProjectPosition(index)}`}
+            {projects.map((proj, idx) => (
+              <motion.div
+                key={idx}
+                className={`absolute ${getProjectPosition(idx)}`}
+                style={{ opacity: cardOpacity }}
               >
-                <ProjectCard {...project} />
-              </div>
+                <ProjectCard {...proj} />
+              </motion.div>
             ))}
           </div>
-
-          {connectionLines.map((line, index) => (
-            <ConnectionLine key={index} {...line} />
-          ))}
         </div>
-      </div>
+      </motion.div>
 
       <ProjectCarousel projects={projects} />
     </>
