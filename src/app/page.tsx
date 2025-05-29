@@ -1,5 +1,6 @@
 import { CurrentlyPlaying } from "@/components/currently-playing";
 import { Experience } from "@/components/experience";
+import { Projects } from "@/components/projects/map";
 import { Heading } from "@/components/typography";
 
 export default function HomePage() {
@@ -18,7 +19,7 @@ export default function HomePage() {
 
         <div className="flex flex-col gap-4">
           <Heading>[about]</Heading>
-          <div className="flex flex-col items-start gap-4 sm:flex-row">
+          <div className="flex flex-col items-start gap-8 sm:flex-row">
             <div>
               I study Computer Engineering & Computer Science at the University
               of Southern California, where I&apos;m transforming online
@@ -36,6 +37,11 @@ export default function HomePage() {
         <div className="flex flex-col gap-4">
           <Heading>[experience]</Heading>
           <Experience />
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <Heading>[projects]</Heading>
+          <Projects />
         </div>
       </div>
     </main>

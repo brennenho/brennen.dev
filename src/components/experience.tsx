@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import experiences from "@/data/experience.json";
+import experiences from "@/content/experience.json";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

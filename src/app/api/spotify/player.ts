@@ -148,7 +148,6 @@ const getRecentlyPlayedFetcher = async (token: string, limit = 1) => {
     return response.status;
   }
 
-  console.debug(response.status);
   const res_data = (await response.json()) as z.infer<typeof recent_schema>;
   const recent_data = recent_schema.parse(res_data);
 
