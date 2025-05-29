@@ -116,5 +116,5 @@ function getProjectPosition(index: number): string {
     "left-[565px] top-[378px]",
     "left-[770px] top-[41px]",
   ];
-  return positions[index] || "";
+  return positions[index] ?? "";
 }

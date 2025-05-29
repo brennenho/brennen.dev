@@ -28,7 +28,7 @@ export async function GET() {
     }
 
     return NextResponse.json({ error: "No tracks found" }, { status: 404 });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

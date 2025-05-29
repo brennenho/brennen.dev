@@ -51,13 +51,14 @@ export function CurrentlyPlaying() {
       },
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    const currentRef = containerRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
     return () => {
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
+      if (currentRef) {
+        observer.unobserve(currentRef);
       }
     };
   }, []);
@@ -70,7 +71,7 @@ export function CurrentlyPlaying() {
           setTrack(null);
           return;
         }
-        const data = await response.json();
+        const data = (await response.json()) as SpotifyTrack;
         setTrack(data);
       } catch (error) {
         console.error("Failed to fetch Spotify data:", error);
