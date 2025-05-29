@@ -31,6 +31,61 @@ type ParsedLine = {
   className: string;
 };
 
+const projects: Project[] = [
+  {
+    icon: <VectorIcon className="h-4 w-4 pl-[1px]" />,
+    title: "Vector",
+    description: "AI co-pilot for instant in-app support",
+    link: "https://usevector.app",
+  },
+  {
+    icon: <Mic className="h-5 w-5" />,
+    title: "Delphi",
+    description: "Voice-driven browsing for the visually impaired",
+    link: "https://github.com/brennenho/delphi",
+  },
+  {
+    icon: <PostItIcon className="h-5 w-5 pt-[1px] pl-0.5" />,
+    title: "Post-It",
+    description: "An extensible pretraining framework for ML training",
+    link: "https://github.com/brennenho/post-it",
+  },
+  {
+    icon: <PeaceIcon className="h-5 w-5 pl-0.5" />,
+    title: "Conquest",
+    description:
+      "A Chrome extension to help USC students with course registration",
+    link: "https://github.com/brennenho/conquest",
+  },
+];
+
+const connectionLines = [
+  {
+    svg: `<svg width="146" height="231" viewBox="0 0 146 231" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M144.5 0V160.5H1.5V231" stroke="#059669" stroke-width="3" stroke-dasharray="6 6"></path>
+    </svg>`,
+    className: "absolute flex-shrink-0 left-[303px] top-[170px]",
+  },
+  {
+    svg: `<svg width="298" height="99" viewBox="0 0 298 99" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M298 1.5H1.5V99" stroke="#059669" stroke-width="3" stroke-dasharray="6 6"></path>
+    </svg>`,
+    className: "absolute flex-shrink-0 left-[125px] top-[87px]",
+  },
+  {
+    svg: `<svg width="114" height="207" viewBox="0 0 114 207" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 0V89H112.5V206.5" stroke="#059669" stroke-width="3" stroke-dasharray="6 6"></path>
+    </svg>`,
+    className: "absolute flex-shrink-0 left-[579px] top-[171px]",
+  },
+  {
+    svg: `<svg width="148" height="3" viewBox="0 0 148 3" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0.5 1.5H147.5" stroke="#059669" stroke-width="3" stroke-dasharray="6 6"></path>
+    </svg>`,
+    className: "absolute flex-shrink-0 left-[623px] top-[114px]",
+  },
+];
+
 export function Projects() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [parsedLines, setParsedLines] = useState<ParsedLine[]>([]);
@@ -54,61 +109,6 @@ export function Projects() {
     clamp: true,
   });
 
-  const projects: Project[] = [
-    {
-      icon: <VectorIcon className="h-4 w-4 pl-[1px]" />,
-      title: "Vector",
-      description: "AI co-pilot for instant in-app support",
-      link: "https://usevector.app",
-    },
-    {
-      icon: <Mic className="h-5 w-5" />,
-      title: "Delphi",
-      description: "Voice-driven browsing for the visually impaired",
-      link: "https://github.com/brennenho/delphi",
-    },
-    {
-      icon: <PostItIcon className="h-5 w-5 pt-[1px] pl-0.5" />,
-      title: "Post-It",
-      description: "An extensible pretraining framework for ML training",
-      link: "https://github.com/brennenho/post-it",
-    },
-    {
-      icon: <PeaceIcon className="h-5 w-5 pl-0.5" />,
-      title: "Conquest",
-      description:
-        "A Chrome extension to help USC students with course registration",
-      link: "https://github.com/brennenho/conquest",
-    },
-  ];
-
-  const connectionLines = [
-    {
-      svg: `<svg width="146" height="231" viewBox="0 0 146 231" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M144.5 0V160.5H1.5V231" stroke="#059669" stroke-width="3" stroke-dasharray="6 6"></path>
-      </svg>`,
-      className: "absolute flex-shrink-0 left-[303px] top-[170px]",
-    },
-    {
-      svg: `<svg width="298" height="99" viewBox="0 0 298 99" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M298 1.5H1.5V99" stroke="#059669" stroke-width="3" stroke-dasharray="6 6"></path>
-      </svg>`,
-      className: "absolute flex-shrink-0 left-[125px] top-[87px]",
-    },
-    {
-      svg: `<svg width="114" height="207" viewBox="0 0 114 207" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2 0V89H112.5V206.5" stroke="#059669" stroke-width="3" stroke-dasharray="6 6"></path>
-      </svg>`,
-      className: "absolute flex-shrink-0 left-[579px] top-[171px]",
-    },
-    {
-      svg: `<svg width="148" height="3" viewBox="0 0 148 3" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0.5 1.5H147.5" stroke="#059669" stroke-width="3" stroke-dasharray="6 6"></path>
-      </svg>`,
-      className: "absolute flex-shrink-0 left-[623px] top-[114px]",
-    },
-  ];
-
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -122,14 +122,14 @@ export function Projects() {
         if (!svgElement || !pathElement) return null;
 
         return {
-          viewBox: svgElement.getAttribute("viewBox") || "0 0 100 100",
-          width: svgElement.getAttribute("width") || "100",
-          height: svgElement.getAttribute("height") || "100",
-          d: pathElement.getAttribute("d") || "",
-          stroke: pathElement.getAttribute("stroke") || "#000",
-          strokeWidth: pathElement.getAttribute("stroke-width") || "1",
+          viewBox: svgElement.getAttribute("viewBox") ?? "0 0 100 100",
+          width: svgElement.getAttribute("width") ?? "100",
+          height: svgElement.getAttribute("height") ?? "100",
+          d: pathElement.getAttribute("d") ?? "",
+          stroke: pathElement.getAttribute("stroke") ?? "#000",
+          strokeWidth: pathElement.getAttribute("stroke-width") ?? "1",
           strokeDasharray:
-            pathElement.getAttribute("stroke-dasharray") || "none",
+            pathElement.getAttribute("stroke-dasharray") ?? "none",
           className,
         };
       })
