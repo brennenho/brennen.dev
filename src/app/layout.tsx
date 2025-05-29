@@ -1,6 +1,7 @@
 import { Footer } from "@/components/footer";
 import "@/styles/globals.css";
 
+import { PostHogProvider } from "@/components/analytics/providers";
 import { type Metadata } from "next";
 import { Exo_2 } from "next/font/google";
 
@@ -21,8 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={exo_2.className}>
       <body>
-        {children}
-        <Footer />
+        <PostHogProvider>
+          {children}
+          <Footer />
+        </PostHogProvider>
       </body>
     </html>
   );
