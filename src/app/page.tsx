@@ -6,7 +6,7 @@ import { Heading } from "@/components/typography";
 export default function HomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center px-8 py-4">
-      <div className="flex max-w-7xl flex-col gap-16 py-32">
+      <div className="flex w-full max-w-7xl flex-col gap-16 py-32">
         <div className="flex flex-col gap-2 leading-none">
           <div className="text-[40px] font-bold">
             Hey, I&apos;m <span className="text-primary">Brennen</span>

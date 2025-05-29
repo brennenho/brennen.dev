@@ -26,12 +26,19 @@ export function ProjectCarousel({ projects }: ProjectCarouselProps) {
       return;
     }
 
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
-
-    api.on("select", () => {
+    const updateCarouselState = () => {
+      setCount(api.scrollSnapList().length);
       setCurrent(api.selectedScrollSnap() + 1);
-    });
+    };
+
+    updateCarouselState();
+    api.on("select", updateCarouselState);
+
+    window.addEventListener("resize", updateCarouselState);
+
+    return () => {
+      window.removeEventListener("resize", updateCarouselState);
+    };
   }, [api]);
 
   const scrollTo = useCallback(
@@ -42,7 +49,7 @@ export function ProjectCarousel({ projects }: ProjectCarouselProps) {
   );
 
   return (
-    <div className="flex w-full flex-col gap-2">
+    <div className="flex w-full flex-col gap-1 lg:hidden">
       <Carousel
         setApi={setApi}
         plugins={[plugin.current]}
@@ -55,7 +62,7 @@ export function ProjectCarousel({ projects }: ProjectCarouselProps) {
             return (
               <CarouselItem
                 key={key}
-                className="basis-full pr-2 pb-2 md:basis-1/2 lg:basis-1/4"
+                className="basis-full pr-2 pb-2 md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
               >
                 <ProjectCard {...data} />
               </CarouselItem>
@@ -64,20 +71,22 @@ export function ProjectCarousel({ projects }: ProjectCarouselProps) {
         </CarouselContent>
       </Carousel>
 
-      <div className="flex justify-center space-x-2">
-        {Array.from({ length: count }, (_, index) => (
-          <button
-            key={index}
-            className={`h-2 w-2 cursor-pointer rounded-full transition-colors ${
-              index + 1 === current
-                ? "bg-primary"
-                : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-            }`}
-            onClick={() => scrollTo(index)}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div>
+      {count > 1 && (
+        <div className="flex justify-center space-x-2">
+          {Array.from({ length: count }, (_, index) => (
+            <button
+              key={index}
+              className={`h-2 w-2 cursor-pointer rounded-full transition-colors ${
+                index + 1 === current
+                  ? "bg-primary"
+                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+              }`}
+              onClick={() => scrollTo(index)}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
