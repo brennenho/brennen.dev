@@ -1,7 +1,8 @@
 import { Footer } from "@/components/footer";
 import "@/styles/globals.css";
 
-import { PostHogProvider } from "@/components/analytics/providers";
+import { PostHogProvider } from "@/components/analytics";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
 import { Exo_2 } from "next/font/google";
 
@@ -26,6 +27,7 @@ export default function RootLayout({
           {children}
           <Footer />
         </PostHogProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
