@@ -3,7 +3,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCurrentlyPlaying, getRecentlyPlayed } from "@/lib/spotify";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Badge } from "./ui/badge";
@@ -28,28 +27,18 @@ export function CurrentlyPlaying() {
 
   useEffect(() => {
     const fetchCurrentlyPlaying = async () => {
-      let next: SpotifyTrack | null = null;
-
-      const current = await getCurrentlyPlaying();
-      if (typeof current !== "number" && current.is_playing) {
-        next = current;
-      } else {
-        const recent = await getRecentlyPlayed(1);
-        if (
-          recent &&
-          typeof recent !== "number" &&
-          recent.items.length > 0 &&
-          recent.items[0]?.track
-        ) {
-          next = {
-            item: recent.items[0].track,
-            is_playing: false,
-            progress_ms: 0,
-          };
+      try {
+        const response = await fetch("/api/spotify");
+        if (!response.ok) {
+          setTrack(null);
+          return;
         }
+        const data = await response.json();
+        setTrack(data);
+      } catch (error) {
+        console.error("Failed to fetch Spotify data:", error);
+        setTrack(null);
       }
-
-      setTrack(next);
     };
 
     void fetchCurrentlyPlaying();

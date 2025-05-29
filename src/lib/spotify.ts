@@ -1,4 +1,4 @@
-"use server";
+"server-only";
 
 import { revalidateTag } from "next/cache";
 import { z } from "zod";
