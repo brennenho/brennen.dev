@@ -7,6 +7,12 @@ type ShortLinksParams = {
     id: string;
   }>;
 };
+
+interface Link {
+  short: string;
+  url: string;
+}
+
 export default async function ShortLinks(props: ShortLinksParams) {
   const params = await props.params;
   const { id } = params;
@@ -14,7 +20,7 @@ export default async function ShortLinks(props: ShortLinksParams) {
     .from("links")
     .select("*")
     .eq("short", id)
-    .single();
+    .single<Link>();
 
   if (!link) {
     redirect("/");
