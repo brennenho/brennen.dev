@@ -1,0 +1,37 @@
+{
+  "bloomberg": {
+    "name": "Bloomberg",
+    "title": "Software Engineering Intern",
+    "start": "Jun 2025",
+    "end": "Aug 2025",
+    "link": "https://www.bloomberg.com/"
+  },
+  "lavalab": {
+    "name": "LavaLab",
+    "title": "Technical Co-founder",
+    "start": "Feb 2025",
+    "end": "Present",
+    "link": "https://usclavalab.org/"
+  },
+  "ctc": {
+    "name": "Code the Change",
+    "title": "VP of Product, Developer",
+    "start": "Sep 2024",
+    "end": "Present",
+    "link": "https://ctcusc.com/"
+  },
+  "makers": {
+    "name": "Makers",
+    "title": "Director of Finance (2024-2025), Member",
+    "start": "Sep 2023",
+    "end": "Present",
+    "link": "https://viterbimakers.usc.edu/"
+  },
+  "chipstack": {
+    "name": "Chipstack",
+    "title": "Software Engineering Intern",
+    "start": "May 2024",
+    "end": "Aug 2024",
+    "link": "https://www.chipstack.ai/"
+  }
+}

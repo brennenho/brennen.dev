@@ -1,42 +1,31 @@
-import "~/styles/globals.css";
+import { Footer } from "@/components/footer";
+import "@/styles/globals.css";
 
+import { PostHogProvider } from "@/components/analytics";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
-import { Open_Sans } from "next/font/google";
-import { PostHogProvider } from "~/components/analytics/providers";
-import { Footer, Menu, ThemeProvider } from "~/components/site";
-import { Toaster } from "~/components/ui";
+import { Exo_2 } from "next/font/google";
 
 export const metadata: Metadata = {
   title: "Brennen Ho",
-  description: "Impact-driven engineer excited about responsible AI.",
+  description:
+    "I create intuitive products that simplify, accelerate, and personalize — with an emphasis on applied AI.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const openSans = Open_Sans({
+const exo_2 = Exo_2({
   subsets: ["latin"],
 });
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const links = [{ url: "/", label: "about" }];
-
   return (
-    <html lang="en" className={openSans.className} suppressHydrationWarning>
-      <body className="flex min-h-screen flex-col">
+    <html lang="en" className={exo_2.className}>
+      <body>
         <PostHogProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Menu links={links} />
-            <div className="flex-1">{children}</div>
-            <Footer />
-            <Toaster />
-          </ThemeProvider>
+          {children}
+          <Footer />
         </PostHogProvider>
         <SpeedInsights />
       </body>
