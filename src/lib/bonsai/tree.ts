@@ -321,11 +321,7 @@ export class ClassicTree extends RecursiveTree {
       const dist_up_branch = (i + 1) * step;
       const new_theta =
         theta +
-        sign *
-          randNormal(
-            this.options.angle_mean as number,
-            RecursiveTree.ANGLE_STD_DEV,
-          );
+        sign * randNormal(this.options.angle_mean, RecursiveTree.ANGLE_STD_DEV);
 
       const [x, y] = this.get_end_coords(
         start_x,
@@ -446,7 +442,7 @@ export class FibonacciTree extends RecursiveTree {
 
     for (let i = 0; i < num_branches; i++) {
       const angle = randNormal(
-        this.options.angle_mean as number,
+        this.options.angle_mean,
         RecursiveTree.ANGLE_STD_DEV,
       );
       const new_theta = theta + sign * angle;
@@ -514,11 +510,7 @@ export class OffsetFibTree extends FibonacciTree {
       const dist_up_branch = (i + 1) * step;
       const new_theta =
         theta +
-        sign *
-          randNormal(
-            this.options.angle_mean as number,
-            RecursiveTree.ANGLE_STD_DEV,
-          );
+        sign * randNormal(this.options.angle_mean, RecursiveTree.ANGLE_STD_DEV);
 
       const [x, y] = this.get_end_coords(
         start_x,
@@ -589,11 +581,7 @@ export class RandomOffsetFibTree extends FibonacciTree {
 
       const new_theta =
         theta +
-        sign *
-          randNormal(
-            this.options.angle_mean as number,
-            RecursiveTree.ANGLE_STD_DEV,
-          );
+        sign * randNormal(this.options.angle_mean, RecursiveTree.ANGLE_STD_DEV);
 
       const [x, y] = this.get_end_coords(
         start_x,
@@ -653,7 +641,7 @@ export class Leaves {
         pos = pos.add(vel);
 
         const colour: [number, number, number] = [0, randInt(75, 255), 0];
-        const leaf_chars = this.options.leaf_chars as string[];
+        const leaf_chars = this.options.leaf_chars;
         const char = leaf_chars[randInt(0, leaf_chars.length - 1)];
 
         if (this.options.instant) {
@@ -665,11 +653,11 @@ export class Leaves {
             char!,
             colour,
             false,
-            this.options.wait_time as number,
+            this.options.wait_time,
           );
         }
 
-        const weight = i / (this.options.leaf_len as number);
+        const weight = i / this.options.leaf_len;
         const gravity = g.scale(weight);
         const newVel = vel.add(gravity);
         vel.x = newVel.x;

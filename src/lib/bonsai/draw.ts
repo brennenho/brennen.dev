@@ -9,10 +9,10 @@ export interface CharCell {
 }
 
 class Line {
-  m: number = 0;
-  b: number = 0;
-  is_vertical: boolean = false;
-  private x_const: number = 0;
+  m = 0;
+  b = 0;
+  is_vertical = false;
+  private x_const = 0;
 
   set_end_points(start: [number, number], end: [number, number]): void {
     const [x1, y1] = start;
@@ -210,8 +210,8 @@ export class DrawWindow implements AsciiWindow {
     char: string,
     mid_line: Line,
   ): void {
-    let [start_inx, _] = this.plane_to_screen(...start);
-    let [end_inx, __] = this.plane_to_screen(...end);
+    const [start_inx] = this.plane_to_screen(...start);
+    const [end_inx] = this.plane_to_screen(...end);
 
     const step = end_inx > start_inx ? 1 : -1;
 
@@ -230,9 +230,9 @@ export class DrawWindow implements AsciiWindow {
       for (let i = 0; i < width && i < dists.length; i++) {
         const chosen_char =
           Math.random() < CHAR_THRESHOLD
-            ? (this.options.branch_chars[
+            ? this.options.branch_chars[
                 randInt(0, this.options.branch_chars.length - 1)
-              ] as string)
+              ]!
             : char;
 
         const chosen_colour = this.choose_colour(colour);
@@ -252,7 +252,7 @@ export class DrawWindow implements AsciiWindow {
             chosen_char,
             chosen_colour,
             true,
-            this.options.wait_time as number,
+            this.options.wait_time,
           );
         }
       }
@@ -269,8 +269,8 @@ export class DrawWindow implements AsciiWindow {
     char: string,
     mid_line: Line,
   ): void {
-    let [_, start_inx] = this.plane_to_screen(...start);
-    let [__, end_inx] = this.plane_to_screen(...end);
+    const [, start_inx] = this.plane_to_screen(...start);
+    const [, end_inx] = this.plane_to_screen(...end);
 
     const step = end_inx > start_inx ? 1 : -1;
 
@@ -289,9 +289,9 @@ export class DrawWindow implements AsciiWindow {
       for (let i = 0; i < width && i < dists.length; i++) {
         const chosen_char =
           Math.random() < CHAR_THRESHOLD
-            ? (this.options.branch_chars[
+            ? this.options.branch_chars[
                 randInt(0, this.options.branch_chars.length - 1)
-              ] as string)
+              ]!
             : char;
 
         const chosen_colour = this.choose_colour(colour);
@@ -311,7 +311,7 @@ export class DrawWindow implements AsciiWindow {
             chosen_char,
             chosen_colour,
             true,
-            this.options.wait_time as number,
+            this.options.wait_time,
           );
         }
       }
@@ -322,8 +322,8 @@ export class DrawWindow implements AsciiWindow {
     start: [number, number],
     end: [number, number],
   ): void {
-    const [h1, _] = this.plane_to_screen(...start);
-    const [h2, __] = this.plane_to_screen(...end);
+    const [h1] = this.plane_to_screen(...start);
+    const [h2] = this.plane_to_screen(...end);
 
     const room_from_top = Math.min(h1, h2);
 
