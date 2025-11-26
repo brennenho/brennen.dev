@@ -43,7 +43,13 @@ export function Bonsai() {
     generateTree();
   }, [generateTree, seed]);
 
-  if (!grid) return <div className="font-mono text-sm">Growing bonsai…</div>;
+  if (!grid)
+    return (
+      <div className="flex items-center gap-2 font-mono text-sm">
+        <RefreshCw className="h-4 w-4 animate-spin" />
+        Growing bonsai…
+      </div>
+    );
 
   return (
     <div className="flex flex-col gap-8 rounded-lg bg-slate-800 p-4">
