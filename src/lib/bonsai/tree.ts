@@ -399,6 +399,18 @@ export class FibonacciTree extends RecursiveTree {
     return branch_nums;
   }
 
+  protected get_child_start_index(
+    layer_inx: number,
+    branch_inx: number,
+  ): number {
+    const layer = this.branch_nums[layer_inx]!;
+    let sum = 0;
+    for (let i = 0; i < branch_inx; i++) {
+      sum += layer[i]!;
+    }
+    return sum;
+  }
+
   draw_branch(
     x: number,
     y: number,
@@ -437,6 +449,7 @@ export class FibonacciTree extends RecursiveTree {
     let sign = 1;
     const num_branches = this.branch_nums[layer_inx]![branch_inx]!;
     const new_width = Math.max(1, width - 1);
+    const child_start_index = this.get_child_start_index(layer_inx, branch_inx);
 
     const [x, y] = this.get_end_coords(start_x, start_y, length, theta);
 
@@ -452,7 +465,7 @@ export class FibonacciTree extends RecursiveTree {
         x,
         y,
         layer_inx + 1,
-        branch_inx + i,
+        child_start_index + i,
         new_len,
         new_width,
         new_theta,
@@ -500,6 +513,7 @@ export class OffsetFibTree extends FibonacciTree {
   ): void {
     let sign = 1;
     const num_branches = this.branch_nums[layer_inx]![branch_inx]!;
+    const child_start_index = this.get_child_start_index(layer_inx, branch_inx);
 
     const step = num_branches !== 0 ? length / num_branches : 0;
 
@@ -523,7 +537,7 @@ export class OffsetFibTree extends FibonacciTree {
         x,
         y,
         layer_inx + 1,
-        branch_inx + i,
+        child_start_index + i,
         new_length,
         new_width,
         new_theta,
@@ -558,6 +572,7 @@ export class RandomOffsetFibTree extends FibonacciTree {
   ): void {
     let sign = 1;
     const num_branches = this.branch_nums[layer_inx]![branch_inx]!;
+    const child_start_index = this.get_child_start_index(layer_inx, branch_inx);
 
     const new_width = Math.max(1, width - 1);
     const new_length = length * ClassicTree.LEN_SCALE;
@@ -594,7 +609,7 @@ export class RandomOffsetFibTree extends FibonacciTree {
         x,
         y,
         layer_inx + 1,
-        branch_inx + i,
+        child_start_index + i,
         new_length,
         new_width,
         new_theta,

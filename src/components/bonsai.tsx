@@ -71,7 +71,11 @@ export function Bonsai() {
           </div>
         ))}
       </pre>
-      <Button onClick={() => setSeed((s) => s + 1)} variant="default">
+      <Button
+        onClick={() => setSeed((s) => s + 1)}
+        variant="default"
+        className="cursor-pointer"
+      >
         <RefreshCw />
         New Tree
       </Button>
