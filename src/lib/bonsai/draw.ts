@@ -1,5 +1,5 @@
-// src/lib/terminalWindow.ts
 import type { AsciiWindow, TreeOptions } from "./tree";
+import { randInt } from "./utils";
 
 const CHAR_THRESHOLD = 0.3;
 
@@ -8,15 +8,6 @@ export interface CharCell {
   colour: [number, number, number] | null;
 }
 
-function randUniform(a: number, b: number): number {
-  return a + Math.random() * (b - a);
-}
-
-function randInt(a: number, b: number): number {
-  return Math.floor(randUniform(a, b + 1));
-}
-
-// Minimal Line implementation (replacement for utils.Line)
 class Line {
   m: number = 0;
   b: number = 0;
@@ -54,7 +45,7 @@ class Line {
   }
 }
 
-export class TerminalWindow implements AsciiWindow {
+export class DrawWindow implements AsciiWindow {
   static CHAR_WIDTH = 1;
   static CHAR_HEIGHT = 2;
   static BACKGROUND_CHAR = " ";
@@ -71,7 +62,7 @@ export class TerminalWindow implements AsciiWindow {
 
     this.chars = Array.from({ length: height }, () =>
       Array.from({ length: width }, () => ({
-        char: TerminalWindow.BACKGROUND_CHAR,
+        char: DrawWindow.BACKGROUND_CHAR,
         colour: null,
       })),
     );
@@ -85,20 +76,15 @@ export class TerminalWindow implements AsciiWindow {
   clear_chars(): void {
     this.chars = Array.from({ length: this.height }, () =>
       Array.from({ length: this.width }, () => ({
-        char: TerminalWindow.BACKGROUND_CHAR,
+        char: DrawWindow.BACKGROUND_CHAR,
         colour: null,
       })),
     );
   }
 
-  // In terminal version, draw() printed to stdout; here React will render chars directly
-  draw(): void {
-    // no-op for browser; React will read this.chars
-  }
-
   plane_to_screen(x: number, y: number): [number, number] {
-    const scaled_x = x / TerminalWindow.CHAR_WIDTH;
-    const scaled_y = y / TerminalWindow.CHAR_HEIGHT;
+    const scaled_x = x / DrawWindow.CHAR_WIDTH;
+    const scaled_y = y / DrawWindow.CHAR_HEIGHT;
 
     const inx1 = Math.round(this.height - scaled_y);
     const inx2 = Math.round(scaled_x);
@@ -110,8 +96,8 @@ export class TerminalWindow implements AsciiWindow {
     const swapped_x = y;
     const swapped_y = this.height - x;
 
-    const scaled_x = swapped_x * TerminalWindow.CHAR_WIDTH;
-    const scaled_y = swapped_y * TerminalWindow.CHAR_HEIGHT;
+    const scaled_x = swapped_x * DrawWindow.CHAR_WIDTH;
+    const scaled_y = swapped_y * DrawWindow.CHAR_HEIGHT;
 
     return [scaled_x, scaled_y];
   }
@@ -126,7 +112,7 @@ export class TerminalWindow implements AsciiWindow {
     for (let i = 0; i < delta_height; i++) {
       this.chars.unshift(
         Array.from({ length: this.width }, () => ({
-          char: TerminalWindow.BACKGROUND_CHAR,
+          char: DrawWindow.BACKGROUND_CHAR,
           colour: null,
         })),
       );
@@ -367,7 +353,6 @@ export class TerminalWindow implements AsciiWindow {
     }
   }
 
-  // Helper to expose chars to React
   getChars(): CharCell[][] {
     return this.chars;
   }

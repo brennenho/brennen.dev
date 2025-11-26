@@ -1,6 +1,10 @@
-// src/lib/tree.ts
-
-// ---- Shared types & helpers ----
+import {
+  randInt,
+  randNormal,
+  randUniform,
+  shuffleInPlace,
+  Vector,
+} from "./utils";
 
 export interface TreeOptions {
   initial_len: number;
@@ -50,66 +54,7 @@ export interface AsciiWindow {
   ): void;
 }
 
-// simple replacement for utils.Vector (for leaves)
-export class Vector {
-  constructor(
-    public x: number,
-    public y: number,
-  ) {}
-
-  add(other: Vector): Vector {
-    return new Vector(this.x + other.x, this.y + other.y);
-  }
-
-  scale(k: number): Vector {
-    return new Vector(this.x * k, this.y * k);
-  }
-
-  magnitude(): number {
-    return Math.sqrt(this.x * this.x + this.y * this.y);
-  }
-
-  normalise(): void {
-    const mag = this.magnitude();
-    if (mag !== 0) {
-      this.x /= mag;
-      this.y /= mag;
-    }
-  }
-}
-
-// --- random helpers (Python equivalents) ---
-
-function randUniform(a: number, b: number): number {
-  return a + Math.random() * (b - a);
-}
-
-function randInt(a: number, b: number): number {
-  // inclusive
-  return Math.floor(randUniform(a, b + 1));
-}
-
-// Box-Muller normal
-function randNormal(mean: number, stdDev: number): number {
-  let u = 0;
-  let v = 0;
-  while (u === 0) u = Math.random();
-  while (v === 0) v = Math.random();
-  const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-  return mean + z * stdDev;
-}
-
-function shuffleInPlace<T>(arr: T[]): void {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = randInt(0, i);
-    [arr[i], arr[j]] = [arr[j]!, arr[i]!];
-  }
-}
-
-// ---- Base Tree ----
-
-export class Tree {
-  // base tree class - not a drawable tree
+abstract class BaseTree {
   static BOX_HEIGHT = 3;
   static MAX_TOP_WIDTH = 35;
 
@@ -152,7 +97,10 @@ export class Tree {
   }
 
   protected get_box_width(): number {
-    let width = Math.min(Math.floor(this.window.width / 3), Tree.MAX_TOP_WIDTH);
+    let width = Math.min(
+      Math.floor(this.window.width / 3),
+      BaseTree.MAX_TOP_WIDTH,
+    );
 
     if (width % 2 === 0) {
       width += 1; // width should be odd to allow tree to go in middle
@@ -167,7 +115,7 @@ export class Tree {
       this.root_y,
     );
 
-    for (let i = 0; i < Tree.BOX_HEIGHT; i++) {
+    for (let i = 0; i < BaseTree.BOX_HEIGHT; i++) {
       const inx1 = root_inx1 + i;
       const width = this.box_top_width - i * 2;
 
@@ -179,25 +127,25 @@ export class Tree {
 
         if (x === 0) {
           char = "\\";
-          colour = Tree.BOX_COLOUR;
+          colour = BaseTree.BOX_COLOUR;
         } else if (x === width - 1) {
           char = "/";
-          colour = Tree.BOX_COLOUR;
+          colour = BaseTree.BOX_COLOUR;
         } else if (i === 0) {
           char = "_";
-          colour = Tree.SOIL_COLOUR;
-        } else if (i === Tree.BOX_HEIGHT - 1) {
+          colour = BaseTree.SOIL_COLOUR;
+        } else if (i === BaseTree.BOX_HEIGHT - 1) {
           char = "_";
-          colour = Tree.BOX_COLOUR;
+          colour = BaseTree.BOX_COLOUR;
         } else {
-          if (Math.random() < Tree.SOIL_CHAR_THRESHOLD) {
-            const idx = randInt(0, Tree.SOIL_CHARS.length - 1);
-            char = Tree.SOIL_CHARS[idx]!;
+          if (Math.random() < BaseTree.SOIL_CHAR_THRESHOLD) {
+            const idx = randInt(0, BaseTree.SOIL_CHARS.length - 1);
+            char = BaseTree.SOIL_CHARS[idx]!;
           } else {
             char = " ";
           }
 
-          colour = Tree.SOIL_COLOUR;
+          colour = BaseTree.SOIL_COLOUR;
         }
 
         this.window.set_char_instant(inx1, inx2, char, colour, true);
@@ -209,12 +157,12 @@ export class Tree {
   }
 
   protected draw_box_feet(root_inx1: number, root_inx2: number): void {
-    const inx1 = root_inx1 + Tree.BOX_HEIGHT;
-    const offset = Math.floor(this.box_top_width / 2) - Tree.BOX_HEIGHT - 1;
+    const inx1 = root_inx1 + BaseTree.BOX_HEIGHT;
+    const offset = Math.floor(this.box_top_width / 2) - BaseTree.BOX_HEIGHT - 1;
 
     for (let sign = -1; sign <= 1; sign += 2) {
       const inx2 = root_inx2 + sign * offset;
-      this.window.set_char_instant(inx1, inx2, "‾", Tree.BOX_COLOUR, true);
+      this.window.set_char_instant(inx1, inx2, "‾", BaseTree.BOX_COLOUR, true);
     }
   }
 
@@ -224,7 +172,7 @@ export class Tree {
     for (let i = 1; i < this.box_top_width; i++) {
       const inx2 = root_inx2 - Math.floor(this.box_top_width / 2) + i;
 
-      if (Math.random() < Tree.MOUND_THRESHOLD / (num_drawn + 1)) {
+      if (Math.random() < BaseTree.MOUND_THRESHOLD / (num_drawn + 1)) {
         num_drawn += 1;
         const max_width = this.box_top_width - i - 1;
 
@@ -239,7 +187,7 @@ export class Tree {
     max_width: number,
   ): void {
     let top_width = Math.round(
-      randNormal(Tree.MOUND_WIDTH_MEAN, Tree.MOUND_WIDTH_STD_DEV),
+      randNormal(BaseTree.MOUND_WIDTH_MEAN, BaseTree.MOUND_WIDTH_STD_DEV),
     );
     top_width = Math.min(top_width, max_width - 2);
 
@@ -249,7 +197,13 @@ export class Tree {
       const inx2 = start_inx2 + i;
       const char = i === 0 || i === top_width + 1 ? "." : "-";
 
-      this.window.set_char_instant(inx1, inx2, char, Tree.SOIL_COLOUR, true);
+      this.window.set_char_instant(
+        inx1,
+        inx2,
+        char,
+        BaseTree.SOIL_COLOUR,
+        true,
+      );
     }
   }
 
@@ -270,10 +224,8 @@ export class Tree {
   }
 }
 
-// ---- RecursiveTree ----
-
-export class RecursiveTree extends Tree {
-  // all recursive tree types are based off the fractal canopy
+// based off fractal canopy
+export class RecursiveTree extends BaseTree {
   static ANGLE_STD_DEV = (8 * Math.PI) / 180;
   static LEN_SCALE = 0.75;
   static MAX_INITIAL_WIDTH = 6;
@@ -308,8 +260,6 @@ export class RecursiveTree extends Tree {
   }
 }
 
-// ---- ClassicTree ----
-
 export class ClassicTree extends RecursiveTree {
   static MEAN_BRANCHES = 2;
   static BRANCHES_STD_DEV = 0.5;
@@ -340,7 +290,7 @@ export class ClassicTree extends RecursiveTree {
     this.window.draw_line(
       [x, y],
       [end_x, end_y],
-      Tree.BRANCH_COLOUR,
+      BaseTree.BRANCH_COLOUR,
       Math.round(width),
     );
 
@@ -405,8 +355,6 @@ export class ClassicTree extends RecursiveTree {
     );
   }
 }
-
-// ---- FibonacciTree ----
 
 export class FibonacciTree extends RecursiveTree {
   protected fib: number[];
@@ -474,7 +422,7 @@ export class FibonacciTree extends RecursiveTree {
     this.window.draw_line(
       [x, y],
       [end_x, end_y],
-      Tree.BRANCH_COLOUR,
+      BaseTree.BRANCH_COLOUR,
       Math.round(width),
     );
 
@@ -536,8 +484,6 @@ export class FibonacciTree extends RecursiveTree {
   }
 }
 
-// ---- OffsetFibTree ----
-
 export class OffsetFibTree extends FibonacciTree {
   constructor(
     window: AsciiWindow,
@@ -595,8 +541,6 @@ export class OffsetFibTree extends FibonacciTree {
     }
   }
 }
-
-// ---- RandomOffsetFibTree ----
 
 export class RandomOffsetFibTree extends FibonacciTree {
   static GROW_END_THRESHOLD = 0.5;
@@ -678,8 +622,6 @@ export class RandomOffsetFibTree extends FibonacciTree {
     }
   }
 }
-
-// ---- Leaves ----
 
 export class Leaves {
   static NUM_LEAVES = 4;

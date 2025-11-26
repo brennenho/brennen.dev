@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { type CharCell, TerminalWindow } from "./terminalWindow";
-import { RandomOffsetFibTree, type TreeOptions } from "./tree";
+import { type CharCell, DrawWindow } from "@/lib/bonsai/draw";
+import { OffsetFibTree, type TreeOptions } from "@/lib/bonsai/tree";
+import { RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Button } from "./ui/button";
 
 const WIDTH = 80; // characters
 const HEIGHT = 40; // rows
 
 export function Bonsai() {
   const [grid, setGrid] = useState<CharCell[][] | null>(null);
+  const [seed, setSeed] = useState(0);
 
-  useEffect(() => {
+  const generateTree = useCallback(() => {
     const options: TreeOptions = {
       initial_len: 20,
       num_layers: 6,
@@ -24,25 +27,26 @@ export function Bonsai() {
       branch_chars: ["|", "/", "\\", "_"],
     };
 
-    const win = new TerminalWindow(WIDTH, HEIGHT, options);
+    const win = new DrawWindow(WIDTH, HEIGHT, options);
 
     // Root position in "plane" coords (x across, y up)
     const rootX = WIDTH / 2;
-    const rootY = 0; // bottom
+    const rootY = 10; // bottom
 
-    // Choose one:
-    // const tree = new ClassicTree(win, [rootX, rootY], options);
-    const tree = new RandomOffsetFibTree(win, [rootX, rootY], options);
-
+    const tree = new OffsetFibTree(win, [rootX, rootY], options);
     tree.draw();
 
     setGrid(win.getChars());
   }, []);
 
+  useEffect(() => {
+    generateTree();
+  }, [generateTree, seed]);
+
   if (!grid) return <div className="font-mono text-sm">Growing bonsai…</div>;
 
   return (
-    <div className="inline-block rounded-lg bg-black p-4">
+    <div className="flex flex-col gap-8 rounded-lg bg-slate-800 p-4">
       <pre className="font-mono text-[10px] leading-none">
         {grid.map((row, i) => (
           <div key={i}>
@@ -61,6 +65,10 @@ export function Bonsai() {
           </div>
         ))}
       </pre>
+      <Button onClick={() => setSeed((s) => s + 1)} variant="default">
+        <RefreshCw />
+        New Tree
+      </Button>
     </div>
   );
 }
