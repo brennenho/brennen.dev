@@ -12,7 +12,7 @@ const item = {
     filter: "blur(0px)",
     transition: {
       duration: 0.6,
-      ease: "easeOut",
+      ease: [0.17, 0.67, 0.83, 0.67] as const,
     },
   },
 };

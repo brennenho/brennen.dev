@@ -93,7 +93,7 @@ function callWithTokenRevalidation<T, P extends unknown[]>(
 
     if (typeof status === "number") {
       if (status === 401) {
-        revalidateTag(TOKEN_CACHE_TAG);
+        revalidateTag(TOKEN_CACHE_TAG, "max");
         if (!revalidateCall) {
           return callWithTokenRevalidation(f, true)(...params);
         }
