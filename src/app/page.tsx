@@ -27,9 +27,9 @@ export default function HomePage() {
               experiences through software, hardware, and a touch of design.{" "}
               <br />
               <br />
-              This summer, I&apos;m working on language modeling at Bloomberg as
-              an intern. I&apos;ve previously worked at Chipstack, innovating at
-              the intersection of LLMs and semiconductors.
+              This summer, I&apos;ll be working on AI agents at Decagon.
+              I&apos;v previously worked on language modeling at Bloomberg and
+              LLMs for semiconductors at Chipstack.
             </ScrollAnimation>
             <CurrentlyPlaying />
           </div>
