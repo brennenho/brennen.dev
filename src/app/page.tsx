@@ -1,50 +1,62 @@
-import { CurrentlyPlaying } from "@/components/currently-playing";
-import { Experience } from "@/components/experience";
-import { Projects } from "@/components/projects/map";
-import { ScrollAnimation } from "@/components/scroll-animation";
-import { Heading } from "@/components/typography";
+import { ExperienceTable } from "@/components/notion/experience-table";
+import { FontShuffleName } from "@/components/notion/font-shuffle-name";
+import {
+  NotionCallout,
+  PageIcon,
+  SectionTitle,
+  WorkspaceShell,
+} from "@/components/notion/workspace-shell";
+import { PixelCanvas } from "@/components/pixel/pixel-canvas";
+import { SpotifyMention } from "@/components/spotify/spotify-mention";
+import { getEditedDateLabel } from "@/lib/git";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const editedDate = await getEditedDateLabel();
+
   return (
-    <main className="flex min-h-screen flex-col items-center px-8 py-4">
-      <div className="flex w-full max-w-7xl flex-col gap-16 pt-32 pb-8">
-        <div className="flex flex-col gap-4 leading-none">
-          <ScrollAnimation className="text-[40px] font-bold">
-            Hey, I&apos;m <span className="text-primary">Brennen</span>
-          </ScrollAnimation>
-          <ScrollAnimation>
-            I create intuitive products that simplify, accelerate, and
-            personalize — with an emphasis on applied AI.
-          </ScrollAnimation>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <Heading>[about]</Heading>
-          <div className="flex flex-col items-start gap-8 sm:flex-row">
-            <ScrollAnimation>
-              I study Computer Engineering & Computer Science at the University
-              of Southern California, where I&apos;m transforming online
-              experiences through software, hardware, and a touch of design.{" "}
-              <br />
-              <br />
-              This summer, I&apos;ll be working on AI agents at Decagon.
-              I&apos;v previously worked on language modeling at Bloomberg and
-              LLMs for semiconductors at Chipstack.
-            </ScrollAnimation>
-            <CurrentlyPlaying />
+    <WorkspaceShell editedDate={editedDate} activePath="/">
+      <main className="pb-24">
+        <div className="relative">
+          <PixelCanvas />
+          <div className="pointer-events-none absolute bottom-[-38px] left-1/2 z-10 w-full max-w-[900px] -translate-x-1/2 px-8">
+            <PageIcon>👋</PageIcon>
           </div>
         </div>
 
-        <div className="flex flex-col gap-4">
-          <Heading>[experience]</Heading>
-          <Experience />
-        </div>
+        <article className="mx-auto max-w-[900px] px-8 pt-[112px]">
+          <h1 className="mb-7 text-[44px] leading-[1.15] font-bold tracking-normal text-[#f1f1ef] sm:text-[48px]">
+            hey, i’m <FontShuffleName />
+          </h1>
 
-        <div className="flex flex-col gap-4">
-          <Heading>[projects]</Heading>
-          <Projects />
-        </div>
-      </div>
-    </main>
+          <NotionCallout>
+            I create intuitive products that simplify, accelerate, and
+            personalize — with an emphasis on applied AI.
+          </NotionCallout>
+
+          <SectionTitle>about</SectionTitle>
+          <ul className="mt-5 list-disc space-y-3.5 pl-6 text-[17px] leading-[1.45] font-medium text-[#f1f1ef]">
+            <li>
+              Studying Computer Engineering & Computer Science at the University
+              of Southern California
+            </li>
+            <li>
+              I’m fascinated in applied ai and product development, especially
+              at the intersection of software and hardware
+            </li>
+            <li>
+              On campus, I’m involved in the DILL Lab, Code the Change, LavaLab,
+              and Makers
+            </li>
+            <li>
+              <span className="mr-2">I’m currently listening to:</span>
+              <SpotifyMention />
+            </li>
+          </ul>
+
+          <SectionTitle>experience</SectionTitle>
+          <ExperienceTable />
+        </article>
+      </main>
+    </WorkspaceShell>
   );
 }

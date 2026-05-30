@@ -1,0 +1,178 @@
+type MatrixOptions = {
+  offColor?: string;
+  onColor?: string;
+};
+
+const CSS_DOT_SIZE = 6;
+const CSS_CELL_SIZE = 10;
+
+export class PixelDisplay {
+  private cells = new Uint8Array(0);
+  private cellSize = CSS_CELL_SIZE;
+  private dotSize = CSS_DOT_SIZE;
+  private originX = 0;
+  private originY = 0;
+  private width = 1;
+  private height = 1;
+
+  columns = 1;
+  rows = 1;
+
+  constructor(
+    private readonly context: CanvasRenderingContext2D,
+    private readonly options: MatrixOptions = {},
+  ) {}
+
+  resize(width: number, height: number, scale: number) {
+    this.width = width;
+    this.height = height;
+    this.cellSize = CSS_CELL_SIZE * scale;
+    this.dotSize = CSS_DOT_SIZE * scale;
+    this.columns = Math.max(1, Math.floor(width / this.cellSize));
+    this.rows = Math.max(1, Math.floor(height / this.cellSize));
+    this.originX = (width - this.columns * this.cellSize) / 2;
+    this.originY = (height - this.rows * this.cellSize) / 2;
+    this.cells = new Uint8Array(this.columns * this.rows);
+  }
+
+  clear() {
+    this.cells.fill(0);
+  }
+
+  set(column: number, row: number, value = 255) {
+    const x = Math.round(column);
+    const y = Math.round(row);
+
+    if (x < 0 || x >= this.columns || y < 0 || y >= this.rows) return;
+
+    this.cells[y * this.columns + x] = Math.max(
+      this.cells[y * this.columns + x] ?? 0,
+      value,
+    );
+  }
+
+  rect(
+    column: number,
+    row: number,
+    width: number,
+    height: number,
+    value = 255,
+  ) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        this.set(column + x, row + y, value);
+      }
+    }
+  }
+
+  line(
+    startColumn: number,
+    startRow: number,
+    endColumn: number,
+    endRow: number,
+    value = 255,
+  ) {
+    const dx = Math.abs(endColumn - startColumn);
+    const dy = Math.abs(endRow - startRow);
+    const sx = startColumn < endColumn ? 1 : -1;
+    const sy = startRow < endRow ? 1 : -1;
+    let error = dx - dy;
+    let x = startColumn;
+    let y = startRow;
+
+    while (true) {
+      this.set(x, y, value);
+      if (x === endColumn && y === endRow) break;
+
+      const e2 = 2 * error;
+      if (e2 > -dy) {
+        error -= dy;
+        x += sx;
+      }
+      if (e2 < dx) {
+        error += dx;
+        y += sy;
+      }
+    }
+  }
+
+  sprite(column: number, row: number, rows: readonly string[], value = 255) {
+    rows.forEach((line, y) => {
+      Array.from(line).forEach((cell, x) => {
+        if (cell !== " ") this.set(column + x, row + y, value);
+      });
+    });
+  }
+
+  text(column: number, row: number, value: string, brightness = 255) {
+    let cursor = column;
+
+    for (const character of value.toUpperCase()) {
+      if (character === " ") {
+        cursor += 2;
+        continue;
+      }
+
+      const glyph = GLYPHS[character];
+      if (!glyph) {
+        cursor += 4;
+        continue;
+      }
+
+      this.sprite(cursor, row, glyph, brightness);
+      cursor += glyph[0]?.length ?? 3;
+      cursor += 1;
+    }
+  }
+
+  render() {
+    const offColor = this.options.offColor ?? "#252525";
+    const onColor = this.options.onColor ?? "#d8d8d4";
+
+    this.context.clearRect(0, 0, this.width, this.height);
+    this.context.fillStyle = "#050505";
+    this.context.fillRect(0, 0, this.width, this.height);
+
+    for (let row = 0; row < this.rows; row++) {
+      for (let column = 0; column < this.columns; column++) {
+        const value = this.cells[row * this.columns + column] ?? 0;
+        const x = this.originX + column * this.cellSize + this.cellSize / 2;
+        const y = this.originY + row * this.cellSize + this.cellSize / 2;
+
+        this.context.beginPath();
+        this.context.arc(x, y, this.dotSize / 2, 0, Math.PI * 2);
+        this.context.fillStyle = value > 0 ? onColor : offColor;
+        this.context.globalAlpha = value > 0 ? value / 255 : 1;
+        this.context.fill();
+      }
+    }
+
+    this.context.globalAlpha = 1;
+  }
+}
+
+const GLYPHS: Record<string, string[]> = {
+  "0": ["###", "# #", "# #", "# #", "###"],
+  "1": [" # ", "## ", " # ", " # ", "###"],
+  "2": ["###", "  #", "###", "#  ", "###"],
+  "3": ["###", "  #", " ##", "  #", "###"],
+  "4": ["# #", "# #", "###", "  #", "  #"],
+  "5": ["###", "#  ", "###", "  #", "###"],
+  "6": ["###", "#  ", "###", "# #", "###"],
+  "7": ["###", "  #", " # ", "#  ", "#  "],
+  "8": ["###", "# #", "###", "# #", "###"],
+  "9": ["###", "# #", "###", "  #", "###"],
+  A: [" # ", "# #", "###", "# #", "# #"],
+  B: ["## ", "# #", "## ", "# #", "## "],
+  E: ["###", "#  ", "## ", "#  ", "###"],
+  G: ["###", "#  ", "# #", "# #", "###"],
+  H: ["# #", "# #", "###", "# #", "# #"],
+  I: ["###", " # ", " # ", " # ", "###"],
+  M: ["# #", "###", "###", "# #", "# #"],
+  N: ["# #", "###", "###", "###", "# #"],
+  O: ["###", "# #", "# #", "# #", "###"],
+  R: ["## ", "# #", "## ", "# #", "# #"],
+  S: ["###", "#  ", "###", "  #", "###"],
+  T: ["###", " # ", " # ", " # ", " # "],
+  V: ["# #", "# #", "# #", "# #", " # "],
+};
