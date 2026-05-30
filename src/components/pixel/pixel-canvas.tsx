@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createRunnerScene, type PixelScene } from "./games/runner";
+import { createDinoScene } from "./games/dino/scene";
+import type { PixelScene, PixelSceneStatus } from "./scene";
 
 type PixelCanvasProps = {
   className?: string;
@@ -13,7 +14,8 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const sceneRef = useRef<PixelScene | null>(null);
   const frameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const statusRef = useRef<PixelSceneStatus>("cover");
+  const [status, setStatus] = useState<PixelSceneStatus>("cover");
 
   const resize = useCallback(() => {
     const canvas = canvasRef.current;
@@ -30,19 +32,31 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
 
   const start = useCallback(() => {
     sceneRef.current?.start();
-    setIsPlaying(true);
+    statusRef.current = "playing";
+    setStatus("playing");
+  }, []);
+
+  const reset = useCallback(() => {
+    sceneRef.current?.reset();
+    statusRef.current = "cover";
+    setStatus("cover");
   }, []);
 
   const trigger = useCallback(() => {
     if (!sceneRef.current) return;
 
-    if (!isPlaying) {
+    if (statusRef.current === "cover") {
       start();
       return;
     }
 
+    if (statusRef.current === "over") {
+      reset();
+      return;
+    }
+
     sceneRef.current.action();
-  }, [isPlaying, start]);
+  }, [reset, start]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -51,7 +65,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     const context = canvas.getContext("2d");
     if (!context) return;
 
-    const scene = createRunnerScene(context);
+    const scene = createDinoScene(context);
     sceneRef.current = scene;
     resize();
 
@@ -59,6 +73,11 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       const delta = Math.min(32, time - (lastTimeRef.current || time));
       lastTimeRef.current = time;
       scene.update(delta);
+      const nextStatus = scene.status();
+      if (nextStatus !== statusRef.current) {
+        statusRef.current = nextStatus;
+        setStatus(nextStatus);
+      }
       scene.render();
       frameRef.current = requestAnimationFrame(tick);
     };
@@ -81,18 +100,21 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       ) {
         event.preventDefault();
         trigger();
+      } else if (event.code === "Escape") {
+        event.preventDefault();
+        reset();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [trigger]);
+  }, [reset, trigger]);
 
   return (
     <button
       type="button"
       aria-label={
-        isPlaying
+        status === "playing"
           ? "Jump in the pixel canvas game"
           : "Start the pixel canvas game"
       }
@@ -107,9 +129,19 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         className="h-full w-full touch-manipulation"
         role="img"
       />
-      {!isPlaying && (
+      {status === "cover" && (
         <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
           click or press space
+        </span>
+      )}
+      {status === "playing" && (
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          esc to exit
+        </span>
+      )}
+      {status === "over" && (
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          click to restart
         </span>
       )}
     </button>
