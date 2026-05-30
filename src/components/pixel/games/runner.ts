@@ -9,70 +9,94 @@ export type PixelScene = {
 };
 
 type Obstacle = {
-  height: number;
-  width: number;
+  sprite: readonly string[];
   x: number;
 };
 
-const DINO = [
-  "        ###### ",
-  "       ########",
-  "       ## # ###",
-  "       ########",
-  "       ####### ",
-  "#      #####   ",
-  "##    #######  ",
-  "###  ######### ",
-  "############   ",
-  " ##########    ",
-  "  ########     ",
-  "   ######      ",
-  "    ####       ",
-  "    ## ##      ",
-  "    ##  ##     ",
-  "    ##         ",
-] as const;
+const DINO_WIDTH = 20;
+const DINO = bitmapToSprite(
+  [
+    "00000000011111111110",
+    "00000000110111111111",
+    "00000000111111111111",
+    "00000000111111111111",
+    "00000000111111111111",
+    "00000000111111100000",
+    "10000001111111111100",
+    "10000001111111000000",
+    "110000111111110000000",
+    "11100111111111110000",
+    "11111111111111010000",
+    "11111111111111000000",
+    "01111111111111000000",
+    "00111111111110000000",
+    "00011111111100000000",
+    "00001111111000000000",
+    "00000111011000000000",
+    "00000110001000000000",
+    "00000110001000000000",
+    "00000100001000000000",
+    "00000110001100000000",
+  ],
+  DINO_WIDTH,
+);
 
-const DINO_RUN_1 = [
-  "        ###### ",
-  "       ########",
-  "       ## # ###",
-  "       ########",
-  "       ####### ",
-  "#      #####   ",
-  "##    #######  ",
-  "###  ######### ",
-  "############   ",
-  " ##########    ",
-  "  ########     ",
-  "   ######      ",
-  "    ####       ",
-  "    ##  ##     ",
-  "    ##         ",
-  "        ##     ",
-] as const;
-
-const DINO_RUN_2 = [
-  "        ###### ",
-  "       ########",
-  "       ## # ###",
-  "       ########",
-  "       ####### ",
-  "#      #####   ",
-  "##    #######  ",
-  "###  ######### ",
-  "############   ",
-  " ##########    ",
-  "  ########     ",
-  "   ######      ",
-  "    ####       ",
-  "     ## ##     ",
-  "     ##        ",
-  "    ##         ",
-] as const;
-
-const DINO_WIDTH = DINO[0].length;
+const DINO_RUN_1 = DINO;
+const DINO_RUN_2 = DINO;
 const DINO_HEIGHT = DINO.length;
+const CACTUS_SMALL = bitmapToSprite(
+  [
+    "000111000",
+    "000111000",
+    "000111000",
+    "000111011",
+    "000111011",
+    "110111011",
+    "110111011",
+    "110111011",
+    "110111011",
+    "110111111",
+    "110111110",
+    "111111000",
+    "111111000",
+    "001111000",
+    "000111000",
+    "000111000",
+    "000111000",
+    "000111000",
+    "000111000",
+    "000111000",
+  ],
+  9,
+);
+const CACTUS_TALL = bitmapToSprite(
+  [
+    "000011110000",
+    "000011110000",
+    "000011110000",
+    "000011110000",
+    "000011110010",
+    "110011110111",
+    "111011110111",
+    "111011110111",
+    "111011110111",
+    "111011110111",
+    "111011110111",
+    "111111111111",
+    "111111111110",
+    "011111111100",
+    "001111110000",
+    "000011110000",
+    "000011110000",
+    "000011110000",
+    "000011110000",
+    "000011110000",
+    "000011110000",
+    "000011110000",
+  ],
+  12,
+);
+const CACTUS_SPRITES = [CACTUS_SMALL, CACTUS_TALL] as const;
 
 export function createRunnerScene(
   context: CanvasRenderingContext2D,
@@ -134,11 +158,12 @@ export function createRunnerScene(
 
     nextObstacle -= speed * delta;
     if (nextObstacle <= 0) {
-      const tall = Math.random() > 0.52;
+      const sprite =
+        CACTUS_SPRITES[Math.floor(Math.random() * CACTUS_SPRITES.length)] ??
+        CACTUS_SMALL;
 
       obstacles.push({
-        height: tall ? 14 : 10,
-        width: tall ? 7 : 5,
+        sprite,
         x: display.columns + 4,
       });
       nextObstacle = 24 + Math.random() * 22;
@@ -186,11 +211,16 @@ export function createRunnerScene(
     if (mode !== "cover") return;
 
     drawCactus({
-      height: Math.min(16, Math.max(12, Math.round(display.rows * 0.28))),
-      width: 7,
+      sprite: CACTUS_TALL,
       x: Math.round(display.columns * 0.79),
     });
-    display.text(display.columns - 32, groundRow() + 6, "BRENNEN", 165);
+    const time = getLocalTimeLabel();
+    display.text(
+      Math.max(1, display.columns - display.measureText(time) - 28),
+      groundRow() + 6,
+      time,
+      165,
+    );
   }
 
   function drawDino() {
@@ -206,20 +236,9 @@ export function createRunnerScene(
 
   function drawCactus(obstacle: Obstacle) {
     const x = Math.round(obstacle.x);
-    const y = groundRow() - obstacle.height + 1;
-    const trunk = x + Math.floor(obstacle.width / 2);
+    const y = groundRow() - obstacle.sprite.length + 1;
 
-    display.rect(trunk, y, 1, obstacle.height);
-    display.rect(trunk - 1, y + obstacle.height - 2, 3, 2);
-    display.rect(x, y + 4, 1, 5);
-    display.rect(x + 1, y + 8, Math.max(2, trunk - x), 1);
-    display.rect(x + obstacle.width, y + 5, 1, 5);
-    display.rect(
-      trunk,
-      y + 9,
-      obstacle.width - Math.floor(obstacle.width / 2),
-      1,
-    );
+    display.sprite(x, y, obstacle.sprite, 238);
   }
 
   function drawScore() {
@@ -227,7 +246,7 @@ export function createRunnerScene(
 
     const text =
       mode === "cover" ? "HI" : String(Math.floor(score)).padStart(5, "0");
-    display.text(display.columns - text.length * 4 - 2, 2, text, 230);
+    display.text(display.columns - display.measureText(text) - 2, 2, text, 230);
   }
 
   function hasCollision() {
@@ -241,9 +260,9 @@ export function createRunnerScene(
     return obstacles.some((obstacle) => {
       const cactus = {
         x: Math.round(obstacle.x),
-        y: groundRow() - obstacle.height + 1,
-        width: obstacle.width + 1,
-        height: obstacle.height,
+        y: groundRow() - obstacle.sprite.length + 1,
+        width: obstacle.sprite[0]?.length ?? 0,
+        height: obstacle.sprite.length,
       };
 
       return (
@@ -281,4 +300,26 @@ export function createRunnerScene(
     start,
     update,
   };
+}
+
+function bitmapToSprite(rows: readonly string[], width: number) {
+  return rows.map((row) =>
+    row
+      .slice(0, width)
+      .padEnd(width, "0")
+      .replaceAll("0", " ")
+      .replaceAll("1", "#"),
+  );
+}
+
+function getLocalTimeLabel() {
+  const now = new Date();
+  const hours = now.getHours();
+  const period = hours >= 12 ? "PM" : "AM";
+  const displayHours = hours % 12 || 12;
+
+  return `${displayHours.toString()}:${now
+    .getMinutes()
+    .toString()
+    .padStart(2, "0")} ${period}`;
 }

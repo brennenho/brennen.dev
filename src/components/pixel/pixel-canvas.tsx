@@ -97,7 +97,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
           : "Start the pixel canvas game"
       }
       className={cn(
-        "group relative block h-[280px] w-full cursor-pointer overflow-hidden bg-black text-left outline-none",
+        "group relative block h-[250px] w-full cursor-pointer overflow-hidden bg-black text-left outline-none",
         className,
       )}
       onClick={trigger}

@@ -1,10 +1,16 @@
+import bitmapFont from "./bitmap-font.json";
+
 type MatrixOptions = {
   offColor?: string;
   onColor?: string;
 };
 
-const CSS_DOT_SIZE = 6;
-const CSS_CELL_SIZE = 10;
+type BitmapGlyph = {
+  data: string[];
+};
+
+const CSS_DOT_SIZE = 2;
+const CSS_CELL_SIZE = 4;
 
 export class PixelDisplay {
   private cells = new Uint8Array(0);
@@ -104,25 +110,29 @@ export class PixelDisplay {
     });
   }
 
-  text(column: number, row: number, value: string, brightness = 255) {
+  text(
+    column: number,
+    row: number,
+    value: string,
+    brightness = 255,
+    charSpacing = 1,
+  ) {
     let cursor = column;
 
     for (const character of value.toUpperCase()) {
-      if (character === " ") {
-        cursor += 2;
-        continue;
-      }
-
-      const glyph = GLYPHS[character];
-      if (!glyph) {
-        cursor += 4;
-        continue;
-      }
-
-      this.sprite(cursor, row, glyph, brightness);
-      cursor += glyph[0]?.length ?? 3;
-      cursor += 1;
+      const glyph = getGlyph(character);
+      this.sprite(cursor, row, glyph.data, brightness);
+      cursor += glyph.width + charSpacing;
     }
+  }
+
+  measureText(value: string, charSpacing = 1) {
+    return Array.from(value.toUpperCase()).reduce((width, character, index) => {
+      const glyph = getGlyph(character);
+      return (
+        width + glyph.width + (index === value.length - 1 ? 0 : charSpacing)
+      );
+    }, 0);
   }
 
   render() {
@@ -151,28 +161,13 @@ export class PixelDisplay {
   }
 }
 
-const GLYPHS: Record<string, string[]> = {
-  "0": ["###", "# #", "# #", "# #", "###"],
-  "1": [" # ", "## ", " # ", " # ", "###"],
-  "2": ["###", "  #", "###", "#  ", "###"],
-  "3": ["###", "  #", " ##", "  #", "###"],
-  "4": ["# #", "# #", "###", "  #", "  #"],
-  "5": ["###", "#  ", "###", "  #", "###"],
-  "6": ["###", "#  ", "###", "# #", "###"],
-  "7": ["###", "  #", " # ", "#  ", "#  "],
-  "8": ["###", "# #", "###", "# #", "###"],
-  "9": ["###", "# #", "###", "  #", "###"],
-  A: [" # ", "# #", "###", "# #", "# #"],
-  B: ["## ", "# #", "## ", "# #", "## "],
-  E: ["###", "#  ", "## ", "#  ", "###"],
-  G: ["###", "#  ", "# #", "# #", "###"],
-  H: ["# #", "# #", "###", "# #", "# #"],
-  I: ["###", " # ", " # ", " # ", "###"],
-  M: ["# #", "###", "###", "# #", "# #"],
-  N: ["# #", "###", "###", "###", "# #"],
-  O: ["###", "# #", "# #", "# #", "###"],
-  R: ["## ", "# #", "## ", "# #", "# #"],
-  S: ["###", "#  ", "###", "  #", "###"],
-  T: ["###", " # ", " # ", " # ", " # "],
-  V: ["# #", "# #", "# #", "# #", " # "],
-};
+function getGlyph(character: string) {
+  const chars = bitmapFont.chars as Record<string, BitmapGlyph>;
+  const data = chars[character]?.data ?? chars.DEFAULT?.data ?? ["00000"];
+  const width = data[0]?.length ?? 0;
+
+  return {
+    data: data.map((row) => row.replaceAll("0", " ").replaceAll("1", "#")),
+    width,
+  };
+}
