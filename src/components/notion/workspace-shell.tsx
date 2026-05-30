@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 import {
   BriefcaseBusiness,
   ChevronRight,
-  Edit3,
   Flower2,
   Lock,
   Mail,
   Plus,
   Sprout,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -120,12 +120,15 @@ function WorkspaceSidebar({ activePath }: { activePath: string }) {
           href="/"
           className="flex min-w-0 items-center gap-2.5 text-[14px] font-semibold text-[#f1f1ef]"
         >
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#f1f1ef] text-[13px]">
-            🐻‍❄️
-          </div>
+          <Image
+            src="/img/notion.png"
+            alt="Notion"
+            width={24}
+            height={24}
+            className="h-6 w-6 rounded-sm"
+          />
           <span className="truncate">brennen’s notion</span>
         </Link>
-        <Edit3 className="h-4.5 w-4.5 text-[#eeeeec]" />
       </div>
 
       <nav className="flex flex-1 flex-col gap-9 px-2 pt-10 text-[14px] font-semibold">
@@ -219,7 +222,7 @@ function SidebarLink({
     <Link
       href={href}
       className={cn(
-        "flex h-8 items-center gap-2 rounded-md px-2 text-[#b8b8b5] transition-colors hover:bg-[#30302f]",
+        "flex h-8 items-center gap-2 rounded-sm px-2 text-[#b8b8b5] transition-colors hover:bg-[#30302f]",
         active && "bg-[#373736] text-[#f1f1ef]",
       )}
     >
