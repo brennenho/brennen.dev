@@ -1,4 +1,5 @@
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
+import { TopbarActions } from "@/components/notion/topbar-actions";
 import { cn } from "@/lib/utils";
 import {
   BriefcaseBusiness,
@@ -7,10 +8,8 @@ import {
   Flower2,
   Lock,
   Mail,
-  MoreHorizontal,
   Plus,
   Sprout,
-  Star,
 } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -65,6 +64,7 @@ export function WorkspaceShell({
       <WorkspaceSidebar activePath={activePath} />
       <div className="min-h-screen lg:pl-[244px]">
         <WorkspaceTopbar
+          activePath={activePath}
           editedCommitUrl={editedCommitUrl}
           editedDate={editedDate}
         />
@@ -75,12 +75,16 @@ export function WorkspaceShell({
 }
 
 function WorkspaceTopbar({
+  activePath,
   editedCommitUrl,
   editedDate,
 }: {
+  activePath: string;
   editedCommitUrl: string;
   editedDate: string;
 }) {
+  const isFavorite = favorites.some((item) => item.href === activePath);
+
   return (
     <header className="sticky top-0 z-40 flex h-[45px] items-center justify-between border-b border-transparent bg-[#191919]/95 px-3 text-[14px] text-[#b3b3b1] backdrop-blur">
       <div className="flex min-w-0 items-center gap-2">
@@ -97,18 +101,12 @@ function WorkspaceTopbar({
           href={editedCommitUrl}
           target="_blank"
           rel="noreferrer"
-          className="hidden rounded px-[7px] py-1 text-[#858582] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef] sm:inline"
+          className="hidden cursor-pointer rounded px-2 py-1 text-[#858582] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef] sm:inline"
           title="Open latest commit"
         >
           Edited {editedDate}
         </Link>
-        <button className="font-medium text-[#efefed]">Share</button>
-        <button aria-label="Favorite" className="text-[#d6d6d4]">
-          <Star className="h-[18px] w-[18px]" />
-        </button>
-        <button aria-label="More actions" className="text-[#d6d6d4]">
-          <MoreHorizontal className="h-[18px] w-[18px]" />
-        </button>
+        <TopbarActions isFavorite={isFavorite} />
       </div>
     </header>
   );
