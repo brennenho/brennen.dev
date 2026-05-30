@@ -16,6 +16,8 @@ import type { ReactNode } from "react";
 
 type WorkspaceShellProps = {
   children: ReactNode;
+  editedCommitTimestamp: string;
+  editedCommitTitle: string;
   editedCommitUrl: string;
   editedDate: string;
   activePath?: string;
@@ -55,6 +57,8 @@ const musings = [
 
 export function WorkspaceShell({
   children,
+  editedCommitTimestamp,
+  editedCommitTitle,
   editedCommitUrl,
   editedDate,
   activePath = "/",
@@ -65,6 +69,8 @@ export function WorkspaceShell({
       <div className="min-h-screen lg:pl-[244px]">
         <WorkspaceTopbar
           activePath={activePath}
+          editedCommitTimestamp={editedCommitTimestamp}
+          editedCommitTitle={editedCommitTitle}
           editedCommitUrl={editedCommitUrl}
           editedDate={editedDate}
         />
@@ -76,10 +82,14 @@ export function WorkspaceShell({
 
 function WorkspaceTopbar({
   activePath,
+  editedCommitTimestamp,
+  editedCommitTitle,
   editedCommitUrl,
   editedDate,
 }: {
   activePath: string;
+  editedCommitTimestamp: string;
+  editedCommitTitle: string;
   editedCommitUrl: string;
   editedDate: string;
 }) {
@@ -97,15 +107,38 @@ function WorkspaceTopbar({
       </div>
 
       <div className="flex items-center gap-4">
-        <Link
-          href={editedCommitUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="hidden cursor-pointer rounded px-2 py-1 text-[#858582] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef] sm:inline"
-          title="Open latest commit"
-        >
-          Edited {editedDate}
-        </Link>
+        <span className="group relative hidden sm:inline-block">
+          <Link
+            href={editedCommitUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block cursor-pointer rounded px-2 py-1 text-[#858582] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]"
+            title="View on GitHub"
+          >
+            Edited {editedDate}
+          </Link>
+          <span className="absolute top-full right-0 z-50 hidden w-max max-w-[360px] pt-1.5 group-focus-within:block group-hover:block">
+            <span className="block overflow-hidden rounded-lg border border-[#3a3a39] bg-[#202020] text-left text-[#b8b8b5]">
+              <span className="block border-b border-[#303030] px-3 py-2 text-[13px] font-semibold text-[#b8b8b5]">
+                Last Edited
+              </span>
+              <Link
+                href={editedCommitUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex max-w-[360px] items-center gap-4 px-3 py-2 text-[13px] transition-colors hover:bg-[#252525]"
+                title="View on GitHub"
+              >
+                <span className="min-w-0 truncate font-semibold text-[#f1f1ef]">
+                  {editedCommitTitle}
+                </span>
+                <span className="shrink-0 text-[#858582]">
+                  {editedCommitTimestamp}
+                </span>
+              </Link>
+            </span>
+          </span>
+        </span>
         <TopbarActions isFavorite={isFavorite} />
       </div>
     </header>

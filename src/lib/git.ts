@@ -1,9 +1,21 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
 
 const FALLBACK_DATE = "2026-01-22T12:00:00.000Z";
 const REPO_URL = "https://github.com/brennenho/brennen.dev";
-const REPO_COMMITS_URL =
-  "https://api.github.com/repos/brennenho/brennen.dev/commits?per_page=1";
+const REPO_COMMITS_API_URL =
+  "https://api.github.com/repos/brennenho/brennen.dev/commits";
+
+type CommitMetadata = {
+  date: string | null;
+  sha: string | null;
+  title: string | null;
+  url: string | null;
+};
+
+const localSourceExtensions = [".ts", ".tsx", ".js", ".jsx", ".json"];
+const metadataFiles = new Set(["src/lib/git.ts"]);
 
 function getVercelCommitDate() {
   return (
@@ -16,33 +28,160 @@ function getVercelCommitSha() {
   return process.env.VERCEL_GIT_COMMIT_SHA;
 }
 
-function getLocalCommitDate() {
+function normalizePaths(paths?: string | string[]) {
+  if (!paths) return [];
+
+  return (Array.isArray(paths) ? paths : [paths]).filter(Boolean);
+}
+
+function toRepoPath(filePath: string) {
+  return path
+    .relative(/* turbopackIgnore: true */ process.cwd(), filePath)
+    .split(path.sep)
+    .join("/");
+}
+
+function resolveLocalImport(fromPath: string, specifier: string) {
+  if (!specifier.startsWith(".") && !specifier.startsWith("@/")) return null;
+
+  const basePath = specifier.startsWith("@/")
+    ? path.join(
+        /* turbopackIgnore: true */ process.cwd(),
+        "src",
+        specifier.slice(2),
+      )
+    : path.resolve(path.dirname(fromPath), specifier);
+  const candidates = [
+    basePath,
+    ...localSourceExtensions.map((extension) => `${basePath}${extension}`),
+    ...localSourceExtensions.map((extension) =>
+      path.join(basePath, `index${extension}`),
+    ),
+  ];
+
+  return candidates.find((candidate) => existsSync(candidate)) ?? null;
+}
+
+function getLocalSpecifiers(source: string) {
+  return Array.from(
+    source.matchAll(
+      /(?:import|export)\s+(?:[^'"]*?\s+from\s*)?["']([^"']+)["']/g,
+    ),
+    (match) => match[1],
+  ).filter((specifier): specifier is string => Boolean(specifier));
+}
+
+function getApiRoutePath(route: string) {
+  if (!route.startsWith("/api/")) return null;
+
+  const routePath = path.join(
+    /* turbopackIgnore: true */ process.cwd(),
+    "src/app",
+    route.replace(/^\//, ""),
+    "route.ts",
+  );
+
+  return existsSync(routePath) ? routePath : null;
+}
+
+function getReferencedApiRoutes(source: string) {
+  return Array.from(
+    source.matchAll(/["'](\/api\/[A-Za-z0-9/_-]+)["']/g),
+    (match) => match[1],
+  ).filter((route): route is string => Boolean(route));
+}
+
+function collectEditedPaths(entryPath: string) {
+  const visited = new Set<string>();
+  const paths = new Set<string>();
+
+  function visit(filePath: string) {
+    const absolutePath = path.isAbsolute(filePath)
+      ? filePath
+      : path.join(/* turbopackIgnore: true */ process.cwd(), filePath);
+    const repoPath = toRepoPath(absolutePath);
+
+    if (visited.has(absolutePath) || metadataFiles.has(repoPath)) return;
+    if (!existsSync(absolutePath)) return;
+
+    visited.add(absolutePath);
+    paths.add(repoPath);
+
+    const source = readFileSync(absolutePath, "utf8");
+
+    for (const specifier of getLocalSpecifiers(source)) {
+      const resolved = resolveLocalImport(absolutePath, specifier);
+      if (resolved) visit(resolved);
+    }
+
+    for (const route of getReferencedApiRoutes(source)) {
+      const routePath = getApiRoutePath(route);
+      if (routePath) visit(routePath);
+    }
+  }
+
+  visit(entryPath);
+
+  return Array.from(paths);
+}
+
+function getLocalCommit(paths: string[]) {
   try {
-    return execSync("git log -1 --format=%cI", {
-      cwd: process.cwd(),
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
+    const output = execFileSync(
+      "git",
+      ["log", "-1", "--format=%H%x00%cI%x00%s", "--", ...paths],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      },
+    ).trim();
+    const [sha, date, title] = output.split("\0");
+    if (!sha || !date || !title) return null;
+
+    return {
+      date,
+      sha,
+      title,
+      url: sha ? `${REPO_URL}/commit/${sha}` : null,
+    };
   } catch {
     return null;
   }
 }
 
-function getLocalCommitSha() {
+function getLocalRepoCommit() {
   try {
-    return execSync("git rev-parse HEAD", {
-      cwd: process.cwd(),
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
+    const output = execFileSync(
+      "git",
+      ["log", "-1", "--format=%H%x00%cI%x00%s"],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      },
+    ).trim();
+    const [sha, date, title] = output.split("\0");
+    if (!sha || !date || !title) return null;
+
+    return {
+      date,
+      sha,
+      title,
+      url: sha ? `${REPO_URL}/commit/${sha}` : null,
+    };
   } catch {
     return null;
   }
 }
 
-async function getGitHubCommit() {
+async function getGitHubCommit(path?: string) {
   try {
-    const response = await fetch(REPO_COMMITS_URL, {
+    const url = new URL(REPO_COMMITS_API_URL);
+    url.searchParams.set("per_page", "1");
+    if (path) url.searchParams.set("path", path);
+
+    const response = await fetch(url, {
       headers: {
         Accept: "application/vnd.github+json",
       },
@@ -57,6 +196,7 @@ async function getGitHubCommit() {
       html_url?: string;
       sha?: string;
       commit?: {
+        message?: string;
         committer?: {
           date?: string;
         };
@@ -67,6 +207,8 @@ async function getGitHubCommit() {
 
     return {
       date: commit.commit?.committer?.date ?? null,
+      sha: commit.sha ?? null,
+      title: commit.commit?.message?.split("\n")[0] ?? null,
       url:
         commit.html_url ??
         (commit.sha ? `${REPO_URL}/commit/${commit.sha}` : null),
@@ -74,6 +216,17 @@ async function getGitHubCommit() {
   } catch {
     return null;
   }
+}
+
+async function getGitHubCommitForPaths(paths: string[]) {
+  const commits = await Promise.all(paths.map((path) => getGitHubCommit(path)));
+
+  return commits
+    .filter((commit): commit is CommitMetadata => Boolean(commit?.date))
+    .sort(
+      (a, b) =>
+        new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime(),
+    )[0];
 }
 
 function formatEditedDateLabel(value: string) {
@@ -89,28 +242,55 @@ function formatEditedDateLabel(value: string) {
   }).format(date);
 }
 
-export async function getEditedMetadata() {
+function formatCommitTimestamp(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Jan 22, 2026";
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
+export async function getEditedMetadata(paths?: string | string[]) {
+  const scopedPaths = normalizePaths(paths);
   const vercelSha = getVercelCommitSha();
-  const localSha = getLocalCommitSha();
-  const localDate = getLocalCommitDate();
   const vercelDate = getVercelCommitDate();
-  const shouldFetchGitHub =
-    !vercelDate && !localDate && !vercelSha && !localSha;
-  const githubCommit = shouldFetchGitHub ? await getGitHubCommit() : null;
-  const value = vercelDate ?? localDate ?? githubCommit?.date ?? FALLBACK_DATE;
+  const localCommit =
+    scopedPaths.length > 0 ? getLocalCommit(scopedPaths) : getLocalRepoCommit();
+  const githubCommit = localCommit
+    ? null
+    : scopedPaths.length > 0
+      ? await getGitHubCommitForPaths(scopedPaths)
+      : await getGitHubCommit();
+  const fallbackCommit = {
+    date: vercelDate ?? FALLBACK_DATE,
+    sha: vercelSha ?? null,
+    title: "Latest deployment commit",
+    url: vercelSha ? `${REPO_URL}/commit/${vercelSha}` : null,
+  };
+  const commit = localCommit ?? githubCommit ?? fallbackCommit;
 
   return {
-    dateLabel: formatEditedDateLabel(value),
-    commitUrl:
-      (vercelSha ? `${REPO_URL}/commit/${vercelSha}` : null) ??
-      (localSha ? `${REPO_URL}/commit/${localSha}` : null) ??
-      githubCommit?.url ??
-      `${REPO_URL}/commits/main`,
+    commitTimestamp: formatCommitTimestamp(commit.date ?? FALLBACK_DATE),
+    commitTitle: commit.title ?? "Latest commit",
+    dateLabel: formatEditedDateLabel(commit.date ?? FALLBACK_DATE),
+    commitUrl: commit.url ?? `${REPO_URL}/commits/main`,
   };
 }
 
-export async function getEditedDateLabel() {
-  const { dateLabel } = await getEditedMetadata();
+export async function getPageEditedMetadata(pagePath: string) {
+  return getEditedMetadata(collectEditedPaths(pagePath));
+}
+
+export async function getEditedDateLabel(paths?: string | string[]) {
+  const { dateLabel } = await getEditedMetadata(paths);
 
   return dateLabel;
 }
