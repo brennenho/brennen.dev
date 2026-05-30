@@ -17,6 +17,7 @@ import type { ReactNode } from "react";
 
 type WorkspaceShellProps = {
   children: ReactNode;
+  editedCommitUrl: string;
   editedDate: string;
   activePath?: string;
 };
@@ -55,6 +56,7 @@ const musings = [
 
 export function WorkspaceShell({
   children,
+  editedCommitUrl,
   editedDate,
   activePath = "/",
 }: WorkspaceShellProps) {
@@ -62,14 +64,23 @@ export function WorkspaceShell({
     <div className="min-h-screen bg-[#191919] text-[#f1f1ef]">
       <WorkspaceSidebar activePath={activePath} />
       <div className="min-h-screen lg:pl-[244px]">
-        <WorkspaceTopbar editedDate={editedDate} />
+        <WorkspaceTopbar
+          editedCommitUrl={editedCommitUrl}
+          editedDate={editedDate}
+        />
         {children}
       </div>
     </div>
   );
 }
 
-function WorkspaceTopbar({ editedDate }: { editedDate: string }) {
+function WorkspaceTopbar({
+  editedCommitUrl,
+  editedDate,
+}: {
+  editedCommitUrl: string;
+  editedDate: string;
+}) {
   return (
     <header className="sticky top-0 z-40 flex h-[45px] items-center justify-between border-b border-transparent bg-[#191919]/95 px-3 text-[14px] text-[#b3b3b1] backdrop-blur">
       <div className="flex min-w-0 items-center gap-2">
@@ -82,9 +93,15 @@ function WorkspaceTopbar({ editedDate }: { editedDate: string }) {
       </div>
 
       <div className="flex items-center gap-4">
-        <span className="hidden text-[#858582] sm:inline">
+        <Link
+          href={editedCommitUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="hidden rounded px-[7px] py-1 text-[#858582] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef] sm:inline"
+          title="Open latest commit"
+        >
           Edited {editedDate}
-        </span>
+        </Link>
         <button className="font-medium text-[#efefed]">Share</button>
         <button aria-label="Favorite" className="text-[#d6d6d4]">
           <Star className="h-[18px] w-[18px]" />

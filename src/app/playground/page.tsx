@@ -2,13 +2,17 @@ import {
   ComingSoonPage,
   WorkspaceShell,
 } from "@/components/notion/workspace-shell";
-import { getEditedDateLabel } from "@/lib/git";
+import { getEditedMetadata } from "@/lib/git";
 
 export default async function PlaygroundPage() {
-  const editedDate = await getEditedDateLabel();
+  const { dateLabel, commitUrl } = await getEditedMetadata();
 
   return (
-    <WorkspaceShell editedDate={editedDate} activePath="/playground">
+    <WorkspaceShell
+      editedCommitUrl={commitUrl}
+      editedDate={dateLabel}
+      activePath="/playground"
+    >
       <ComingSoonPage icon="🛝" title="playground" />
     </WorkspaceShell>
   );

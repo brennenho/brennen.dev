@@ -2,13 +2,17 @@ import {
   ComingSoonPage,
   WorkspaceShell,
 } from "@/components/notion/workspace-shell";
-import { getEditedDateLabel } from "@/lib/git";
+import { getEditedMetadata } from "@/lib/git";
 
 export default async function SideQuestsPage() {
-  const editedDate = await getEditedDateLabel();
+  const { dateLabel, commitUrl } = await getEditedMetadata();
 
   return (
-    <WorkspaceShell editedDate={editedDate} activePath="/musings/side-quests">
+    <WorkspaceShell
+      editedCommitUrl={commitUrl}
+      editedDate={dateLabel}
+      activePath="/musings/side-quests"
+    >
       <ComingSoonPage icon="🕵️" title="side quests" />
     </WorkspaceShell>
   );

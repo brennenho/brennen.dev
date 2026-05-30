@@ -11,13 +11,17 @@ import {
 } from "@/components/notion/workspace-shell";
 import { PixelCanvas } from "@/components/pixel/pixel-canvas";
 import { SpotifyMention } from "@/components/spotify/spotify-mention";
-import { getEditedDateLabel } from "@/lib/git";
+import { getEditedMetadata } from "@/lib/git";
 
 export default async function HomePage() {
-  const editedDate = await getEditedDateLabel();
+  const { dateLabel, commitUrl } = await getEditedMetadata();
 
   return (
-    <WorkspaceShell editedDate={editedDate} activePath="/">
+    <WorkspaceShell
+      editedCommitUrl={commitUrl}
+      editedDate={dateLabel}
+      activePath="/"
+    >
       <main className="pb-24">
         <div className="relative">
           <PixelCanvas />

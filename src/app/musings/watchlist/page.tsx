@@ -2,13 +2,17 @@ import {
   ComingSoonPage,
   WorkspaceShell,
 } from "@/components/notion/workspace-shell";
-import { getEditedDateLabel } from "@/lib/git";
+import { getEditedMetadata } from "@/lib/git";
 
 export default async function WatchlistPage() {
-  const editedDate = await getEditedDateLabel();
+  const { dateLabel, commitUrl } = await getEditedMetadata();
 
   return (
-    <WorkspaceShell editedDate={editedDate} activePath="/musings/watchlist">
+    <WorkspaceShell
+      editedCommitUrl={commitUrl}
+      editedDate={dateLabel}
+      activePath="/musings/watchlist"
+    >
       <ComingSoonPage icon="👀" title="watchlist" />
     </WorkspaceShell>
   );
