@@ -15,6 +15,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const frameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const statusRef = useRef<PixelSceneStatus>("cover");
+  const [isInteractive, setIsInteractive] = useState(false);
   const [status, setStatus] = useState<PixelSceneStatus>("cover");
 
   const resize = useCallback(() => {
@@ -43,6 +44,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   }, []);
 
   const trigger = useCallback(() => {
+    if (!isInteractive) return;
     if (!sceneRef.current) return;
 
     if (statusRef.current === "cover") {
@@ -56,7 +58,24 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     }
 
     sceneRef.current.action();
-  }, [reset, start]);
+  }, [isInteractive, reset, start]);
+
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 768px)");
+
+    function syncInteractivity() {
+      setIsInteractive(query.matches);
+
+      if (!query.matches) {
+        reset();
+      }
+    }
+
+    syncInteractivity();
+    query.addEventListener("change", syncInteractivity);
+
+    return () => query.removeEventListener("change", syncInteractivity);
+  }, [reset]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -93,6 +112,8 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isInteractive) return;
+
       if (
         event.code === "Space" ||
         event.code === "ArrowUp" ||
@@ -108,18 +129,23 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [reset, trigger]);
+  }, [isInteractive, reset, trigger]);
 
   return (
     <button
       type="button"
       aria-label={
-        status === "playing"
-          ? "Jump in the pixel canvas game"
-          : "Start the pixel canvas game"
+        !isInteractive
+          ? "Pixel canvas cover"
+          : status === "playing"
+            ? "Jump in the pixel canvas game"
+            : "Start the pixel canvas game"
       }
+      aria-disabled={!isInteractive}
+      tabIndex={isInteractive ? 0 : -1}
       className={cn(
-        "group relative block h-[250px] w-full cursor-pointer overflow-hidden bg-black text-left outline-none",
+        "group relative block h-[250px] w-full overflow-hidden bg-black text-left outline-none",
+        isInteractive ? "cursor-pointer" : "cursor-default",
         className,
       )}
       onClick={trigger}
@@ -129,17 +155,17 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         className="h-full w-full touch-manipulation"
         role="img"
       />
-      {status === "cover" && (
+      {isInteractive && status === "cover" && (
         <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
           click or press space
         </span>
       )}
-      {status === "playing" && (
+      {isInteractive && status === "playing" && (
         <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
           esc to exit
         </span>
       )}
-      {status === "over" && (
+      {isInteractive && status === "over" && (
         <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
           click to restart
         </span>

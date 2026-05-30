@@ -22,10 +22,16 @@ type DinoEngineOptions = {
 
 const START_SPEED = 0.073;
 const MAX_SPEED = 0.135;
+const MOBILE_START_SPEED = 0.055;
+const MOBILE_MAX_SPEED = 0.104;
 const JUMP_VELOCITY = -0.24;
+const MOBILE_JUMP_VELOCITY = -0.265;
 const GRAVITY = 0.00095;
+const MOBILE_GRAVITY = 0.00082;
 const MIN_SPAWN_GAP = 88;
 const MAX_SPAWN_GAP = 168;
+const MOBILE_MIN_SPAWN_GAP = 112;
+const MOBILE_MAX_SPAWN_GAP = 196;
 
 export class DinoEngine {
   elapsed = 0;
@@ -53,7 +59,7 @@ export class DinoEngine {
     this.obstacles = [];
     this.playerOffset = 0;
     this.score = 0;
-    this.speed = START_SPEED;
+    this.speed = this.startSpeed();
     this.worldOffset = 0;
     this.velocity = 0;
     this.nextSpawnDistance = 0;
@@ -64,10 +70,13 @@ export class DinoEngine {
     this.obstacles = [this.coverCactus()];
     this.playerOffset = 0;
     this.score = 0;
-    this.speed = START_SPEED;
+    this.speed = this.startSpeed();
     this.worldOffset = 0;
     this.velocity = 0;
-    this.nextSpawnDistance = randomBetween(MIN_SPAWN_GAP, MAX_SPAWN_GAP);
+    this.nextSpawnDistance = randomBetween(
+      this.minSpawnGap(),
+      this.maxSpawnGap(),
+    );
   }
 
   action() {
@@ -77,7 +86,7 @@ export class DinoEngine {
     }
 
     if (this.playerOffset === 0) {
-      this.velocity = JUMP_VELOCITY;
+      this.velocity = this.jumpVelocity();
     }
   }
 
@@ -113,9 +122,11 @@ export class DinoEngine {
   }
 
   coverCactus() {
+    const compact = this.isCompact();
+
     return {
-      sprite: CACTUS_TALL,
-      x: Math.round(this.columns * 0.79),
+      sprite: compact ? CACTUS_SMALL : CACTUS_TALL,
+      x: Math.round(this.columns * (compact ? 0.68 : 0.79)),
     };
   }
 
@@ -123,7 +134,7 @@ export class DinoEngine {
     if (this.playerOffset >= 0 && this.velocity >= 0) return;
 
     this.playerOffset += this.velocity * delta;
-    this.velocity += GRAVITY * delta;
+    this.velocity += this.gravity() * delta;
 
     if (this.playerOffset > 0) {
       this.playerOffset = 0;
@@ -152,17 +163,25 @@ export class DinoEngine {
       x: this.columns + 4,
     });
 
-    const minGap = MIN_SPAWN_GAP - difficulty * 24;
-    const maxGap = MAX_SPAWN_GAP - difficulty * 52;
+    const minGap =
+      this.minSpawnGap() - difficulty * (this.isCompact() ? 14 : 24);
+    const maxGap =
+      this.maxSpawnGap() - difficulty * (this.isCompact() ? 30 : 52);
     this.nextSpawnDistance = randomBetween(minGap, maxGap);
   }
 
   private currentTargetSpeed() {
-    return START_SPEED + (MAX_SPEED - START_SPEED) * this.difficulty();
+    return (
+      this.startSpeed() +
+      (this.maxSpeed() - this.startSpeed()) * this.difficulty()
+    );
   }
 
   private difficulty() {
-    return Math.min(1, Math.sqrt(this.score / 1400));
+    return Math.min(
+      1,
+      Math.sqrt(this.score / (this.isCompact() ? 2200 : 1400)),
+    );
   }
 
   private hasCollision() {
@@ -173,6 +192,8 @@ export class DinoEngine {
       y: this.playerY(),
     };
 
+    const forgiveness = this.isCompact() ? 3 : 0;
+
     return this.obstacles.some((obstacle) => {
       const cactus = {
         height: obstacle.sprite.length,
@@ -182,12 +203,40 @@ export class DinoEngine {
       };
 
       return (
-        dino.x + 5 < cactus.x + cactus.width - 1 &&
-        dino.x + dino.width - 4 > cactus.x + 1 &&
-        dino.y + 3 < cactus.y + cactus.height &&
-        dino.y + dino.height - 2 > cactus.y + 2
+        dino.x + 5 + forgiveness < cactus.x + cactus.width - 1 &&
+        dino.x + dino.width - 4 - forgiveness > cactus.x + 1 &&
+        dino.y + 3 + forgiveness < cactus.y + cactus.height &&
+        dino.y + dino.height - 2 - forgiveness > cactus.y + 2
       );
     });
+  }
+
+  private gravity() {
+    return this.isCompact() ? MOBILE_GRAVITY : GRAVITY;
+  }
+
+  private isCompact() {
+    return this.columns < 120;
+  }
+
+  private jumpVelocity() {
+    return this.isCompact() ? MOBILE_JUMP_VELOCITY : JUMP_VELOCITY;
+  }
+
+  private maxSpawnGap() {
+    return this.isCompact() ? MOBILE_MAX_SPAWN_GAP : MAX_SPAWN_GAP;
+  }
+
+  private maxSpeed() {
+    return this.isCompact() ? MOBILE_MAX_SPEED : MAX_SPEED;
+  }
+
+  private minSpawnGap() {
+    return this.isCompact() ? MOBILE_MIN_SPAWN_GAP : MIN_SPAWN_GAP;
+  }
+
+  private startSpeed() {
+    return this.isCompact() ? MOBILE_START_SPEED : START_SPEED;
   }
 }
 

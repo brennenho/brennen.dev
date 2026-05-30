@@ -5,6 +5,7 @@ import { DinoEngine, type DinoObstacle } from "./engine";
 
 const CLOCK_COLON = ["##", "##", "  ", "  ", "  ", "##", "##"] as const;
 const CLOCK_COLON_GAP = 2;
+const CLOCK_HEIGHT = CLOCK_COLON.length;
 const CLOCK_PERIOD_GAP = 4;
 
 export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
@@ -91,7 +92,11 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
 
     drawCactus(game.coverCactus());
 
-    drawClock(game.groundRow() + 6);
+    const clockRow = Math.max(
+      1,
+      Math.min(game.groundRow() + 6, display.rows - CLOCK_HEIGHT - 2),
+    );
+    drawClock(clockRow);
   }
 
   function drawDino() {
@@ -132,7 +137,8 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
       minuteWidth +
       CLOCK_PERIOD_GAP +
       periodWidth;
-    let cursor = Math.max(1, display.columns - totalWidth - 28);
+    const rightInset = display.columns < 120 ? 6 : 28;
+    let cursor = Math.max(1, display.columns - totalWidth - rightInset);
 
     display.text(cursor, row, time.hour, 165);
     cursor += hourWidth + CLOCK_COLON_GAP;
@@ -148,7 +154,9 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   }
 
   function groundRow() {
-    return Math.max(15, Math.round(display.rows * 0.67));
+    const ratio = display.columns < 120 ? 0.54 : 0.67;
+
+    return Math.max(15, Math.round(display.rows * ratio));
   }
 
   function playerX() {

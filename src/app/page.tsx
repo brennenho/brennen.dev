@@ -27,8 +27,8 @@ export default async function HomePage() {
     >
       <main className="pb-24">
         <div className="relative">
-          <PixelCanvas />
-          <div className="pointer-events-none absolute bottom-[-38px] left-1/2 z-10 w-full max-w-[900px] -translate-x-1/2 px-8">
+          <PixelCanvas className="h-[160px] sm:h-[195px] md:h-[250px]" />
+          <div className="pointer-events-none absolute bottom-[-34px] left-1/2 z-10 w-full max-w-[900px] -translate-x-1/2 px-6 sm:px-8 md:bottom-[-38px]">
             <PageIcon>👋</PageIcon>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
+import { MobileWorkspaceTopbar } from "@/components/notion/mobile-workspace-topbar";
 import { TopbarActions } from "@/components/notion/topbar-actions";
 import { cn } from "@/lib/utils";
 import {
@@ -23,9 +24,9 @@ type WorkspaceShellProps = {
   activePath?: string;
 };
 
-const pageContentClassName = "mx-auto max-w-[900px] px-8";
+const pageContentClassName = "mx-auto max-w-[900px] px-6 sm:px-8";
 const pageTitleClassName =
-  "text-[44px] leading-[1.15] font-bold tracking-normal text-[#f1f1ef] sm:text-[48px]";
+  "text-[42px] leading-[1.12] font-bold tracking-normal text-[#f1f1ef] sm:text-[48px]";
 const bodyTextClassName =
   "text-[16px] leading-[1.5] font-medium text-[#f1f1ef]";
 
@@ -63,16 +64,28 @@ export function WorkspaceShell({
   editedDate,
   activePath = "/",
 }: WorkspaceShellProps) {
+  const isFavorite = favorites.some((item) => item.href === activePath);
+
   return (
     <div className="min-h-screen bg-[#191919] text-[#f1f1ef]">
       <WorkspaceSidebar activePath={activePath} />
       <div className="min-h-screen lg:pl-[244px]">
-        <WorkspaceTopbar
+        <MobileWorkspaceTopbar
           activePath={activePath}
           editedCommitTimestamp={editedCommitTimestamp}
           editedCommitTitle={editedCommitTitle}
           editedCommitUrl={editedCommitUrl}
           editedDate={editedDate}
+          favorites={favorites}
+          isFavorite={isFavorite}
+          musings={musings}
+        />
+        <WorkspaceTopbar
+          editedCommitTimestamp={editedCommitTimestamp}
+          editedCommitTitle={editedCommitTitle}
+          editedCommitUrl={editedCommitUrl}
+          editedDate={editedDate}
+          isFavorite={isFavorite}
         />
         {children}
       </div>
@@ -81,22 +94,20 @@ export function WorkspaceShell({
 }
 
 function WorkspaceTopbar({
-  activePath,
   editedCommitTimestamp,
   editedCommitTitle,
   editedCommitUrl,
   editedDate,
+  isFavorite,
 }: {
-  activePath: string;
   editedCommitTimestamp: string;
   editedCommitTitle: string;
   editedCommitUrl: string;
   editedDate: string;
+  isFavorite: boolean;
 }) {
-  const isFavorite = favorites.some((item) => item.href === activePath);
-
   return (
-    <header className="sticky top-0 z-40 flex h-[45px] items-center justify-between border-b border-transparent bg-[#191919]/95 px-3 text-[14px] text-[#b3b3b1] backdrop-blur">
+    <header className="sticky top-0 z-40 hidden h-[45px] items-center justify-between border-b border-transparent bg-[#191919]/95 px-3 text-[14px] text-[#b3b3b1] backdrop-blur lg:flex">
       <div className="flex min-w-0 items-center gap-2">
         <span className="text-[18px] leading-none">👋</span>
         <span className="truncate font-medium text-[#efefed]">
@@ -294,7 +305,7 @@ export function ComingSoonPage({
     <main
       className={cn(
         pageContentClassName,
-        "flex min-h-[calc(100vh-50px)] flex-col pt-[18vh]",
+        "flex min-h-[calc(100vh-64px)] flex-col pt-[12vh] lg:min-h-[calc(100vh-50px)] lg:pt-[18vh]",
       )}
     >
       <div className="mb-4 text-[78px] leading-none">{icon}</div>
@@ -305,12 +316,14 @@ export function ComingSoonPage({
 }
 
 export function PageIcon({ children }: { children: ReactNode }) {
-  return <div className="text-[78px] leading-none">{children}</div>;
+  return (
+    <div className="text-[72px] leading-none sm:text-[78px]">{children}</div>
+  );
 }
 
 export function PageContent({ children }: { children: ReactNode }) {
   return (
-    <article className={cn(pageContentClassName, "pt-[104px] pb-24")}>
+    <article className={cn(pageContentClassName, "pt-16 pb-24 md:pt-[104px]")}>
       {children}
     </article>
   );
@@ -328,7 +341,7 @@ export function NotionCallout({
   icon?: ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-md bg-[#1f432f] px-4 py-3.5 text-[16px] leading-[1.5] font-medium text-[#f4f4f2]">
+    <div className="flex items-start gap-3 rounded-md bg-[#1f432f] px-4 py-3.5 text-[16px] leading-[1.55] font-medium text-[#f4f4f2] sm:leading-[1.5]">
       <span className="mt-0.5 text-[20px] leading-none">{icon}</span>
       <div>{children}</div>
     </div>
@@ -337,7 +350,12 @@ export function NotionCallout({
 
 export function NotionList({ children }: { children: ReactNode }) {
   return (
-    <ul className={cn("mt-4 list-disc space-y-3 pl-6", bodyTextClassName)}>
+    <ul
+      className={cn(
+        "mt-4 list-disc space-y-4 pl-6 sm:space-y-3",
+        bodyTextClassName,
+      )}
+    >
       {children}
     </ul>
   );
@@ -345,7 +363,7 @@ export function NotionList({ children }: { children: ReactNode }) {
 
 export function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h2 className="mt-14 text-[26px] leading-tight font-bold text-[#f1f1ef]">
+    <h2 className="mt-14 text-[24px] leading-tight font-bold text-[#f1f1ef] sm:text-[26px]">
       {children}
     </h2>
   );
