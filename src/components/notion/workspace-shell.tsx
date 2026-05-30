@@ -4,7 +4,6 @@ import {
   BriefcaseBusiness,
   ChevronRight,
   Edit3,
-  Eye,
   Flower2,
   Lock,
   Mail,
@@ -21,6 +20,12 @@ type WorkspaceShellProps = {
   editedDate: string;
   activePath?: string;
 };
+
+const pageContentClassName = "mx-auto max-w-[900px] px-8";
+const pageTitleClassName =
+  "text-[44px] leading-[1.15] font-bold tracking-normal text-[#f1f1ef] sm:text-[48px]";
+const bodyTextClassName =
+  "text-[16px] leading-[1.5] font-medium text-[#f1f1ef]";
 
 const favorites = [
   { href: "/", icon: "👋", label: "hey, i’m brennen" },
@@ -235,15 +240,15 @@ export function ComingSoonPage({
   title: string;
 }) {
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-50px)] max-w-[900px] flex-col px-8 pt-[18vh]">
-      <div className="mb-5 text-[78px] leading-none">{icon}</div>
-      <h1 className="mb-8 text-[40px] font-bold tracking-normal text-[#f1f1ef]">
-        {title}
-      </h1>
-      <div className="flex max-w-xl items-start gap-3 rounded bg-[#2f3f35] px-4 py-3 text-[16px] leading-snug text-[#f1f1ef]">
-        <Eye className="mt-0.5 h-5 w-5 shrink-0 text-[#cfcfcd]" />
-        <p>{description} Coming soon.</p>
-      </div>
+    <main
+      className={cn(
+        pageContentClassName,
+        "flex min-h-[calc(100vh-50px)] flex-col pt-[18vh]",
+      )}
+    >
+      <div className="mb-4 text-[78px] leading-none">{icon}</div>
+      <h1 className={cn(pageTitleClassName, "mb-6")}>{title}</h1>
+      <NotionCallout icon="👀">{description} Coming soon.</NotionCallout>
     </main>
   );
 }
@@ -252,18 +257,44 @@ export function PageIcon({ children }: { children: ReactNode }) {
   return <div className="text-[78px] leading-none">{children}</div>;
 }
 
-export function NotionCallout({ children }: { children: ReactNode }) {
+export function PageContent({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-start gap-4 rounded-md bg-[#1f432f] px-4 py-5 text-[16px] leading-[1.5] font-medium text-[#f4f4f2]">
-      <span className="mt-0.5 text-[20px] leading-none">🎯</span>
+    <article className={cn(pageContentClassName, "pt-[104px] pb-24")}>
+      {children}
+    </article>
+  );
+}
+
+export function PageTitle({ children }: { children: ReactNode }) {
+  return <h1 className={cn(pageTitleClassName, "mb-6")}>{children}</h1>;
+}
+
+export function NotionCallout({
+  children,
+  icon = "🎯",
+}: {
+  children: ReactNode;
+  icon?: ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-3 rounded-md bg-[#1f432f] px-4 py-3.5 text-[16px] leading-[1.5] font-medium text-[#f4f4f2]">
+      <span className="mt-0.5 text-[20px] leading-none">{icon}</span>
       <div>{children}</div>
     </div>
   );
 }
 
+export function NotionList({ children }: { children: ReactNode }) {
+  return (
+    <ul className={cn("mt-4 list-disc space-y-3 pl-6", bodyTextClassName)}>
+      {children}
+    </ul>
+  );
+}
+
 export function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h2 className="mt-16 text-[26px] leading-tight font-bold text-[#f1f1ef]">
+    <h2 className="mt-14 text-[26px] leading-tight font-bold text-[#f1f1ef]">
       {children}
     </h2>
   );
