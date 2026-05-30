@@ -13,17 +13,20 @@ const frames: FontFrame[] = [
   {
     family: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
   },
-  { family: "Georgia, Times, serif" },
-  { family: "Arial Black, Arial, sans-serif", weight: 800 },
-  { family: "Courier New, Courier, monospace" },
-  { family: "Trebuchet MS, Arial, sans-serif" },
-  { family: "Impact, Haettenschweiler, Arial Narrow Bold, sans-serif" },
+  { family: "American Typewriter, Courier New, Courier, monospace" },
   {
-    family: "Palatino, Palatino Linotype, Book Antiqua, serif",
+    family: "Avenir Next, Avenir, Helvetica Neue, Arial, sans-serif",
+    weight: 700,
+  },
+  { family: "Gill Sans, Gill Sans MT, Calibri, sans-serif", weight: 700 },
+  { family: "Trebuchet MS, Arial, sans-serif", style: "italic", weight: 700 },
+  { family: "Optima, Candara, Segoe, sans-serif" },
+  {
+    family: "Didot, Bodoni 72, Bodoni MT, serif",
     style: "italic",
   },
-  { family: "Verdana, Geneva, sans-serif" },
-  { family: "Times New Roman, Times, serif", style: "italic" },
+  { family: "Palatino, Palatino Linotype, Book Antiqua, serif" },
+  { family: "Arial Rounded MT Bold, Helvetica Rounded, Arial, sans-serif" },
   { family: "Georgia, Times, serif", style: "italic" },
 ] as const satisfies FontFrame[];
 
@@ -33,18 +36,33 @@ const FINAL_FRAME = frames.length - 1;
 export function FontShuffleName() {
   const [index, setIndex] = useState(FINAL_FRAME);
   const [settled, setSettled] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  function playAnimation() {
+    if (reduceMotion) return;
+
+    setSettled(false);
+    setIndex(0);
+  }
 
   useEffect(() => {
-    const reduceMotion = window.matchMedia(
+    const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    if (reduceMotion) {
+    setReduceMotion(prefersReducedMotion);
+
+    if (prefersReducedMotion) {
       setSettled(true);
       return;
     }
 
     setIndex(0);
+  }, []);
+
+  useEffect(() => {
+    if (reduceMotion || settled) return;
+
     const id = window.setInterval(() => {
       setIndex((current) => {
         if (current >= FINAL_FRAME) {
@@ -58,13 +76,14 @@ export function FontShuffleName() {
     }, 105);
 
     return () => window.clearInterval(id);
-  }, []);
+  }, [reduceMotion, settled]);
 
   const frame = frames[index] ?? frames[FINAL_FRAME]!;
 
   return (
     <span
       aria-label="brennen"
+      onPointerEnter={playAnimation}
       className={cn(
         "relative inline-grid align-baseline text-[#00a877]",
         settled && "font-serif italic",
