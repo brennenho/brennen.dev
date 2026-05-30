@@ -1,8 +1,12 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type SpotifyTrack = {
   item: {
@@ -16,14 +20,19 @@ type SpotifyTrack = {
       images: Array<{ url: string; width: number; height: number }>;
     };
     artists: Array<{ name: string }>;
+    duration_ms?: number;
   };
   is_playing: boolean;
+  progress_ms?: number;
 };
 
 export function SpotifyMention() {
   const [track, setTrack] = useState<SpotifyTrack | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
+  const [now, setNow] = useState(Date.now());
+  const [placement, setPlacement] = useState<"bottom" | "top">("bottom");
+  const mentionRef = useRef<HTMLSpanElement>(null);
+  const fetchedAtRef = useRef(Date.now());
 
   useEffect(() => {
     let mounted = true;
@@ -33,19 +42,29 @@ export function SpotifyMention() {
         const response = await fetch("/api/spotify");
         if (!response.ok) return;
         const data = (await response.json()) as SpotifyTrack;
-        if (mounted) setTrack(data);
+        if (mounted) {
+          fetchedAtRef.current = Date.now();
+          setTrack(data);
+          setNow(Date.now());
+        }
       } finally {
         if (mounted) setLoaded(true);
       }
     }
 
     void fetchTrack();
-    const id = window.setInterval(fetchTrack, 15000);
+    const id = window.setInterval(fetchTrack, 2000);
 
     return () => {
       mounted = false;
       window.clearInterval(id);
     };
+  }, []);
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+
+    return () => window.clearInterval(id);
   }, []);
 
   const image = track?.item.album.images
@@ -61,60 +80,137 @@ export function SpotifyMention() {
       "spotify:track:",
       "https://open.spotify.com/track/",
     );
+  const duration = track?.item.duration_ms ?? 0;
+  const progress = useMemo(() => {
+    if (!track) return 0;
+
+    const base = track.progress_ms ?? 0;
+    const elapsed = track.is_playing ? now - fetchedAtRef.current : 0;
+
+    return Math.min(duration, base + elapsed);
+  }, [duration, now, track]);
+  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
+  const isLive = track?.is_playing ?? false;
+
+  function updatePlacement() {
+    const rect = mentionRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const popoverHeight = 116;
+    const gap = 8;
+    const spaceBelow = window.innerHeight - rect.bottom;
+
+    setPlacement(spaceBelow >= popoverHeight + gap ? "bottom" : "top");
+  }
 
   return (
-    <span ref={ref} className="group relative inline-flex align-middle">
-      <a
-        href={href}
-        target="_blank"
-        rel="noreferrer"
-        className="inline-flex items-center gap-2 rounded-md bg-[#333332] px-2 py-1 text-[15px] leading-none font-bold text-[#f1f1ef] transition-colors hover:bg-[#3d3d3c]"
+    <span className="inline-flex flex-wrap items-center gap-2 align-middle">
+      <span>
+        {isLive ? "I’m currently listening to:" : "The last song I played was"}
+      </span>
+      <span
+        ref={mentionRef}
+        onFocusCapture={updatePlacement}
+        onPointerEnter={updatePlacement}
+        className="group relative inline-flex align-middle"
       >
-        <SpotifyLogo className="h-5 w-5 text-[#1ed760]" />
-        <span className="text-[#a9a9a7]">Spotify</span>
-        {loaded ? <span>{song}</span> : <Skeleton className="h-4 w-20" />}
-      </a>
+        <a
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 rounded-md bg-[#333332] px-2 py-1 text-[15px] leading-none font-bold text-[#f1f1ef] transition-colors hover:bg-[#3d3d3c]"
+        >
+          <SpotifyLogo className="h-5 w-5 text-[#1ed760]" />
+          <span className="text-[#a9a9a7]">Spotify</span>
+          {loaded ? <span>{song}</span> : <Skeleton className="h-4 w-20" />}
+        </a>
 
-      <span className="pointer-events-none absolute bottom-full left-0 z-50 mb-2 hidden w-[360px] rounded-xl bg-[#555] p-4 text-white shadow-2xl group-focus-within:block group-hover:block">
-        <span className="flex gap-5">
-          <span className="relative block h-[116px] w-[116px] shrink-0 overflow-hidden rounded-lg bg-[#f1f1ef]">
-            {image ? (
-              <Image
-                src={image.url}
-                alt={track?.item.album.name ?? song}
-                fill
-                className="object-cover"
-              />
-            ) : null}
-          </span>
-          <span className="flex min-w-0 flex-1 flex-col pt-4">
-            <span className="mb-3 flex items-start justify-between gap-4">
-              <span className="min-w-0">
-                <span className="block truncate text-[20px] font-bold">
-                  {song}
-                </span>
-                <span className="mt-3 block truncate text-[20px] text-[#d4d4d4]">
-                  {artist}
-                </span>
-              </span>
-              <SpotifyLogo className="h-8 w-8 shrink-0 text-white" />
-            </span>
-            <span className="mt-auto flex items-center justify-between">
-              <span className="flex items-center gap-3 text-[16px]">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full border-4 border-white text-2xl leading-none font-bold">
-                  +
-                </span>
-                Save on Spotify
-              </span>
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#555]">
-                <span className="ml-1 h-0 w-0 border-y-[13px] border-l-[18px] border-y-transparent border-l-[#555]" />
-              </span>
-            </span>
-          </span>
+        <span
+          className={cn(
+            "absolute left-0 z-50 hidden w-72 group-focus-within:block group-hover:block",
+            placement === "bottom" ? "top-full pt-2" : "bottom-full pb-2",
+          )}
+        >
+          <Card className="w-full rounded-md border-[#3a3a39] bg-[#2f2f2e] p-4 text-[#f1f1ef] shadow-none sm:w-72">
+            <CardContent className="flex flex-row items-center gap-4 p-0">
+              <div className="flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border border-[#3a3a39] bg-[#202020] shadow-none">
+                {track && image ? (
+                  <Image
+                    src={image.url}
+                    alt="Cover"
+                    width={50}
+                    height={50}
+                    className="object-cover"
+                  />
+                ) : (
+                  <Skeleton className="h-[50px] w-[50px]" />
+                )}
+              </div>
+
+              <div className="flex flex-1 flex-col gap-1">
+                <div className="flex flex-row justify-between">
+                  <div className="flex w-full flex-col gap-0.5 leading-none">
+                    {track ? (
+                      <>
+                        <div className="flex flex-row items-center justify-between">
+                          <div className="line-clamp-2 text-sm font-semibold text-[#f1f1ef]">
+                            {song}
+                          </div>
+                          {isLive ? (
+                            <Badge className="flex items-center gap-1.5 self-start bg-[#1ed760]/20 text-[#1ed760]">
+                              <span className="relative flex h-1.5 w-1.5">
+                                <span className="absolute inline-flex h-full w-full animate-[ping_1.5s_ease-in-out_infinite] rounded-full bg-[#1ed760] opacity-75" />
+                                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#1ed760]" />
+                              </span>
+                              live
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="secondary"
+                              className="flex items-center gap-1.5 self-start bg-[#3d3d3c] text-[#d4d4d1]"
+                            >
+                              offline
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="line-clamp-1 text-xs text-[#d4d4d1] italic">
+                          {artist}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {track && isLive && duration > 0 ? (
+                  <div className="flex flex-row items-center gap-1 text-xs font-medium text-[#f1f1ef] tabular-nums">
+                    {formatTime(progress)}
+                    <Progress
+                      value={progressPercent}
+                      className="h-1.5 bg-[#1ed760]/20 [&>div]:bg-[#1ed760]"
+                    />
+                    {formatTime(duration)}
+                  </div>
+                ) : null}
+              </div>
+            </CardContent>
+          </Card>
         </span>
       </span>
     </span>
   );
+}
+
+function formatTime(ms: number | undefined) {
+  if (!ms) return "0:00";
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
 function SpotifyLogo({ className }: { className?: string }) {

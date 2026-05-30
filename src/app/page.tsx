@@ -41,17 +41,19 @@ export default async function HomePage() {
             <li>
               Studying Computer Engineering & Computer Science at the University
               of Southern California
+              <ul className="mt-3 list-disc pl-6">
+                <li>Minoring in Psychology</li>
+              </ul>
             </li>
             <li>
               I’m fascinated in applied ai and product development, especially
               at the intersection of software and hardware
             </li>
             <li>
-              On campus, I’m involved in the DILL Lab, Code the Change, LavaLab,
-              and Makers
+              On campus, I’m involved in the Code the Change (co-president),
+              DILL Lab, LavaLab, TroyLabs, and Makers
             </li>
             <li>
-              <span className="mr-2">I’m currently listening to:</span>
               <SpotifyMention />
             </li>
           </NotionList>
