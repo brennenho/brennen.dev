@@ -12,21 +12,21 @@ import Link from "next/link";
 
 export function ExperienceTable() {
   return (
-    <div className="mt-4 text-[14px] leading-[1.5] text-[#d4d4d1]">
+    <div className="mt-4 text-[14px] leading-normal text-[#d4d4d1]">
       <div className="mb-3 flex items-center justify-between">
         <button className="inline-flex h-8 items-center gap-2 rounded-full bg-[#30302f] px-4 text-[14px] font-semibold text-[#f1f1ef]">
           <Table2 className="h-4 w-4" />
           Table
         </button>
-        <button className="h-8 rounded-md bg-[#2383e2] px-5 text-[14px] font-medium text-white">
+        <button className="h-7 w-[70px] rounded-sm bg-[#2883DF] text-[14px] font-medium text-white">
           New
         </button>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] border-collapse">
+        <table className="w-full min-w-[760px] border-collapse font-medium">
           <thead>
-            <tr className="border-b border-[#30302f] text-left text-[14px] font-medium text-[#a7a7a4]">
+            <tr className="border-b border-[#30302f] text-left text-[14px] text-[#a7a7a4]">
               <th className="w-[210px] px-2 py-1.5">
                 <span className="flex items-center gap-2">
                   <Briefcase className="h-4 w-4" />
@@ -65,7 +65,13 @@ export function ExperienceTable() {
                     target="_blank"
                     className="flex items-center gap-2"
                   >
-                    <span className="relative h-6 w-6 shrink-0 overflow-hidden rounded-sm bg-white">
+                    <span
+                      className={`relative h-6 w-6 shrink-0 overflow-hidden rounded-sm ${
+                        "transparent" in data && data.transparent
+                          ? "bg-white"
+                          : ""
+                      }`}
+                    >
                       <Image
                         src={`/img/${key}.png`}
                         alt=""
