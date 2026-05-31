@@ -72,7 +72,7 @@ export function NotionSidebar({
             height={24}
             className="h-6 w-6 rounded-sm"
           />
-          <span className="truncate">brennen ho</span>
+          <span className="truncate">brennen’s notion</span>
         </Link>
         {headerAction}
       </div>
