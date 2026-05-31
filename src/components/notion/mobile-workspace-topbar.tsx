@@ -64,7 +64,7 @@ export function MobileWorkspaceTopbar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-12 items-center justify-between border-b border-transparent bg-[#191919]/95 px-2 text-[14px] text-[#b3b3b1] backdrop-blur lg:hidden">
+      <header className="sticky top-0 z-40 flex h-12 items-center justify-between border-b border-transparent bg-[#191919]/95 px-2 text-[14px] text-[#b3b3b1] backdrop-blur min-[900px]:hidden">
         <div className="flex min-w-0 items-center gap-1">
           <button
             type="button"
@@ -119,14 +119,14 @@ export function MobileWorkspaceTopbar({
       </header>
 
       {open ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 min-[900px]:hidden">
           <button
             type="button"
             aria-label="Close sidebar"
             className="absolute inset-0 bg-black/45"
             onClick={() => setOpen(false)}
           />
-          <aside className="relative flex h-full w-[92vw] max-w-none flex-col border-r border-[#2b2b2b] bg-[#202020] text-[#b8b8b5]">
+          <aside className="relative flex h-full w-[92vw] max-w-[380px] flex-col border-r border-[#2b2b2b] bg-[#202020] text-[#b8b8b5]">
             <div className="flex h-[45px] items-center justify-between px-3">
               <Link
                 href="/"

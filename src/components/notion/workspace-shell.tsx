@@ -69,7 +69,7 @@ export function WorkspaceShell({
   return (
     <div className="min-h-screen bg-[#191919] text-[#f1f1ef]">
       <WorkspaceSidebar activePath={activePath} />
-      <div className="min-h-screen lg:pl-[244px]">
+      <div className="min-h-screen min-[900px]:pl-[244px]">
         <MobileWorkspaceTopbar
           activePath={activePath}
           editedCommitTimestamp={editedCommitTimestamp}
@@ -107,7 +107,7 @@ function WorkspaceTopbar({
   isFavorite: boolean;
 }) {
   return (
-    <header className="sticky top-0 z-40 hidden h-[45px] items-center justify-between border-b border-transparent bg-[#191919]/95 px-3 text-[14px] text-[#b3b3b1] backdrop-blur lg:flex">
+    <header className="sticky top-0 z-40 hidden h-[45px] items-center justify-between border-b border-transparent bg-[#191919]/95 px-3 text-[14px] text-[#b3b3b1] backdrop-blur min-[900px]:flex">
       <div className="flex min-w-0 items-center gap-2">
         <span className="text-[18px] leading-none">👋</span>
         <span className="truncate font-medium text-[#efefed]">
@@ -158,7 +158,7 @@ function WorkspaceTopbar({
 
 function WorkspaceSidebar({ activePath }: { activePath: string }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 hidden w-[244px] flex-col border-r border-[#2b2b2b] bg-[#202020] text-[#b8b8b5] lg:flex">
+    <aside className="fixed inset-y-0 left-0 z-50 hidden w-[244px] flex-col border-r border-[#2b2b2b] bg-[#202020] text-[#b8b8b5] min-[900px]:flex">
       <div className="flex h-[45px] items-center justify-between px-3">
         <Link
           href="/"
@@ -305,7 +305,7 @@ export function ComingSoonPage({
     <main
       className={cn(
         pageContentClassName,
-        "flex min-h-[calc(100vh-64px)] flex-col pt-[12vh] lg:min-h-[calc(100vh-50px)] lg:pt-[18vh]",
+        "flex min-h-[calc(100vh-64px)] flex-col pt-[12vh] min-[900px]:min-h-[calc(100vh-50px)] min-[900px]:pt-[18vh]",
       )}
     >
       <div className="mb-4 text-[78px] leading-none">{icon}</div>
