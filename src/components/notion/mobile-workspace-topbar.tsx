@@ -2,7 +2,7 @@
 
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
-import { Lock, Mail, Menu, Plus, Share2, Star, X } from "lucide-react";
+import { Check, Lock, Mail, Menu, Plus, Share2, Star, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { type ReactNode, useEffect, useState } from "react";
@@ -97,7 +97,11 @@ export function MobileWorkspaceTopbar({
             onClick={copyPageLink}
             className="cursor-pointer rounded-sm p-2 text-[#d6d6d4] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]"
           >
-            <Share2 className="h-[18px] w-[18px]" />
+            {copied ? (
+              <Check className="h-[18px] w-[18px]" />
+            ) : (
+              <Share2 className="h-[18px] w-[18px]" />
+            )}
           </button>
           <span
             aria-label={isFavorite ? "Favorited" : "Not favorited"}
