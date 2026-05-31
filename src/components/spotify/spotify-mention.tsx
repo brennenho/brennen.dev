@@ -182,7 +182,7 @@ export function SpotifyMention() {
   return (
     <span className="inline-flex flex-wrap items-center gap-2 align-middle">
       <span>
-        {isLive ? "I’m currently listening to:" : "The last song I played was"}
+        {isLive ? "I’m currently listening to:" : "I most recently played:"}
       </span>
       <span
         ref={mentionRef}
