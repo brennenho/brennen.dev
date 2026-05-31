@@ -70,7 +70,7 @@ export function MobileWorkspaceTopbar({
             type="button"
             aria-label="Open sidebar"
             onClick={() => setOpen(true)}
-            className="rounded-sm p-2 text-[#d6d6d4] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]"
+            className="cursor-pointer rounded-sm p-2 text-[#d6d6d4] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -126,7 +126,7 @@ export function MobileWorkspaceTopbar({
             className="absolute inset-0 bg-black/45"
             onClick={() => setOpen(false)}
           />
-          <aside className="relative flex h-full w-[92vw] max-w-[380px] flex-col border-r border-[#2b2b2b] bg-[#202020] text-[#b8b8b5]">
+          <aside className="relative flex h-full w-full flex-col border-r border-[#2b2b2b] bg-[#202020] text-[#b8b8b5] sm:w-[92vw] sm:max-w-[280px]">
             <div className="flex h-[45px] items-center justify-between px-3">
               <Link
                 href="/"
