@@ -15,7 +15,17 @@ type CommitMetadata = {
 };
 
 const localSourceExtensions = [".ts", ".tsx", ".js", ".jsx", ".json"];
-const metadataFiles = new Set(["src/lib/git.ts"]);
+const metadataFiles = new Set([
+  "src/lib/git.ts",
+  "src/components/notion/edited-commit-link.tsx",
+  "src/components/notion/mobile-workspace-topbar.tsx",
+  "src/components/notion/sidebar.tsx",
+  "src/components/notion/topbar-actions.tsx",
+  "src/components/notion/workspace-shell.tsx",
+  // Musings data feeds global navigation, but edits there should not mark every
+  // page that renders the sidebar as edited.
+  "src/lib/musings.ts",
+]);
 
 function getVercelCommitDate() {
   return (
@@ -233,7 +243,7 @@ function formatEditedDateLabel(value: string) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Jan 22";
+    return "Jan 1";
   }
 
   return new Intl.DateTimeFormat("en", {
@@ -246,7 +256,7 @@ function formatCommitTimestamp(value: string) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Jan 22, 2026";
+    return "Jan 1, 2026";
   }
 
   return new Intl.DateTimeFormat("en", {
@@ -261,17 +271,19 @@ function formatCommitTimestamp(value: string) {
 
 export async function getEditedMetadata(paths?: string | string[]) {
   const scopedPaths = normalizePaths(paths);
+  const isScopedLookup = scopedPaths.length > 0;
   const vercelSha = getVercelCommitSha();
   const vercelDate = getVercelCommitDate();
-  const localCommit =
-    scopedPaths.length > 0 ? getLocalCommit(scopedPaths) : getLocalRepoCommit();
+  const localCommit = isScopedLookup
+    ? getLocalCommit(scopedPaths)
+    : getLocalRepoCommit();
   const githubCommit = localCommit
     ? null
-    : scopedPaths.length > 0
+    : isScopedLookup
       ? await getGitHubCommitForPaths(scopedPaths)
       : await getGitHubCommit();
   const fallbackCommit =
-    vercelDate || vercelSha
+    !isScopedLookup && (vercelDate || vercelSha)
       ? {
           date: vercelDate ?? FALLBACK_DATE,
           sha: vercelSha ?? null,
