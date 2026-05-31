@@ -1,10 +1,10 @@
+import { NotionMdx } from "@/components/notion/mdx";
 import {
   PageContent,
   PageIcon,
   PageTitle,
   WorkspaceShell,
 } from "@/components/notion/workspace-shell";
-import { NotionMdx } from "@/components/notion/mdx";
 import { getPageEditedMetadata } from "@/lib/git";
 import {
   formatMusingDate,
