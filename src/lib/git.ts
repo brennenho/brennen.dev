@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-const FALLBACK_DATE = "2026-01-22T12:00:00.000Z";
+const FALLBACK_DATE = "2026-01-01T12:00:00.000Z";
 const REPO_URL = "https://github.com/brennenho/brennen.dev";
 const REPO_COMMITS_API_URL =
   "https://api.github.com/repos/brennenho/brennen.dev/commits";
@@ -270,12 +270,20 @@ export async function getEditedMetadata(paths?: string | string[]) {
     : scopedPaths.length > 0
       ? await getGitHubCommitForPaths(scopedPaths)
       : await getGitHubCommit();
-  const fallbackCommit = {
-    date: vercelDate ?? FALLBACK_DATE,
-    sha: vercelSha ?? null,
-    title: "Latest deployment commit",
-    url: vercelSha ? `${REPO_URL}/commit/${vercelSha}` : null,
-  };
+  const fallbackCommit =
+    vercelDate || vercelSha
+      ? {
+          date: vercelDate ?? FALLBACK_DATE,
+          sha: vercelSha ?? null,
+          title: "Latest deployment commit",
+          url: vercelSha ? `${REPO_URL}/commit/${vercelSha}` : null,
+        }
+      : (getLocalRepoCommit() ?? {
+          date: FALLBACK_DATE,
+          sha: null,
+          title: "Latest commit",
+          url: null,
+        });
   const commit = localCommit ?? githubCommit ?? fallbackCommit;
 
   return {

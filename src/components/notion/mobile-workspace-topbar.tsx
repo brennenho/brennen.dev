@@ -1,7 +1,7 @@
 "use client";
 
 import { EditedCommitLink } from "@/components/notion/edited-commit-link";
-import { NotionSidebar } from "@/components/notion/sidebar";
+import { NotionSidebar, type SidebarItem } from "@/components/notion/sidebar";
 import { cn } from "@/lib/utils";
 import { Check, Lock, Menu, Share2, Star, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -14,6 +14,7 @@ type MobileWorkspaceTopbarProps = {
   editedCommitUrl: string;
   editedDate: string;
   isFavorite: boolean;
+  musingItems: SidebarItem[];
 };
 
 export function MobileWorkspaceTopbar({
@@ -24,6 +25,7 @@ export function MobileWorkspaceTopbar({
   editedCommitUrl,
   editedDate,
   isFavorite,
+  musingItems,
 }: MobileWorkspaceTopbarProps) {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
@@ -129,6 +131,7 @@ export function MobileWorkspaceTopbar({
                 <X className="h-5 w-5" />
               </button>
             }
+            musingItems={musingItems}
             onNavigate={() => setOpen(false)}
           />
         </div>

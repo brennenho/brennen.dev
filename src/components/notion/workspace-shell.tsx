@@ -1,7 +1,12 @@
 import { EditedCommitLink } from "@/components/notion/edited-commit-link";
 import { MobileWorkspaceTopbar } from "@/components/notion/mobile-workspace-topbar";
-import { isFavoritePath, NotionSidebar } from "@/components/notion/sidebar";
+import {
+  isFavoritePath,
+  NotionSidebar,
+  type SidebarItem,
+} from "@/components/notion/sidebar";
 import { TopbarActions } from "@/components/notion/topbar-actions";
+import { getMusingSummaries } from "@/lib/musings";
 import { cn } from "@/lib/utils";
 import {
   BriefcaseBusiness,
@@ -28,7 +33,7 @@ const pageTitleClassName =
 const bodyTextClassName =
   "text-[16px] leading-[1.5] font-medium text-[#f1f1ef]";
 
-export function WorkspaceShell({
+export async function WorkspaceShell({
   children,
   editedCommitDate,
   editedCommitTimestamp,
@@ -38,10 +43,17 @@ export function WorkspaceShell({
   activePath = "/",
 }: WorkspaceShellProps) {
   const isFavorite = isFavoritePath(activePath);
+  const musingItems: SidebarItem[] = (await getMusingSummaries()).map(
+    (post) => ({
+      href: post.href,
+      icon: post.emoji,
+      label: post.label,
+    }),
+  );
 
   return (
     <div className="min-h-screen bg-[#191919] text-[#f1f1ef]">
-      <WorkspaceSidebar activePath={activePath} />
+      <WorkspaceSidebar activePath={activePath} musingItems={musingItems} />
       <div className="min-h-screen min-[900px]:pl-[244px]">
         <MobileWorkspaceTopbar
           activePath={activePath}
@@ -51,6 +63,7 @@ export function WorkspaceShell({
           editedCommitUrl={editedCommitUrl}
           editedDate={editedDate}
           isFavorite={isFavorite}
+          musingItems={musingItems}
         />
         <WorkspaceTopbar
           editedCommitDate={editedCommitDate}
@@ -107,11 +120,18 @@ function WorkspaceTopbar({
   );
 }
 
-function WorkspaceSidebar({ activePath }: { activePath: string }) {
+function WorkspaceSidebar({
+  activePath,
+  musingItems,
+}: {
+  activePath: string;
+  musingItems: SidebarItem[];
+}) {
   return (
     <NotionSidebar
       activePath={activePath}
       className="fixed inset-y-0 left-0 z-50 hidden w-[244px] min-[900px]:flex"
+      musingItems={musingItems}
     />
   );
 }

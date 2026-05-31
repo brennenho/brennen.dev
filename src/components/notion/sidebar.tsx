@@ -18,25 +18,6 @@ export const favoriteItems: SidebarItem[] = [
   { href: "/playground", icon: "🛝", label: "playground" },
 ];
 
-export const musingItems: SidebarItem[] = [
-  {
-    href: "/musings/summer-in-the-city",
-    icon: "🌉",
-    label: "summer in the city - jun ’26",
-  },
-  {
-    href: "/musings/side-quests",
-    icon: "🕵️",
-    label: "side quests - apr ’26",
-  },
-  { href: "/musings/watchlist", icon: "👀", label: "watchlist - feb ’26" },
-  {
-    href: "/musings/new-beginnings",
-    icon: "🌻",
-    label: "new beginnings - jan ’26",
-  },
-];
-
 export function isFavoritePath(path: string) {
   return favoriteItems.some((item) => item.href === path);
 }
@@ -45,11 +26,13 @@ export function NotionSidebar({
   activePath,
   className,
   headerAction,
+  musingItems,
   onNavigate,
 }: {
   activePath: string;
   className?: string;
   headerAction?: ReactNode;
+  musingItems: SidebarItem[];
   onNavigate?: () => void;
 }) {
   return (
