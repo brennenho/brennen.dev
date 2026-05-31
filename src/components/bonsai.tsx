@@ -3,53 +3,40 @@
 import { type CharCell, DrawWindow } from "@/lib/bonsai/draw";
 import { OffsetFibTree, type TreeOptions } from "@/lib/bonsai/tree";
 import { RefreshCw } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
 
 const WIDTH = 80; // characters
 const HEIGHT = 40; // rows
 
+function createTreeGrid(): CharCell[][] {
+  const options: TreeOptions = {
+    initial_len: 20,
+    num_layers: 6,
+    angle_mean: 0.5, // radians ~ 30 degrees
+    leaf_len: 6,
+    leaf_chars: ["*", "+", "."],
+    instant: true,
+    wait_time: 0,
+
+    fixed_window: true,
+    branch_chars: ["|", "/", "\\", "_"],
+  };
+
+  const win = new DrawWindow(WIDTH, HEIGHT, options);
+
+  // Root position in "plane" coords (x across, y up)
+  const rootX = WIDTH / 2;
+  const rootY = 10; // bottom
+
+  const tree = new OffsetFibTree(win, [rootX, rootY], options);
+  tree.draw();
+
+  return win.getChars();
+}
+
 export function Bonsai() {
-  const [grid, setGrid] = useState<CharCell[][] | null>(null);
-  const [seed, setSeed] = useState(0);
-
-  const generateTree = useCallback(() => {
-    const options: TreeOptions = {
-      initial_len: 20,
-      num_layers: 6,
-      angle_mean: 0.5, // radians ~ 30 degrees
-      leaf_len: 6,
-      leaf_chars: ["*", "+", "."],
-      instant: true,
-      wait_time: 0,
-
-      fixed_window: true,
-      branch_chars: ["|", "/", "\\", "_"],
-    };
-
-    const win = new DrawWindow(WIDTH, HEIGHT, options);
-
-    // Root position in "plane" coords (x across, y up)
-    const rootX = WIDTH / 2;
-    const rootY = 10; // bottom
-
-    const tree = new OffsetFibTree(win, [rootX, rootY], options);
-    tree.draw();
-
-    setGrid(win.getChars());
-  }, []);
-
-  useEffect(() => {
-    generateTree();
-  }, [generateTree, seed]);
-
-  if (!grid)
-    return (
-      <div className="flex items-center gap-2 font-mono text-sm">
-        <RefreshCw className="h-4 w-4 animate-spin" />
-        Growing bonsai…
-      </div>
-    );
+  const [grid, setGrid] = useState<CharCell[][]>(createTreeGrid);
 
   return (
     <div className="flex flex-col gap-8 rounded-lg bg-slate-800 p-4">
@@ -72,7 +59,7 @@ export function Bonsai() {
         ))}
       </pre>
       <Button
-        onClick={() => setSeed((s) => s + 1)}
+        onClick={() => setGrid(createTreeGrid())}
         variant="default"
         className="cursor-pointer"
       >

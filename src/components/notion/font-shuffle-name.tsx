@@ -30,7 +30,6 @@ const frames: FontFrame[] = [
   { family: "Georgia, Times, serif", style: "italic" },
 ] as const satisfies FontFrame[];
 
-const FRAME_DURATION = 260;
 const FINAL_FRAME = frames.length - 1;
 
 export function FontShuffleName() {
@@ -49,15 +48,18 @@ export function FontShuffleName() {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const id = window.requestAnimationFrame(() => {
+      setReduceMotion(prefersReducedMotion);
 
-    setReduceMotion(prefersReducedMotion);
+      if (prefersReducedMotion) {
+        setSettled(true);
+        return;
+      }
 
-    if (prefersReducedMotion) {
-      setSettled(true);
-      return;
-    }
+      setIndex(0);
+    });
 
-    setIndex(0);
+    return () => window.cancelAnimationFrame(id);
   }, []);
 
   useEffect(() => {

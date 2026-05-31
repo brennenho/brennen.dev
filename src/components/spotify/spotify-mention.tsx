@@ -29,7 +29,8 @@ type SpotifyTrack = {
 export function SpotifyMention() {
   const [track, setTrack] = useState<SpotifyTrack | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(0);
+  const [fetchedAt, setFetchedAt] = useState(0);
   const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<"bottom" | "top">("bottom");
   const [popoverFrame, setPopoverFrame] = useState({
@@ -39,7 +40,6 @@ export function SpotifyMention() {
   });
   const closeTimerRef = useRef<number | null>(null);
   const mentionRef = useRef<HTMLSpanElement>(null);
-  const fetchedAtRef = useRef(Date.now());
 
   useEffect(() => {
     let mounted = true;
@@ -50,9 +50,10 @@ export function SpotifyMention() {
         if (!response.ok) return;
         const data = (await response.json()) as SpotifyTrack;
         if (mounted) {
-          fetchedAtRef.current = Date.now();
+          const timestamp = Date.now();
+          setFetchedAt(timestamp);
           setTrack(data);
-          setNow(Date.now());
+          setNow(timestamp);
         }
       } finally {
         if (mounted) setLoaded(true);
@@ -60,7 +61,9 @@ export function SpotifyMention() {
     }
 
     void fetchTrack();
-    const id = window.setInterval(fetchTrack, 2000);
+    const id = window.setInterval(() => {
+      void fetchTrack();
+    }, 2000);
 
     return () => {
       mounted = false;
@@ -126,10 +129,10 @@ export function SpotifyMention() {
     if (!track) return 0;
 
     const base = track.progress_ms ?? 0;
-    const elapsed = track.is_playing ? now - fetchedAtRef.current : 0;
+    const elapsed = track.is_playing ? now - fetchedAt : 0;
 
     return Math.min(duration, base + elapsed);
-  }, [duration, now, track]);
+  }, [duration, fetchedAt, now, track]);
   const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
   const isLive = track?.is_playing ?? false;
 
