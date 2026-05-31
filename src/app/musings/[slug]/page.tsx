@@ -47,7 +47,7 @@ export default async function MusingPage({
         <PageIcon>{post.emoji}</PageIcon>
         <PageTitle>{post.title}</PageTitle>
         <p className="-mt-[10px] text-[14px] leading-[1.4] font-medium text-[#858582]">
-          {formatMusingDate(post.date)}
+          {formatMusingDate(post.date)} • {post.readTime}
         </p>
         <NotionMdx source={post.content} />
       </PageContent>

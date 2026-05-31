@@ -25,6 +25,7 @@ export type MusingSummary = MusingFrontmatter & {
 
 export type MusingPost = MusingSummary & {
   content: string;
+  readTime: string;
 };
 
 function parseDate(value: string) {
@@ -64,6 +65,18 @@ function formatMusingMonth(value: string) {
   const year = new Intl.DateTimeFormat("en", { year: "2-digit" }).format(date);
 
   return `${month} ’${year}`;
+}
+
+function calculateReadTime(content: string) {
+  const plainText = content
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`]*`/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[#*_~[\]()>{}.-]/g, " ");
+  const words = plainText.trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.ceil(words / 225));
+
+  return `${minutes} min read`;
 }
 
 function parseMdxFrontmatter(source: string, filePath: string) {
@@ -141,9 +154,11 @@ export async function getMusingPost(slug: string) {
 
   const source = await readFile(summary.filePath, "utf8");
   const { bodyStart } = parseMdxFrontmatter(source, summary.filePath);
+  const content = source.slice(bodyStart);
 
   return {
     ...summary,
-    content: source.slice(bodyStart),
+    content,
+    readTime: calculateReadTime(content),
   };
 }
