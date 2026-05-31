@@ -46,6 +46,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     drawGround();
     drawAmbientCover();
     drawScore();
+    drawClockOverlay();
 
     if (game.mode === "over") {
       display.text(
@@ -91,7 +92,9 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     if (game.mode !== "cover") return;
 
     drawCactus(game.coverCactus());
+  }
 
+  function drawClockOverlay() {
     const clockRow = Math.max(
       1,
       Math.min(game.groundRow() + 6, display.rows - CLOCK_HEIGHT - 2),
@@ -100,12 +103,12 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   }
 
   function drawDino() {
-    const frame =
-      game.mode === "playing"
-        ? Math.floor(game.elapsed / 110) % 2 === 0
-          ? DINO_RUN_1
-          : DINO_RUN_2
-        : DINO;
+    const shouldRun = game.mode === "playing" && game.playerOffset === 0;
+    const frame = shouldRun
+      ? Math.floor(game.elapsed / 120) % 2 === 0
+        ? DINO_RUN_1
+        : DINO_RUN_2
+      : DINO;
 
     display.sprite(game.playerX(), game.playerY(), frame, 255);
   }
