@@ -224,6 +224,10 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   );
 }
 
+export function NotionParagraph({ children }: { children: ReactNode }) {
+  return <p className={bodyTextClassName}>{children}</p>;
+}
+
 export const placeholderIcons = {
   work: BriefcaseBusiness,
   nursery: Sprout,

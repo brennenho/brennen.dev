@@ -1,0 +1,58 @@
+[
+  {
+    "id": "finder",
+    "name": "Finder",
+    "image": "/img/dock/finder.png",
+    "href": "https://support.apple.com/guide/mac-help/get-to-know-the-finder-on-your-mac-mchlp2605/mac",
+    "running": true
+  },
+  {
+    "id": "launchpad",
+    "name": "Launchpad",
+    "image": "/img/dock/launchpad.png",
+    "href": "https://support.apple.com/guide/mac-help/use-launchpad-to-view-and-open-apps-mh35840/mac",
+    "running": false
+  },
+  {
+    "id": "safari",
+    "name": "Safari",
+    "image": "/img/dock/safari.png",
+    "href": "https://www.apple.com/safari/",
+    "running": true
+  },
+  {
+    "id": "messages",
+    "name": "Messages",
+    "image": "/img/dock/messages.png",
+    "href": "https://support.apple.com/messages",
+    "running": true
+  },
+  {
+    "id": "notes",
+    "name": "Notes",
+    "image": "/img/dock/notes.png",
+    "href": "https://support.apple.com/guide/notes/welcome/mac",
+    "running": true
+  },
+  {
+    "id": "reminders",
+    "name": "Reminders",
+    "image": "/img/dock/reminders.png",
+    "href": "https://support.apple.com/guide/reminders/welcome/mac",
+    "running": false
+  },
+  {
+    "id": "music",
+    "name": "Music",
+    "image": "/img/dock/apple-music.png",
+    "href": "https://www.apple.com/apple-music/",
+    "running": true
+  },
+  {
+    "id": "settings",
+    "name": "System Settings",
+    "image": "/img/dock/system-settings.png",
+    "href": "https://support.apple.com/guide/mac-help/change-system-settings-mh15217/mac",
+    "running": false
+  }
+]

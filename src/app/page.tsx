@@ -1,8 +1,10 @@
 import { ExperienceTable } from "@/components/notion/experience-table";
 import { FontShuffleName } from "@/components/notion/font-shuffle-name";
+import { MacDock } from "@/components/notion/mac-dock";
 import {
   NotionCallout,
   NotionList,
+  NotionParagraph,
   PageContent,
   PageIcon,
   PageTitle,
@@ -67,6 +69,14 @@ export default async function HomePage() {
               <SpotifyMention />
             </li>
           </NotionList>
+
+          <SectionSpacer />
+          <SectionTitle>my dock</SectionTitle>
+          <NotionParagraph>
+            My favorites and daily drivers — a glimpse into life as a student
+            and developer.
+          </NotionParagraph>
+          <MacDock />
 
           <SectionSpacer />
           <SectionTitle>experience</SectionTitle>
