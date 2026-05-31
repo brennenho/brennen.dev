@@ -1,3 +1,4 @@
+import { EditedCommitLink } from "@/components/notion/edited-commit-link";
 import { MobileWorkspaceTopbar } from "@/components/notion/mobile-workspace-topbar";
 import { isFavoritePath, NotionSidebar } from "@/components/notion/sidebar";
 import { TopbarActions } from "@/components/notion/topbar-actions";
@@ -9,11 +10,11 @@ import {
   Lock,
   Sprout,
 } from "lucide-react";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 type WorkspaceShellProps = {
   children: ReactNode;
+  editedCommitDate: string;
   editedCommitTimestamp: string;
   editedCommitTitle: string;
   editedCommitUrl: string;
@@ -29,6 +30,7 @@ const bodyTextClassName =
 
 export function WorkspaceShell({
   children,
+  editedCommitDate,
   editedCommitTimestamp,
   editedCommitTitle,
   editedCommitUrl,
@@ -43,6 +45,7 @@ export function WorkspaceShell({
       <div className="min-h-screen min-[900px]:pl-[244px]">
         <MobileWorkspaceTopbar
           activePath={activePath}
+          editedCommitDate={editedCommitDate}
           editedCommitTimestamp={editedCommitTimestamp}
           editedCommitTitle={editedCommitTitle}
           editedCommitUrl={editedCommitUrl}
@@ -50,6 +53,7 @@ export function WorkspaceShell({
           isFavorite={isFavorite}
         />
         <WorkspaceTopbar
+          editedCommitDate={editedCommitDate}
           editedCommitTimestamp={editedCommitTimestamp}
           editedCommitTitle={editedCommitTitle}
           editedCommitUrl={editedCommitUrl}
@@ -63,12 +67,14 @@ export function WorkspaceShell({
 }
 
 function WorkspaceTopbar({
+  editedCommitDate,
   editedCommitTimestamp,
   editedCommitTitle,
   editedCommitUrl,
   editedDate,
   isFavorite,
 }: {
+  editedCommitDate: string;
   editedCommitTimestamp: string;
   editedCommitTitle: string;
   editedCommitUrl: string;
@@ -87,38 +93,14 @@ function WorkspaceTopbar({
       </div>
 
       <div className="flex items-center gap-4">
-        <span className="group relative hidden sm:inline-block">
-          <Link
-            href={editedCommitUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-block cursor-pointer rounded px-2 py-1 text-[#858582] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]"
-            title="View on GitHub"
-          >
-            Edited {editedDate}
-          </Link>
-          <span className="absolute top-full right-0 z-50 hidden w-max max-w-[460px] pt-1.5 group-focus-within:block group-hover:block">
-            <span className="block overflow-hidden rounded-lg border border-[#3a3a39] bg-[#202020] text-left text-[#b8b8b5]">
-              <span className="block border-b border-[#303030] px-3 py-2 text-[13px] font-semibold text-[#b8b8b5]">
-                Last Edited
-              </span>
-              <Link
-                href={editedCommitUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="flex max-w-[360px] items-start gap-4 px-3 py-2 text-[13px] transition-colors hover:bg-[#252525]"
-                title="View on GitHub"
-              >
-                <span className="max-w-[320px] min-w-[180px] font-semibold text-wrap text-[#f1f1ef]">
-                  {editedCommitTitle}
-                </span>
-                <span className="shrink-0 whitespace-nowrap text-[#858582]">
-                  {editedCommitTimestamp}
-                </span>
-              </Link>
-            </span>
-          </span>
-        </span>
+        <EditedCommitLink
+          commitDate={editedCommitDate}
+          commitTitle={editedCommitTitle}
+          commitUrl={editedCommitUrl}
+          fallbackDateLabel={editedDate}
+          fallbackTimestamp={editedCommitTimestamp}
+          variant="desktop"
+        />
         <TopbarActions isFavorite={isFavorite} />
       </div>
     </header>

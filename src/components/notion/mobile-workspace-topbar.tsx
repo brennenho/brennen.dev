@@ -1,13 +1,14 @@
 "use client";
 
+import { EditedCommitLink } from "@/components/notion/edited-commit-link";
 import { NotionSidebar } from "@/components/notion/sidebar";
 import { cn } from "@/lib/utils";
 import { Check, Lock, Menu, Share2, Star, X } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type MobileWorkspaceTopbarProps = {
   activePath: string;
+  editedCommitDate: string;
   editedCommitTimestamp: string;
   editedCommitTitle: string;
   editedCommitUrl: string;
@@ -17,6 +18,7 @@ type MobileWorkspaceTopbarProps = {
 
 export function MobileWorkspaceTopbar({
   activePath,
+  editedCommitDate,
   editedCommitTimestamp,
   editedCommitTitle,
   editedCommitUrl,
@@ -71,15 +73,14 @@ export function MobileWorkspaceTopbar({
         </div>
 
         <div className="ml-2 flex shrink-0 items-center gap-1">
-          <Link
-            href={editedCommitUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded px-2 py-1 text-[#858582] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]"
-            title={`${editedCommitTitle} - ${editedCommitTimestamp}`}
-          >
-            Edited {editedDate}
-          </Link>
+          <EditedCommitLink
+            commitDate={editedCommitDate}
+            commitTitle={editedCommitTitle}
+            commitUrl={editedCommitUrl}
+            fallbackDateLabel={editedDate}
+            fallbackTimestamp={editedCommitTimestamp}
+            variant="mobile"
+          />
           <button
             type="button"
             aria-label={copied ? "Copied page link" : "Copy page link"}

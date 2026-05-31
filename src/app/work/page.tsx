@@ -5,11 +5,12 @@ import {
 import { getPageEditedMetadata } from "@/lib/git";
 
 export default async function WorkPage() {
-  const { dateLabel, commitTimestamp, commitTitle, commitUrl } =
+  const { commitDate, dateLabel, commitTimestamp, commitTitle, commitUrl } =
     await getPageEditedMetadata("src/app/work/page.tsx");
 
   return (
     <WorkspaceShell
+      editedCommitDate={commitDate}
       editedCommitTimestamp={commitTimestamp}
       editedCommitTitle={commitTitle}
       editedCommitUrl={commitUrl}

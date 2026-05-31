@@ -15,11 +15,12 @@ import { SpotifyMention } from "@/components/spotify/spotify-mention";
 import { getPageEditedMetadata } from "@/lib/git";
 
 export default async function HomePage() {
-  const { dateLabel, commitTimestamp, commitTitle, commitUrl } =
+  const { commitDate, dateLabel, commitTimestamp, commitTitle, commitUrl } =
     await getPageEditedMetadata("src/app/page.tsx");
 
   return (
     <WorkspaceShell
+      editedCommitDate={commitDate}
       editedCommitTimestamp={commitTimestamp}
       editedCommitTitle={commitTitle}
       editedCommitUrl={commitUrl}

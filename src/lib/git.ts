@@ -255,6 +255,7 @@ function formatCommitTimestamp(value: string) {
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZoneName: "short",
   }).format(date);
 }
 
@@ -278,6 +279,7 @@ export async function getEditedMetadata(paths?: string | string[]) {
   const commit = localCommit ?? githubCommit ?? fallbackCommit;
 
   return {
+    commitDate: commit.date ?? FALLBACK_DATE,
     commitTimestamp: formatCommitTimestamp(commit.date ?? FALLBACK_DATE),
     commitTitle: commit.title ?? "Latest commit",
     dateLabel: formatEditedDateLabel(commit.date ?? FALLBACK_DATE),
