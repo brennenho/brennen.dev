@@ -30,7 +30,14 @@ export function SpotifyMention() {
   const [track, setTrack] = useState<SpotifyTrack | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<"bottom" | "top">("bottom");
+  const [popoverFrame, setPopoverFrame] = useState({
+    left: 0,
+    top: 0,
+    width: 288,
+  });
+  const closeTimerRef = useRef<number | null>(null);
   const mentionRef = useRef<HTMLSpanElement>(null);
   const fetchedAtRef = useRef(Date.now());
 
@@ -67,6 +74,40 @@ export function SpotifyMention() {
     return () => window.clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function closeImmediately() {
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+
+      setOpen(false);
+    }
+
+    window.addEventListener("scroll", closeImmediately, {
+      capture: true,
+      passive: true,
+    });
+    window.addEventListener("resize", closeImmediately);
+    window.addEventListener("touchmove", closeImmediately, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", closeImmediately, { capture: true });
+      window.removeEventListener("resize", closeImmediately);
+      window.removeEventListener("touchmove", closeImmediately);
+    };
+  }, [open]);
+
   const image = track?.item.album.images
     ?.slice()
     .sort((a, b) => b.width - a.width)[0];
@@ -96,11 +137,43 @@ export function SpotifyMention() {
     const rect = mentionRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    const popoverHeight = 116;
+    const viewportGap = 16;
+    const popoverWidth = Math.min(288, window.innerWidth - viewportGap * 2);
+    const popoverHeight = 88;
     const gap = 8;
     const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const nextPlacement = spaceBelow >= popoverHeight + gap ? "bottom" : "top";
+    const left = Math.min(
+      Math.max(rect.left, viewportGap),
+      window.innerWidth - popoverWidth - viewportGap,
+    );
+    const top =
+      nextPlacement === "bottom"
+        ? rect.bottom + gap
+        : spaceAbove >= popoverHeight + gap
+          ? rect.top - gap
+          : viewportGap;
 
-    setPlacement(spaceBelow >= popoverHeight + gap ? "bottom" : "top");
+    setPlacement(nextPlacement);
+    setPopoverFrame({ left, top, width: popoverWidth });
+  }
+
+  function openPopover() {
+    if (closeTimerRef.current) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+
+    updatePlacement();
+    setOpen(true);
+  }
+
+  function closePopover() {
+    closeTimerRef.current = window.setTimeout(() => {
+      setOpen(false);
+      closeTimerRef.current = null;
+    }, 100);
   }
 
   return (
@@ -110,8 +183,10 @@ export function SpotifyMention() {
       </span>
       <span
         ref={mentionRef}
-        onFocusCapture={updatePlacement}
-        onPointerEnter={updatePlacement}
+        onBlurCapture={closePopover}
+        onFocusCapture={openPopover}
+        onPointerEnter={openPopover}
+        onPointerLeave={closePopover}
         className="group relative inline-flex align-middle"
       >
         <a
@@ -126,12 +201,16 @@ export function SpotifyMention() {
         </a>
 
         <span
-          className={cn(
-            "absolute left-0 z-50 hidden w-72 group-focus-within:block group-hover:block",
-            placement === "bottom" ? "top-full pt-2" : "bottom-full pb-2",
-          )}
+          data-placement={placement}
+          onPointerEnter={openPopover}
+          onPointerLeave={closePopover}
+          style={{
+            ...popoverFrame,
+            transform: placement === "top" ? "translateY(-100%)" : undefined,
+          }}
+          className={cn("fixed z-50", open ? "block" : "hidden")}
         >
-          <Card className="w-full rounded-md border-[#3a3a39] bg-[#2f2f2e] p-4 text-[#f1f1ef] shadow-none sm:w-72">
+          <Card className="w-full rounded-md border-[#3a3a39] bg-[#2f2f2e] p-4 text-[#f1f1ef] shadow-none">
             <CardContent className="flex flex-row items-center gap-4 p-0">
               <div className="flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border border-[#3a3a39] bg-[#202020] shadow-none">
                 {track && image ? (
