@@ -12,7 +12,7 @@ import Link from "next/link";
 
 export function ExperienceTable() {
   return (
-    <div className="mt-4 text-[14px] leading-normal text-[#d4d4d1]">
+    <div className="text-[14px] leading-normal text-[#d4d4d1]">
       <div className="mb-3 flex items-center justify-between">
         <button className="inline-flex h-8 items-center gap-2 rounded-full bg-[#30302f] px-4 text-[14px] font-semibold text-[#f1f1ef]">
           <Table2 className="h-4 w-4" />

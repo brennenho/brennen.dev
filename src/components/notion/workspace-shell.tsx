@@ -305,11 +305,11 @@ export function ComingSoonPage({
     <main
       className={cn(
         pageContentClassName,
-        "flex min-h-[calc(100vh-64px)] flex-col pt-[12vh] min-[900px]:min-h-[calc(100vh-50px)] min-[900px]:pt-[18vh]",
+        "flex min-h-[calc(100vh-64px)] flex-col gap-[10px] pt-[12vh] min-[900px]:min-h-[calc(100vh-50px)] min-[900px]:pt-[18vh]",
       )}
     >
-      <div className="mb-4 text-[78px] leading-none">{icon}</div>
-      <h1 className={cn(pageTitleClassName, "mb-6")}>{title}</h1>
+      <div className="text-[78px] leading-none">{icon}</div>
+      <PageTitle>{title}</PageTitle>
       <NotionCallout icon="👀">{description} Coming soon.</NotionCallout>
     </main>
   );
@@ -321,16 +321,32 @@ export function PageIcon({ children }: { children: ReactNode }) {
   );
 }
 
-export function PageContent({ children }: { children: ReactNode }) {
+export function PageContent({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <article className={cn(pageContentClassName, "pt-16 pb-24 md:pt-[104px]")}>
+    <article
+      className={cn(
+        pageContentClassName,
+        "flex flex-col gap-[10px] pt-[80px] pb-24",
+        className,
+      )}
+    >
       {children}
     </article>
   );
 }
 
 export function PageTitle({ children }: { children: ReactNode }) {
-  return <h1 className={cn(pageTitleClassName, "mb-6")}>{children}</h1>;
+  return <h1 className={cn(pageTitleClassName, "mb-[10px]")}>{children}</h1>;
+}
+
+export function SectionSpacer() {
+  return <div aria-hidden="true" className="h-6 shrink-0" />;
 }
 
 export function NotionCallout({
@@ -350,12 +366,7 @@ export function NotionCallout({
 
 export function NotionList({ children }: { children: ReactNode }) {
   return (
-    <ul
-      className={cn(
-        "mt-4 list-disc space-y-4 pl-6 sm:space-y-3",
-        bodyTextClassName,
-      )}
-    >
+    <ul className={cn("list-disc space-y-[10px] pl-6", bodyTextClassName)}>
       {children}
     </ul>
   );
@@ -363,7 +374,7 @@ export function NotionList({ children }: { children: ReactNode }) {
 
 export function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h2 className="mt-14 text-[24px] leading-tight font-bold text-[#f1f1ef] sm:text-[26px]">
+    <h2 className="text-[24px] leading-tight font-bold text-[#f1f1ef] sm:text-[26px]">
       {children}
     </h2>
   );

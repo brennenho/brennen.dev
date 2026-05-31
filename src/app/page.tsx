@@ -6,6 +6,7 @@ import {
   PageContent,
   PageIcon,
   PageTitle,
+  SectionSpacer,
   SectionTitle,
   WorkspaceShell,
 } from "@/components/notion/workspace-shell";
@@ -43,12 +44,13 @@ export default async function HomePage() {
             personalize — with an emphasis on applied AI.
           </NotionCallout>
 
+          <SectionSpacer />
           <SectionTitle>about</SectionTitle>
           <NotionList>
             <li>
               Studying Computer Engineering & Computer Science at the University
               of Southern California
-              <ul className="mt-3 list-disc pl-6">
+              <ul className="mt-[10px] list-disc pl-6">
                 <li>Minoring in Psychology</li>
               </ul>
             </li>
@@ -65,6 +67,7 @@ export default async function HomePage() {
             </li>
           </NotionList>
 
+          <SectionSpacer />
           <SectionTitle>experience</SectionTitle>
           <ExperienceTable />
         </PageContent>
