@@ -54,7 +54,7 @@ export function MobileWorkspaceTopbar({
   return (
     <>
       <header className="sticky top-0 z-40 flex h-12 items-center justify-between border-b border-transparent bg-[#191919]/95 px-2 text-[14px] text-[#b3b3b1] backdrop-blur min-[900px]:hidden">
-        <div className="flex min-w-0 items-center gap-1">
+        <div className="flex min-w-0 flex-1 items-center gap-1">
           <button
             type="button"
             aria-label="Open sidebar"
@@ -64,13 +64,13 @@ export function MobileWorkspaceTopbar({
             <Menu className="h-5 w-5" />
           </button>
           <span className="text-[18px] leading-none">👋</span>
-          <span className="max-w-16 truncate font-medium text-[#efefed] min-[360px]:max-w-24 min-[430px]:max-w-[180px]">
+          <span className="min-w-0 truncate font-medium text-[#efefed]">
             hey, i’m brennen
           </span>
           <Lock className="hidden h-3.5 w-3.5 shrink-0 text-[#858582] min-[430px]:block" />
         </div>
 
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="ml-2 flex shrink-0 items-center gap-1">
           <Link
             href={editedCommitUrl}
             target="_blank"
