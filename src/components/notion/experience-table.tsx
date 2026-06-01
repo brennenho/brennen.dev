@@ -57,14 +57,17 @@ export function ExperienceTable() {
             {Object.entries(experiences).map(([key, data]) => (
               <tr
                 key={key}
-                className="border-b border-[#30302f] text-[#f1f1ef] hover:bg-[#242423]"
+                className="relative border-b border-[#30302f] text-[#f1f1ef] hover:bg-[#242423]"
               >
                 <td className="px-2 py-1.5">
                   <Link
+                    aria-label={`${data.name} website`}
+                    className="absolute inset-y-0 left-0 right-[90px] z-10 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
                     href={data.link}
+                    rel="noreferrer"
                     target="_blank"
-                    className="flex items-center gap-2"
-                  >
+                  />
+                  <span className="relative z-0 flex items-center gap-2">
                     <span
                       className={`relative h-6 w-6 shrink-0 overflow-hidden rounded-sm ${
                         "transparent" in data && data.transparent
@@ -73,14 +76,14 @@ export function ExperienceTable() {
                       }`}
                     >
                       <Image
-                        src={`/img/${key}.png`}
                         alt=""
-                        fill
                         className="object-contain"
+                        fill
+                        src={`/img/${key}.png`}
                       />
                     </span>
                     <span>{data.name.toLowerCase()}</span>
-                  </Link>
+                  </span>
                 </td>
                 <td className="border-l border-[#30302f] px-2 py-1.5">
                   {data.title.toLowerCase()}
@@ -97,8 +100,8 @@ export function ExperienceTable() {
             ))}
             <tr>
               <td
-                colSpan={4}
                 className="px-2 py-2.5 text-[14px] font-medium text-[#81817e]"
+                colSpan={4}
               >
                 <span className="inline-flex items-center gap-2">
                   <Plus className="h-4 w-4" />
