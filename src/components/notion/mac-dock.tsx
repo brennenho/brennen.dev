@@ -17,7 +17,7 @@ import {
 type DockApp = {
   id: string;
   name: string;
-  href: string;
+  href?: string;
   image: string;
   running?: boolean;
 };
@@ -124,6 +124,44 @@ function DockItem({
     height: `${baseButtonSize}px`,
     width: `${baseButtonSize}px`,
   } satisfies CSSProperties;
+  const itemClassName =
+    "group/dock relative flex h-full w-full origin-bottom cursor-default items-center justify-center border-0 bg-transparent p-0 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none";
+  const itemContent = (
+    <>
+      <span className="pointer-events-none absolute top-[-2.18rem] left-1/2 hidden -translate-x-1/2 items-center justify-center rounded-[6px] border border-white/10 bg-[#2f2f2f]/72 px-2 py-1 text-[11px] leading-none font-medium whitespace-nowrap text-[#f4f4f3] opacity-0 shadow-[0_8px_18px_rgba(0,0,0,0.2)] backdrop-blur-xl transition-[opacity,transform] duration-150 ease-out group-hover/dock:-translate-y-0.5 group-hover/dock:opacity-100 group-focus-visible/dock:-translate-y-0.5 group-focus-visible/dock:opacity-100 min-[700px]:flex">
+        {app.name}
+        <span className="absolute bottom-[-4px] h-[7px] w-[7px] rotate-45 border-r border-b border-white/10 bg-[#2f2f2f]/72" />
+      </span>
+      <span className="relative block h-full w-full transition-[filter] duration-150 ease-out group-hover/dock:drop-shadow-[0_7px_9px_rgba(0,0,0,0.2)] group-focus-visible/dock:drop-shadow-[0_7px_9px_rgba(0,0,0,0.2)]">
+        <DockIcon app={app} />
+      </span>
+      {app.running ? (
+        <span
+          className="absolute left-1/2 -translate-x-1/2 translate-y-full rounded-full bg-white/70"
+          style={{
+            bottom: `${baseButtonSize * 0.015}px`,
+            height: `${baseButtonSize * 0.075}px`,
+            width: `${baseButtonSize * 0.075}px`,
+          }}
+        />
+      ) : null}
+    </>
+  );
+
+  const interactiveProps = {
+    "aria-label": app.name,
+    className: itemClassName,
+    onFocus: updateRect,
+    onMouseEnter: () => {
+      updateRect();
+      setHoveredIndex(index);
+    },
+    onPointerEnter: () => {
+      updateRect();
+      setHoveredIndex(index);
+    },
+    style: { ...iconStyle, cursor: "default" },
+  };
 
   return (
     <li
@@ -131,41 +169,18 @@ function DockItem({
       className="relative flex shrink-0 items-center justify-center"
       style={itemStyle}
     >
-      <Link
-        aria-label={app.name}
-        className="group/dock relative flex h-full w-full origin-bottom cursor-pointer items-center justify-center border-0 bg-transparent p-0 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
-        href={app.href}
-        onFocus={updateRect}
-        onMouseEnter={() => {
-          updateRect();
-          setHoveredIndex(index);
-        }}
-        onPointerEnter={() => {
-          updateRect();
-          setHoveredIndex(index);
-        }}
-        rel="noreferrer"
-        style={iconStyle}
-        target="_blank"
-      >
-        <span className="pointer-events-none absolute top-[-2.18rem] left-1/2 hidden -translate-x-1/2 items-center justify-center rounded-[6px] border border-white/10 bg-[#2f2f2f]/72 px-2 py-1 text-[11px] leading-none font-medium whitespace-nowrap text-[#f4f4f3] opacity-0 shadow-[0_8px_18px_rgba(0,0,0,0.2)] backdrop-blur-xl transition-[opacity,transform] duration-150 ease-out group-hover/dock:-translate-y-0.5 group-hover/dock:opacity-100 group-focus-visible/dock:-translate-y-0.5 group-focus-visible/dock:opacity-100 min-[700px]:flex">
-          {app.name}
-          <span className="absolute bottom-[-4px] h-[7px] w-[7px] rotate-45 border-r border-b border-white/10 bg-[#2f2f2f]/72" />
-        </span>
-        <span className="relative block h-full w-full transition-[filter] duration-150 ease-out group-hover/dock:drop-shadow-[0_7px_9px_rgba(0,0,0,0.2)] group-focus-visible/dock:drop-shadow-[0_7px_9px_rgba(0,0,0,0.2)]">
-          <DockIcon app={app} />
-        </span>
-        {app.running ? (
-          <span
-            className="absolute left-1/2 -translate-x-1/2 translate-y-full rounded-full bg-white/70"
-            style={{
-              bottom: `${baseButtonSize * 0.015}px`,
-              height: `${baseButtonSize * 0.075}px`,
-              width: `${baseButtonSize * 0.075}px`,
-            }}
-          />
-        ) : null}
-      </Link>
+      {app.href ? (
+        <Link
+          {...interactiveProps}
+          href={app.href}
+          rel="noreferrer"
+          target="_blank"
+        >
+          {itemContent}
+        </Link>
+      ) : (
+        <span {...interactiveProps}>{itemContent}</span>
+      )}
     </li>
   );
 }
