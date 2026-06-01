@@ -29,11 +29,25 @@ type MousePosition = {
 
 const apps = dockApps as DockApp[];
 const MAX_BUTTON_SIZE = 64;
-const MIN_BUTTON_SIZE = 34;
+const MIN_BUTTON_SIZE = 18;
+const DEFAULT_INITIAL_WIDTH = 360;
 const NEIGHBOR_SCALE_FACTORS = [1, 0.44, 0.12];
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
+}
+
+function getResponsiveButtonSize(availableWidth: number) {
+  const estimatedPadding = 8;
+  const preliminarySize = clamp(
+    Math.floor((availableWidth - estimatedPadding) / apps.length),
+    MIN_BUTTON_SIZE,
+    MAX_BUTTON_SIZE,
+  );
+  const padding = clamp(Math.round(preliminarySize * 0.1), 3, 6);
+  const fittingSize = Math.floor((availableWidth - padding * 2) / apps.length);
+
+  return clamp(fittingSize, MIN_BUTTON_SIZE, MAX_BUTTON_SIZE);
 }
 
 function DockIcon({ app }: { app: DockApp }) {
@@ -60,9 +74,19 @@ function useElementRect<TElement extends HTMLElement>() {
 
   useEffect(() => {
     updateRect();
+
+    const element = ref.current;
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(updateRect)
+        : null;
+    if (element) resizeObserver?.observe(element);
     window.addEventListener("resize", updateRect);
 
-    return () => window.removeEventListener("resize", updateRect);
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateRect);
+    };
   }, [updateRect]);
 
   return { rect, ref, updateRect };
@@ -193,14 +217,11 @@ export function MacDock() {
   );
 
   const baseButtonSize = useMemo(() => {
-    const availableWidth = rect?.width ?? 900;
-    return clamp(
-      Math.floor((availableWidth - 8) / apps.length),
-      MIN_BUTTON_SIZE,
-      MAX_BUTTON_SIZE,
-    );
+    const availableWidth = rect?.width ?? DEFAULT_INITIAL_WIDTH;
+
+    return getResponsiveButtonSize(availableWidth);
   }, [rect]);
-  const dockPadding = clamp(Math.round(baseButtonSize * 0.1), 4, 6);
+  const dockPadding = clamp(Math.round(baseButtonSize * 0.1), 3, 6);
   const dockHeight = baseButtonSize + dockPadding * 2;
   const dockRadius = clamp(baseButtonSize * 0.22, 8, 18);
   const maxScale = baseButtonSize < 44 ? 1.045 : 1.08;
@@ -217,7 +238,10 @@ export function MacDock() {
   }
 
   return (
-    <div ref={ref} className="w-full overflow-visible pt-5 pb-3">
+    <div
+      ref={ref}
+      className="w-full max-w-full overflow-x-clip overflow-y-visible pt-5 pb-3"
+    >
       <nav
         aria-label="Mac dock"
         className="mx-auto flex w-fit max-w-full justify-center shadow-[0_0_0.1rem_rgba(0,0,0,0.8)]"
