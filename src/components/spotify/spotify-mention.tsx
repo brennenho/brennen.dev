@@ -217,7 +217,10 @@ export function SpotifyMention() {
           }}
           className={cn("fixed z-50", open ? "block" : "hidden")}
         >
-          <Card className="w-full rounded-md border-[#3a3a39] bg-[#2f2f2e] p-4 text-[#f1f1ef] shadow-none">
+          <Card
+            className="w-full rounded-md border-[#3a3a39] bg-[#2f2f2e] p-4 text-[#f1f1ef] shadow-none"
+            style={{ boxShadow: "none" }}
+          >
             <CardContent className="flex flex-row items-center gap-4 p-0">
               <div className="flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border border-[#3a3a39] bg-[#202020] shadow-none">
                 {track && image ? (
