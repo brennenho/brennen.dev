@@ -238,10 +238,7 @@ export function MacDock() {
   }
 
   return (
-    <div
-      ref={ref}
-      className="w-full max-w-full overflow-x-clip overflow-y-visible pt-5 pb-3"
-    >
+    <div ref={ref} className="w-full max-w-full overflow-visible pt-5 pb-3">
       <nav
         aria-label="Mac dock"
         className="mx-auto flex w-fit max-w-full justify-center shadow-[0_0_0.1rem_rgba(0,0,0,0.8)]"
