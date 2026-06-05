@@ -8,13 +8,7 @@ import {
 import { TopbarActions } from "@/components/notion/topbar-actions";
 import { getMusingSummaries } from "@/lib/musings";
 import { cn } from "@/lib/utils";
-import {
-  BriefcaseBusiness,
-  ChevronRight,
-  Flower2,
-  Lock,
-  Sprout,
-} from "lucide-react";
+import { Lock } from "lucide-react";
 import type { ReactNode } from "react";
 
 type WorkspaceShellProps = {
@@ -136,29 +130,6 @@ function WorkspaceSidebar({
   );
 }
 
-export function ComingSoonPage({
-  description = "This page is getting its blocks in order.",
-  icon,
-  title,
-}: {
-  description?: string;
-  icon: string;
-  title: string;
-}) {
-  return (
-    <main
-      className={cn(
-        pageContentClassName,
-        "flex min-h-[calc(100vh-64px)] flex-col gap-[10px] pt-[12vh] min-[900px]:min-h-[calc(100vh-50px)] min-[900px]:pt-[18vh]",
-      )}
-    >
-      <div className="text-[78px] leading-none">{icon}</div>
-      <PageTitle>{title}</PageTitle>
-      <NotionCallout icon="👀">{description} Coming soon.</NotionCallout>
-    </main>
-  );
-}
-
 export function PageIcon({ children }: { children: ReactNode }) {
   return (
     <div className="text-[72px] leading-none sm:text-[78px]">{children}</div>
@@ -227,10 +198,3 @@ export function SectionTitle({ children }: { children: ReactNode }) {
 export function NotionParagraph({ children }: { children: ReactNode }) {
   return <p className={bodyTextClassName}>{children}</p>;
 }
-
-export const placeholderIcons = {
-  work: BriefcaseBusiness,
-  nursery: Sprout,
-  playground: Flower2,
-  arrow: ChevronRight,
-};
