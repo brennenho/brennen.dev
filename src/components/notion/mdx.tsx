@@ -5,16 +5,41 @@ import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 const bodyClassName = "text-[16px] leading-[1.55] font-medium text-[#f1f1ef]";
+const calloutColors = {
+  blue: "bg-[#1d3446]",
+  brown: "bg-[#493a2f]",
+  gray: "bg-[#252525]",
+  green: "bg-[#1f432f]",
+  orange: "bg-[#5a351d]",
+  pink: "bg-[#4a2938]",
+  purple: "bg-[#3f2f50]",
+  red: "bg-[#4a2929]",
+  yellow: "bg-[#4a3f24]",
+} as const;
+
+type CalloutColor = keyof typeof calloutColors;
 
 function NotionMdxCallout({
   children,
+  color = "gray",
   icon = "💭",
 }: {
   children: ReactNode;
+  color?: string;
   icon?: ReactNode;
 }) {
+  const colorClassName =
+    color in calloutColors
+      ? calloutColors[color as CalloutColor]
+      : calloutColors.gray;
+
   return (
-    <div className="flex items-start gap-3 rounded-md bg-[#252525] px-4 py-3.5 text-[16px] leading-[1.55] font-medium text-[#f1f1ef]">
+    <div
+      className={cn(
+        "flex items-start gap-3 rounded-md px-4 py-3.5 text-[16px] leading-[1.55] font-medium text-[#f1f1ef]",
+        colorClassName,
+      )}
+    >
       <span className="mt-0.5 text-[20px] leading-none">{icon}</span>
       <div className="min-w-0">{children}</div>
     </div>
