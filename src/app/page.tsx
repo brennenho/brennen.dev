@@ -1,50 +1,88 @@
-import { CurrentlyPlaying } from "@/components/currently-playing";
-import { Experience } from "@/components/experience";
-import { Projects } from "@/components/projects/map";
-import { ScrollAnimation } from "@/components/scroll-animation";
-import { Heading } from "@/components/typography";
+import { ExperienceTable } from "@/components/notion/experience-table";
+import { FontShuffleName } from "@/components/notion/font-shuffle-name";
+import { MacDock } from "@/components/notion/mac-dock";
+import {
+  NotionCallout,
+  NotionList,
+  NotionParagraph,
+  PageContent,
+  PageIcon,
+  PageTitle,
+  SectionSpacer,
+  SectionTitle,
+  WorkspaceShell,
+} from "@/components/notion/workspace-shell";
+import { PixelCanvas } from "@/components/pixel/pixel-canvas";
+import { SpotifyMention } from "@/components/spotify/spotify-mention";
+import { getPageEditedMetadata } from "@/lib/git";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { commitDate, dateLabel, commitTimestamp, commitTitle, commitUrl } =
+    await getPageEditedMetadata("src/app/page.tsx");
+
   return (
-    <main className="flex min-h-screen flex-col items-center px-8 py-4">
-      <div className="flex w-full max-w-7xl flex-col gap-16 pt-32 pb-8">
-        <div className="flex flex-col gap-4 leading-none">
-          <ScrollAnimation className="text-[40px] font-bold">
-            Hey, I&apos;m <span className="text-primary">Brennen</span>
-          </ScrollAnimation>
-          <ScrollAnimation>
-            I create intuitive products that simplify, accelerate, and
-            personalize — with an emphasis on applied AI.
-          </ScrollAnimation>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <Heading>[about]</Heading>
-          <div className="flex flex-col items-start gap-8 sm:flex-row">
-            <ScrollAnimation>
-              I study Computer Engineering & Computer Science at the University
-              of Southern California, where I&apos;m transforming online
-              experiences through software, hardware, and a touch of design.{" "}
-              <br />
-              <br />
-              This summer, I&apos;ll be working on AI agents at Decagon.
-              I&apos;v previously worked on language modeling at Bloomberg and
-              LLMs for semiconductors at Chipstack.
-            </ScrollAnimation>
-            <CurrentlyPlaying />
+    <WorkspaceShell
+      editedCommitDate={commitDate}
+      editedCommitTimestamp={commitTimestamp}
+      editedCommitTitle={commitTitle}
+      editedCommitUrl={commitUrl}
+      editedDate={dateLabel}
+      activePath="/"
+    >
+      <main className="pb-24">
+        <div className="relative">
+          <PixelCanvas className="h-[160px] sm:h-[195px] md:h-[250px]" />
+          <div className="pointer-events-none absolute bottom-[-34px] left-1/2 z-10 w-full max-w-[900px] -translate-x-1/2 px-6 sm:px-8 md:bottom-[-38px]">
+            <PageIcon>👋</PageIcon>
           </div>
         </div>
 
-        <div className="flex flex-col gap-4">
-          <Heading>[experience]</Heading>
-          <Experience />
-        </div>
+        <PageContent>
+          <PageTitle>
+            hey, i’m <FontShuffleName />
+          </PageTitle>
 
-        <div className="flex flex-col gap-4">
-          <Heading>[projects]</Heading>
-          <Projects />
-        </div>
-      </div>
-    </main>
+          <NotionCallout>
+            I create intuitive products that simplify, accelerate, and
+            personalize — with an emphasis on applied AI.
+          </NotionCallout>
+
+          <SectionSpacer />
+          <SectionTitle>about</SectionTitle>
+          <NotionList>
+            <li>
+              Studying Computer Engineering & Computer Science at the University
+              of Southern California
+              <ul className="mt-[10px] list-disc pl-6">
+                <li>Minoring in Psychology</li>
+              </ul>
+            </li>
+            <li>
+              I’m fascinated in applied ai and product development, especially
+              at the intersection of software and hardware
+            </li>
+            <li>
+              On campus, I’m involved in the Code the Change (co-president),
+              DILL Lab, LavaLab, TroyLabs, and Makers
+            </li>
+            <li>
+              <SpotifyMention />
+            </li>
+          </NotionList>
+
+          <SectionSpacer />
+          <SectionTitle>my dock</SectionTitle>
+          <NotionParagraph>
+            My favorites and daily drivers — a glimpse into life as a student
+            and developer.
+          </NotionParagraph>
+          <MacDock />
+
+          <SectionSpacer />
+          <SectionTitle>experience</SectionTitle>
+          <ExperienceTable />
+        </PageContent>
+      </main>
+    </WorkspaceShell>
   );
 }

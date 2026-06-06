@@ -6,6 +6,13 @@
     "end": "Aug 2026",
     "link": "https://decagon.ai/"
   },
+  "ctc": {
+    "name": "Code the Change",
+    "title": "Co-president, VP of Product, Developer",
+    "start": "Sep 2024",
+    "end": "Present",
+    "link": "https://ctcusc.com/"
+  },
   "bloomberg": {
     "name": "Bloomberg",
     "title": "Software Engineering Intern",
@@ -14,25 +21,27 @@
     "link": "https://www.bloomberg.com/"
   },
   "lavalab": {
-    "name": "LavaLab",
-    "title": "Technical Co-founder",
+    "name": "Lava Lab",
+    "title": "Mentor, Technical Co-founder",
     "start": "Feb 2025",
     "end": "Present",
-    "link": "https://usclavalab.org/"
+    "link": "https://usclavalab.org/",
+    "transparent": true
   },
-  "ctc": {
-    "name": "Code the Change",
-    "title": "VP of Product, Developer",
-    "start": "Sep 2024",
+  "troylabs": {
+    "name": "Troy Labs",
+    "title": "Engineering",
+    "start": "Jan 2026",
     "end": "Present",
-    "link": "https://ctcusc.com/"
+    "link": "https://www.troylabs.vc/"
   },
   "makers": {
     "name": "Makers",
     "title": "Director of Finance (2024-2025), Member",
     "start": "Sep 2023",
     "end": "Present",
-    "link": "https://viterbimakers.usc.edu/"
+    "link": "https://viterbimakers.usc.edu/",
+    "transparent": true
   },
   "chipstack": {
     "name": "Chipstack",

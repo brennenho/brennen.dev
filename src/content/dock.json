@@ -1,0 +1,88 @@
+[
+  {
+    "id": "finder",
+    "name": "Finder",
+    "image": "/img/dock/finder.png",
+    "running": true
+  },
+  {
+    "id": "arc",
+    "name": "Arc",
+    "image": "/img/dock/arc.png",
+    "href": "https://arc.net/",
+    "running": true
+  },
+  {
+    "id": "messages",
+    "name": "Messages",
+    "image": "/img/dock/messages.png",
+    "running": true
+  },
+  {
+    "id": "calendar",
+    "name": "Notion Calendar",
+    "image": "/img/dock/notion-calendar.png",
+    "href": "https://www.notion.com/product/calendar",
+    "running": true
+  },
+  {
+    "id": "notion",
+    "name": "Notion",
+    "image": "/img/dock/notion.png",
+    "href": "https://www.notion.com/",
+    "running": true
+  },
+  {
+    "id": "todoist",
+    "name": "Todoist",
+    "image": "/img/dock/todoist.png",
+    "href": "https://www.todoist.com/",
+    "running": true
+  },
+  {
+    "id": "slack",
+    "name": "Slack",
+    "image": "/img/dock/slack.png",
+    "href": "https://slack.com/",
+    "running": true
+  },
+  {
+    "id": "spotify",
+    "name": "Spotify",
+    "image": "/img/dock/spotify.png",
+    "href": "https://open.spotify.com/",
+    "running": true
+  },
+  {
+    "id": "photos",
+    "name": "Photos",
+    "image": "/img/dock/photos.png",
+    "running": false
+  },
+  {
+    "id": "figma",
+    "name": "Figma",
+    "image": "/img/dock/figma.png",
+    "href": "https://www.figma.com/",
+    "running": true
+  },
+  {
+    "id": "cursor",
+    "name": "Cursor",
+    "image": "/img/dock/cursor.png",
+    "href": "https://cursor.com/",
+    "running": true
+  },
+  {
+    "id": "terminal",
+    "name": "Terminal",
+    "image": "/img/dock/terminal.png",
+    "running": true
+  },
+  {
+    "id": "system-settings",
+    "name": "System Settings",
+    "image": "/img/dock/system-settings.png",
+    "running": false
+  }
+]
