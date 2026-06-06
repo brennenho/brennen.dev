@@ -42,6 +42,8 @@ export default async function MusingPage({
       editedCommitUrl={commitUrl}
       editedDate={dateLabel}
       activePath={post.href}
+      pageIcon={post.emoji}
+      pageTitle={post.title}
     >
       <PageContent>
         <PageIcon>{post.emoji}</PageIcon>

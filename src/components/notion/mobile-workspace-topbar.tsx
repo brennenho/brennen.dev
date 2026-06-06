@@ -15,6 +15,8 @@ type MobileWorkspaceTopbarProps = {
   editedDate: string;
   isFavorite: boolean;
   musingItems: SidebarItem[];
+  pageIcon: string;
+  pageTitle: string;
 };
 
 export function MobileWorkspaceTopbar({
@@ -26,6 +28,8 @@ export function MobileWorkspaceTopbar({
   editedDate,
   isFavorite,
   musingItems,
+  pageIcon,
+  pageTitle,
 }: MobileWorkspaceTopbarProps) {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
@@ -67,9 +71,9 @@ export function MobileWorkspaceTopbar({
           >
             <Menu className="h-5 w-5" />
           </button>
-          <span className="text-[18px] leading-none">👋</span>
+          <span className="text-[18px] leading-none">{pageIcon}</span>
           <span className="min-w-0 truncate font-medium text-[#efefed]">
-            hey, i’m brennen
+            {pageTitle}
           </span>
           <Lock className="hidden h-3.5 w-3.5 shrink-0 text-[#858582] min-[430px]:block" />
         </div>

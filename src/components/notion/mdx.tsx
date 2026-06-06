@@ -4,7 +4,8 @@ import type { MDXRemoteProps } from "next-mdx-remote/rsc";
 import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-const bodyClassName = "text-[16px] leading-[1.55] font-medium text-[#f1f1ef]";
+const bodyClassName = "text-[16px] leading-[1.62] font-medium text-[#f1f1ef]";
+const blockGapClassName = "gap-[12px] sm:gap-[14px]";
 const calloutColors = {
   blue: "bg-[#1d3446]",
   brown: "bg-[#493a2f]",
@@ -36,7 +37,7 @@ function NotionMdxCallout({
   return (
     <div
       className={cn(
-        "flex items-start gap-3 rounded-md px-4 py-3.5 text-[16px] leading-[1.55] font-medium text-[#f1f1ef]",
+        "flex items-start gap-3 rounded-md px-4 py-3.5 text-[16px] leading-[1.62] font-medium text-[#f1f1ef]",
         colorClassName,
       )}
     >
@@ -50,7 +51,7 @@ function MdxAnchor({ children, href }: ComponentPropsWithoutRef<"a">) {
   if (!href) return <span>{children}</span>;
 
   const className =
-    "text-[#529cca] underline decoration-[#529cca]/50 underline-offset-2 transition-colors hover:text-[#6fb3df]";
+    "text-[#d4d4d1] underline decoration-[#858582] decoration-1 underline-offset-2 transition-colors hover:text-[#f1f1ef] hover:decoration-[#b8b8b5]";
 
   if (href.startsWith("/")) {
     return (
@@ -95,14 +96,14 @@ const components = {
   },
   h2({ children }: ComponentPropsWithoutRef<"h2">) {
     return (
-      <h2 className="pt-6 text-[24px] leading-tight font-bold text-[#f1f1ef] sm:text-[26px]">
+      <h2 className="pt-7 text-[24px] leading-tight font-bold text-[#f1f1ef] sm:text-[26px]">
         {children}
       </h2>
     );
   },
   h3({ children }: ComponentPropsWithoutRef<"h3">) {
     return (
-      <h3 className="pt-3 text-[20px] leading-tight font-bold text-[#f1f1ef]">
+      <h3 className="pt-4 text-[20px] leading-tight font-bold text-[#f1f1ef]">
         {children}
       </h3>
     );
@@ -145,7 +146,7 @@ const components = {
 
 export function NotionMdx({ source }: { source: string }) {
   return (
-    <div className="flex flex-col gap-[10px]">
+    <div className={cn("flex flex-col", blockGapClassName)}>
       <MDXRemote source={source} components={components} />
     </div>
   );

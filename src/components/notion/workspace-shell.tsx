@@ -19,6 +19,8 @@ type WorkspaceShellProps = {
   editedCommitUrl: string;
   editedDate: string;
   activePath?: string;
+  pageIcon?: string;
+  pageTitle?: string;
 };
 
 const pageContentClassName = "mx-auto max-w-[900px] px-6 sm:px-8";
@@ -35,6 +37,8 @@ export async function WorkspaceShell({
   editedCommitUrl,
   editedDate,
   activePath = "/",
+  pageIcon = "👋",
+  pageTitle = "hey, i’m brennen",
 }: WorkspaceShellProps) {
   const isFavorite = isFavoritePath(activePath);
   const musingItems: SidebarItem[] = (await getMusingSummaries()).map(
@@ -58,6 +62,8 @@ export async function WorkspaceShell({
           editedDate={editedDate}
           isFavorite={isFavorite}
           musingItems={musingItems}
+          pageIcon={pageIcon}
+          pageTitle={pageTitle}
         />
         <WorkspaceTopbar
           editedCommitDate={editedCommitDate}
@@ -66,6 +72,8 @@ export async function WorkspaceShell({
           editedCommitUrl={editedCommitUrl}
           editedDate={editedDate}
           isFavorite={isFavorite}
+          pageIcon={pageIcon}
+          pageTitle={pageTitle}
         />
         {children}
       </div>
@@ -80,6 +88,8 @@ function WorkspaceTopbar({
   editedCommitUrl,
   editedDate,
   isFavorite,
+  pageIcon,
+  pageTitle,
 }: {
   editedCommitDate: string;
   editedCommitTimestamp: string;
@@ -87,14 +97,14 @@ function WorkspaceTopbar({
   editedCommitUrl: string;
   editedDate: string;
   isFavorite: boolean;
+  pageIcon: string;
+  pageTitle: string;
 }) {
   return (
     <header className="sticky top-0 z-40 hidden h-[45px] items-center justify-between border-b border-transparent bg-[#191919]/95 px-3 text-[14px] text-[#b3b3b1] backdrop-blur min-[900px]:flex">
       <div className="flex min-w-0 items-center gap-2">
-        <span className="text-[18px] leading-none">👋</span>
-        <span className="truncate font-medium text-[#efefed]">
-          hey, i’m brennen
-        </span>
+        <span className="text-[18px] leading-none">{pageIcon}</span>
+        <span className="truncate font-medium text-[#efefed]">{pageTitle}</span>
         <Lock className="h-3.5 w-3.5 shrink-0 text-[#858582]" />
         <span className="hidden text-[#858582] sm:inline">Private</span>
       </div>
