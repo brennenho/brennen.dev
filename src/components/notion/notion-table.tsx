@@ -30,7 +30,9 @@ export type NotionTableProps<Row> = {
   getRowLink?: (row: Row, index: number) => NotionTableRowLink | undefined;
   minWidthClassName?: string;
   newButtonLabel?: ReactNode;
+  newButtonLink?: NotionTableRowLink;
   newPageLabel?: ReactNode;
+  newPageLink?: NotionTableRowLink;
   rowClassName?: string | ((row: Row, index: number) => string | undefined);
   tableClassName?: string;
   viewLabel?: ReactNode;
@@ -45,7 +47,9 @@ export function NotionTable<Row>({
   getRowLink,
   minWidthClassName = "min-w-[760px]",
   newButtonLabel = "New",
+  newButtonLink,
   newPageLabel = "New page",
+  newPageLink,
   rowClassName,
   tableClassName,
   viewLabel = "Table",
@@ -68,12 +72,27 @@ export function NotionTable<Row>({
             <span />
           )}
           {newButtonLabel != null ? (
-            <button
-              className="h-7 w-[70px] rounded-sm bg-[#2883DF] text-[14px] font-medium text-white"
-              type="button"
-            >
-              {newButtonLabel}
-            </button>
+            newButtonLink ? (
+              <Link
+                aria-label={newButtonLink.ariaLabel}
+                className={cn(
+                  "inline-flex h-7 w-[70px] items-center justify-center rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none",
+                  newButtonLink.className,
+                )}
+                href={newButtonLink.href}
+                rel={newButtonLink.rel}
+                target={newButtonLink.target}
+              >
+                {newButtonLabel}
+              </Link>
+            ) : (
+              <button
+                className="h-7 w-[70px] rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+                type="button"
+              >
+                {newButtonLabel}
+              </button>
+            )
           ) : null}
         </div>
       ) : null}
@@ -172,10 +191,26 @@ export function NotionTable<Row>({
                   className="px-2 py-2.5 text-[14px] font-medium text-[#81817e]"
                   colSpan={columns.length}
                 >
-                  <span className="inline-flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    {newPageLabel}
-                  </span>
+                  {newPageLink ? (
+                    <Link
+                      aria-label={newPageLink.ariaLabel}
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-sm focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none",
+                        newPageLink.className,
+                      )}
+                      href={newPageLink.href}
+                      rel={newPageLink.rel}
+                      target={newPageLink.target}
+                    >
+                      <Plus className="h-4 w-4" />
+                      {newPageLabel}
+                    </Link>
+                  ) : (
+                    <span className="inline-flex items-center gap-2">
+                      <Plus className="h-4 w-4" />
+                      {newPageLabel}
+                    </span>
+                  )}
                 </td>
               </tr>
             ) : null}

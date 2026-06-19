@@ -17,6 +17,8 @@ type ExperienceRow = Experience & {
   id: string;
 };
 
+const LINKEDIN_URL = "https://www.linkedin.com/in/brennenho/";
+
 const experienceRows = Object.entries(experiences).map(([id, data]) => ({
   id,
   ...data,
@@ -86,6 +88,18 @@ export function ExperienceTable() {
         rel: "noreferrer",
         target: "_blank",
       })}
+      newButtonLink={{
+        href: LINKEDIN_URL,
+        ariaLabel: "Brennen Ho on LinkedIn",
+        rel: "noreferrer",
+        target: "_blank",
+      }}
+      newPageLink={{
+        href: LINKEDIN_URL,
+        ariaLabel: "Brennen Ho on LinkedIn",
+        rel: "noreferrer",
+        target: "_blank",
+      }}
       rows={experienceRows}
     />
   );
