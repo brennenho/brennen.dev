@@ -13,6 +13,7 @@ export type SidebarItem = {
 
 export const favoriteItems: SidebarItem[] = [
   { href: "/", icon: "👋", label: "hey, i’m brennen" },
+  { href: "/leaderboard", icon: "🏆", label: "leaderboard" },
 ];
 
 export function isFavoritePath(path: string) {
