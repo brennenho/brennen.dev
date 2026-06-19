@@ -1,6 +1,11 @@
 import { Plus, Table2, type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import type { HTMLAttributeAnchorTarget, Key, ReactNode } from "react";
+import type {
+  HTMLAttributeAnchorTarget,
+  Key,
+  MouseEventHandler,
+  ReactNode,
+} from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -21,6 +26,11 @@ export type NotionTableRowLink = {
   target?: HTMLAttributeAnchorTarget;
 };
 
+export type NotionTableAction = {
+  ariaLabel?: string;
+  onClick: MouseEventHandler<HTMLButtonElement>;
+};
+
 export type NotionTableProps<Row> = {
   columns: NotionTableColumn<Row>[];
   rows: Row[];
@@ -30,8 +40,10 @@ export type NotionTableProps<Row> = {
   getRowLink?: (row: Row, index: number) => NotionTableRowLink | undefined;
   minWidthClassName?: string;
   newButtonLabel?: ReactNode;
+  newButtonAction?: NotionTableAction;
   newButtonLink?: NotionTableRowLink;
   newPageLabel?: ReactNode;
+  newPageAction?: NotionTableAction;
   newPageLink?: NotionTableRowLink;
   rowClassName?: string | ((row: Row, index: number) => string | undefined);
   tableClassName?: string;
@@ -47,8 +59,10 @@ export function NotionTable<Row>({
   getRowLink,
   minWidthClassName = "min-w-[760px]",
   newButtonLabel = "New",
+  newButtonAction,
   newButtonLink,
   newPageLabel = "New page",
+  newPageAction,
   newPageLink,
   rowClassName,
   tableClassName,
@@ -72,7 +86,16 @@ export function NotionTable<Row>({
             <span />
           )}
           {newButtonLabel != null ? (
-            newButtonLink ? (
+            newButtonAction ? (
+              <button
+                aria-label={newButtonAction.ariaLabel}
+                className="h-7 w-[70px] cursor-pointer rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+                onClick={newButtonAction.onClick}
+                type="button"
+              >
+                {newButtonLabel}
+              </button>
+            ) : newButtonLink ? (
               <Link
                 aria-label={newButtonLink.ariaLabel}
                 className={cn(
@@ -87,7 +110,7 @@ export function NotionTable<Row>({
               </Link>
             ) : (
               <button
-                className="h-7 w-[70px] rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+                className="h-7 w-[70px] cursor-pointer rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
                 type="button"
               >
                 {newButtonLabel}
@@ -191,7 +214,17 @@ export function NotionTable<Row>({
                   className="px-2 py-2.5 text-[14px] font-medium text-[#81817e]"
                   colSpan={columns.length}
                 >
-                  {newPageLink ? (
+                  {newPageAction ? (
+                    <button
+                      aria-label={newPageAction.ariaLabel}
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-sm text-left focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+                      onClick={newPageAction.onClick}
+                      type="button"
+                    >
+                      <Plus className="h-4 w-4" />
+                      {newPageLabel}
+                    </button>
+                  ) : newPageLink ? (
                     <Link
                       aria-label={newPageLink.ariaLabel}
                       className={cn(

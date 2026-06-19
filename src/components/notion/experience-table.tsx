@@ -1,8 +1,10 @@
-import experiences from "@/content/experience.json";
+"use client";
+
 import {
   NotionTable,
   type NotionTableColumn,
 } from "@/components/notion/notion-table";
+import experiences from "@/content/experience.json";
 import {
   ArrowRight,
   Briefcase,
@@ -11,13 +13,12 @@ import {
   UserRound,
 } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 type Experience = (typeof experiences)[keyof typeof experiences];
 type ExperienceRow = Experience & {
   id: string;
 };
-
-const LINKEDIN_URL = "https://www.linkedin.com/in/brennenho/";
 
 const experienceRows = Object.entries(experiences).map(([id, data]) => ({
   id,
@@ -77,6 +78,21 @@ const experienceColumns = [
 ] satisfies NotionTableColumn<ExperienceRow>[];
 
 export function ExperienceTable() {
+  const showActionToast = () => {
+    toast("Want to define my next chapter?", {
+      action: {
+        label: "LinkedIn",
+        onClick: () => {
+          window.open(
+            "https://www.linkedin.com/in/brennenho/",
+            "_blank",
+            "noopener,noreferrer",
+          );
+        },
+      },
+    });
+  };
+
   return (
     <NotionTable
       columns={experienceColumns}
@@ -88,17 +104,13 @@ export function ExperienceTable() {
         rel: "noreferrer",
         target: "_blank",
       })}
-      newButtonLink={{
-        href: LINKEDIN_URL,
-        ariaLabel: "Brennen Ho on LinkedIn",
-        rel: "noreferrer",
-        target: "_blank",
+      newButtonAction={{
+        ariaLabel: "Show action toast",
+        onClick: showActionToast,
       }}
-      newPageLink={{
-        href: LINKEDIN_URL,
-        ariaLabel: "Brennen Ho on LinkedIn",
-        rel: "noreferrer",
-        target: "_blank",
+      newPageAction={{
+        ariaLabel: "Show action toast",
+        onClick: showActionToast,
       }}
       rows={experienceRows}
     />

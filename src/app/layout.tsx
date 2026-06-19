@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 
 import { PostHogProvider } from "@/components/analytics";
+import { Toaster } from "@/components/ui/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
 
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body>
         <PostHogProvider>{children}</PostHogProvider>
         <SpeedInsights />
+        <Toaster richColors visibleToasts={1} />
       </body>
     </html>
   );
