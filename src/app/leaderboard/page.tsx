@@ -9,6 +9,7 @@ import {
   LeaderboardTable,
   type LeaderboardRow,
 } from "@/components/notion/leaderboard-table";
+import type { GameKey } from "@/lib/games/config";
 import {
   GAME_PLAYER_COOKIE,
   hashPlayerToken,
@@ -20,7 +21,7 @@ import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
-const GAME_KEY = "dino";
+const GAME_KEY = "dino" satisfies GameKey;
 const REGION_DISPLAY_NAMES = new Intl.DisplayNames(["en"], {
   type: "region",
 });

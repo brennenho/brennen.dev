@@ -7,15 +7,10 @@ import {
   hashPlayerToken,
   isValidPlayerToken,
 } from "@/lib/games/player-token";
+import { getGameConfig, getGameKey, type GameKey } from "@/lib/games/config";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
-
-const GAMES = {
-  dino: {
-    maxScore: 1_000_000,
-  },
-} as const;
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2;
 const COUNTRY_HEADERS = [
@@ -91,8 +86,6 @@ type Country = {
   name: string;
 };
 
-type GameKey = keyof typeof GAMES;
-
 type RouteContext = {
   params: Promise<{
     gameKey: string;
@@ -106,7 +99,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     return NextResponse.json({ error: "Unknown game." }, { status: 404 });
   }
 
-  const score = await parseScore(request, GAMES[gameKey].maxScore);
+  const score = await parseScore(request, getGameConfig(gameKey).maxScore);
 
   if (score == null) {
     return NextResponse.json({ error: "Invalid score." }, { status: 400 });
@@ -257,10 +250,6 @@ function getCountryFromHeader(value: string | null): Country | null {
   }
 
   return null;
-}
-
-function getGameKey(value: string): GameKey | null {
-  return value in GAMES ? (value as GameKey) : null;
 }
 
 function createToken() {

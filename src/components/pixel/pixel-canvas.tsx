@@ -1,5 +1,6 @@
 "use client";
 
+import { getGameConfig } from "@/lib/games/config";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createDinoScene } from "./games/dino/scene";
@@ -48,7 +49,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const submitScore = useCallback((score: number) => {
     const body = JSON.stringify({ score });
 
-    void fetch("/api/games/dino/score", {
+    void fetch(getGameConfig("dino").scoreEndpoint, {
       body,
       headers: {
         "Content-Type": "application/json",
