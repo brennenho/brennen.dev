@@ -16,6 +16,9 @@ export const dynamic = "force-dynamic";
 
 const GAME_KEY = "dino";
 const LEADERBOARD_TABLE = "game_leaderboard_entries";
+const REGION_DISPLAY_NAMES = new Intl.DisplayNames(["en"], {
+  type: "region",
+});
 
 type GameLeaderboardEntry = {
   id: string;
@@ -65,12 +68,48 @@ async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
   if (error || !data) return [];
 
   return data.map((entry) => ({
+    countryFlag: getCountryFlag(entry.country),
     id: entry.id,
     name: entry.name,
     score: entry.high_score,
     date: formatLeaderboardDate(entry.high_score_achieved_at),
     location: entry.country ?? "Unknown",
   }));
+}
+
+function getCountryFlag(country: string | null) {
+  const countryCode = getCountryCode(country);
+
+  if (!countryCode) return undefined;
+
+  return countryCode
+    .split("")
+    .map((letter) => 127397 + letter.charCodeAt(0))
+    .map((codePoint) => String.fromCodePoint(codePoint))
+    .join("");
+}
+
+function getCountryCode(country: string | null) {
+  const normalizedCountry = country?.trim().toLowerCase();
+
+  if (!normalizedCountry || normalizedCountry === "unknown") return null;
+
+  if (/^[a-z]{2}$/i.test(normalizedCountry)) {
+    return normalizedCountry.toUpperCase();
+  }
+
+  for (let first = 65; first <= 90; first++) {
+    for (let second = 65; second <= 90; second++) {
+      const countryCode = String.fromCharCode(first, second);
+      const countryName = REGION_DISPLAY_NAMES.of(countryCode);
+
+      if (countryName?.toLowerCase() === normalizedCountry) {
+        return countryCode;
+      }
+    }
+  }
+
+  return null;
 }
 
 function formatLeaderboardDate(value: string) {

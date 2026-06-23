@@ -7,6 +7,7 @@ import {
 
 type LeaderboardRow = {
   id: string;
+  countryFlag?: string;
   name: string;
   score: number;
   date: string;
@@ -41,7 +42,20 @@ const leaderboardColumns = [
     id: "location",
     label: "Location",
     icon: MapPin,
-    render: (row) => row.location,
+    render: (row) => (
+      <span className="flex items-center gap-2">
+        {row.countryFlag ? (
+          <span
+            aria-label={`${row.location} flag`}
+            className="text-[15px] leading-none"
+            title={row.location}
+          >
+            {row.countryFlag}
+          </span>
+        ) : null}
+        <span>{row.location}</span>
+      </span>
+    ),
   },
 ] satisfies NotionTableColumn<LeaderboardRow>[];
 

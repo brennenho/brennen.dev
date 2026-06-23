@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "crypto";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -15,6 +15,17 @@ const GAMES = {
 const LEADERBOARD_TABLE = "game_leaderboard_entries";
 const PLAYER_COOKIE = "game_player_token";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2;
+const COUNTRY_HEADERS = [
+  "x-vercel-ip-country",
+  "cf-ipcountry",
+  "cloudfront-viewer-country",
+  "x-nf-country",
+  "fastly-client-country-code",
+  "x-country-code",
+  "x-appengine-country",
+  "x-geo-country",
+] as const;
+const UNKNOWN_COUNTRY_CODES = new Set(["", "XX", "ZZ", "UNKNOWN"]);
 
 const ADJECTIVES = [
   "Brave",
@@ -105,7 +116,7 @@ export async function POST(request: Request, { params }: RouteContext) {
   const token = isValidToken(existingToken) ? existingToken : createToken();
   const shouldSetCookie = token !== existingToken;
   const playerTokenHash = hashToken(token);
-  const country = getCountry(await headers());
+  const country = getCountry(request.headers);
   const now = new Date().toISOString();
 
   const { data: existingEntry, error: existingError } = await supabase
@@ -193,7 +204,7 @@ async function updateExistingEntry({
   score,
   supabase,
 }: {
-  country: string;
+  country: string | null;
   existingEntry: GameLeaderboardEntry;
   gameKey: GameKey;
   isNewHighScore: boolean;
@@ -202,15 +213,18 @@ async function updateExistingEntry({
   supabase: ReturnType<typeof createAdminClient>;
 }) {
   const updatePayload: {
-    country: string;
+    country?: string;
     high_score: number;
     high_score_achieved_at?: string;
     last_played_at: string;
   } = {
-    country,
     high_score: isNewHighScore ? score : existingEntry.high_score,
     last_played_at: now,
   };
+
+  if (country) {
+    updatePayload.country = country;
+  }
 
   if (isNewHighScore) {
     updatePayload.high_score_achieved_at = now;
@@ -237,7 +251,7 @@ async function createEntry({
   score,
   supabase,
 }: {
-  country: string;
+  country: string | null;
   gameKey: GameKey;
   now: string;
   playerTokenHash: string;
@@ -250,7 +264,7 @@ async function createEntry({
     const { data, error } = await supabase
       .from(LEADERBOARD_TABLE)
       .insert({
-        country,
+        country: country ?? "Unknown",
         game_key: gameKey,
         high_score: score,
         high_score_achieved_at: now,
@@ -293,21 +307,36 @@ async function generateUniqueName(
 }
 
 function getCountry(requestHeaders: Headers) {
-  const countryCode =
-    requestHeaders.get("x-vercel-ip-country") ??
-    requestHeaders.get("cf-ipcountry");
-  const normalizedCode = countryCode?.trim().toUpperCase();
+  for (const header of COUNTRY_HEADERS) {
+    const country = getCountryFromHeader(requestHeaders.get(header));
 
-  if (!normalizedCode || normalizedCode === "XX") return "Unknown";
-
-  try {
-    return (
-      new Intl.DisplayNames(["en"], { type: "region" }).of(normalizedCode) ??
-      normalizedCode
-    );
-  } catch {
-    return normalizedCode;
+    if (country) return country;
   }
+
+  return null;
+}
+
+function getCountryFromHeader(value: string | null) {
+  const candidates = value
+    ?.split(",")
+    .map((candidate) => candidate.trim().toUpperCase())
+    .filter(Boolean);
+
+  for (const countryCode of candidates ?? []) {
+    if (UNKNOWN_COUNTRY_CODES.has(countryCode)) continue;
+    if (!/^[A-Z]{2}$/.test(countryCode)) continue;
+
+    try {
+      return (
+        new Intl.DisplayNames(["en"], { type: "region" }).of(countryCode) ??
+        countryCode
+      );
+    } catch {
+      return countryCode;
+    }
+  }
+
+  return null;
 }
 
 function getGameKey(value: string): GameKey | null {
