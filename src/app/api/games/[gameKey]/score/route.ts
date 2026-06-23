@@ -17,7 +17,6 @@ const GAMES = {
   },
 } as const;
 
-const LEADERBOARD_TABLE = "game_leaderboard_entries";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2;
 const COUNTRY_HEADERS = [
   "x-vercel-ip-country",
@@ -84,6 +83,7 @@ type GameLeaderboardEntry = {
   id: string;
   name: string;
   high_score: number;
+  is_new_high_score: boolean;
 };
 
 type Country = {
@@ -131,43 +131,14 @@ export async function POST(request: Request, { params }: RouteContext) {
   const shouldSetCookie = token !== existingToken;
   const playerTokenHash = hashPlayerToken(token);
   const country = getCountry(request.headers);
-  const now = new Date().toISOString();
 
-  const { data: existingEntry, error: existingError } = await supabase
-    .from(LEADERBOARD_TABLE)
-    .select("id, name, high_score")
-    .eq("game_key", gameKey)
-    .eq("player_token_hash", playerTokenHash)
-    .maybeSingle<GameLeaderboardEntry>();
-
-  if (existingError) {
-    return NextResponse.json(
-      { error: "Unable to load player score." },
-      { status: 500 },
-    );
-  }
-
-  const isNewHighScore = existingEntry
-    ? score > existingEntry.high_score
-    : true;
-  const entry = existingEntry
-    ? await updateExistingEntry({
-        country,
-        existingEntry,
-        gameKey,
-        isNewHighScore,
-        now,
-        score,
-        supabase,
-      })
-    : await createEntry({
-        country,
-        gameKey,
-        now,
-        playerTokenHash,
-        score,
-        supabase,
-      });
+  const entry = await submitScore({
+    country,
+    gameKey,
+    playerTokenHash,
+    score,
+    supabase,
+  });
 
   if (!entry) {
     return NextResponse.json(
@@ -180,7 +151,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     name: entry.name,
     highScore: entry.high_score,
     submittedScore: score,
-    isNewHighScore,
+    isNewHighScore: entry.is_new_high_score,
   });
 
   if (shouldSetCookie) {
@@ -209,87 +180,31 @@ async function parseScore(request: Request, maxScore: number) {
   return score;
 }
 
-async function updateExistingEntry({
-  country,
-  existingEntry,
-  gameKey,
-  isNewHighScore,
-  now,
-  score,
-  supabase,
-}: {
-  country: Country | null;
-  existingEntry: GameLeaderboardEntry;
-  gameKey: GameKey;
-  isNewHighScore: boolean;
-  now: string;
-  score: number;
-  supabase: ReturnType<typeof createAdminClient>;
-}) {
-  const updatePayload: {
-    country_code?: string;
-    country_name?: string;
-    high_score: number;
-    high_score_achieved_at?: string;
-    last_played_at: string;
-  } = {
-    high_score: isNewHighScore ? score : existingEntry.high_score,
-    last_played_at: now,
-  };
-
-  if (country) {
-    updatePayload.country_code = country.code;
-    updatePayload.country_name = country.name;
-  }
-
-  if (isNewHighScore) {
-    updatePayload.high_score_achieved_at = now;
-  }
-
-  const { data, error } = await supabase
-    .from(LEADERBOARD_TABLE)
-    .update(updatePayload)
-    .eq("id", existingEntry.id)
-    .eq("game_key", gameKey)
-    .select("id, name, high_score")
-    .single<GameLeaderboardEntry>();
-
-  if (error) return null;
-
-  return data;
-}
-
-async function createEntry({
+async function submitScore({
   country,
   gameKey,
-  now,
   playerTokenHash,
   score,
   supabase,
 }: {
   country: Country | null;
   gameKey: GameKey;
-  now: string;
   playerTokenHash: string;
   score: number;
   supabase: ReturnType<typeof createAdminClient>;
 }) {
   for (let attempt = 0; attempt < 6; attempt++) {
-    const name = await generateUniqueName(supabase, gameKey, attempt);
+    const name = generateName(attempt);
 
     const { data, error } = await supabase
-      .from(LEADERBOARD_TABLE)
-      .insert({
-        country_code: country?.code ?? null,
-        country_name: country?.name ?? null,
-        game_key: gameKey,
-        high_score: score,
-        high_score_achieved_at: now,
-        last_played_at: now,
-        name,
-        player_token_hash: playerTokenHash,
+      .rpc("submit_game_score", {
+        p_country_code: country?.code ?? null,
+        p_country_name: country?.name ?? null,
+        p_game_key: gameKey,
+        p_name: name,
+        p_player_token_hash: playerTokenHash,
+        p_score: score,
       })
-      .select("id, name, high_score")
       .single<GameLeaderboardEntry>();
 
     if (!error) return data;
@@ -300,27 +215,12 @@ async function createEntry({
   return null;
 }
 
-async function generateUniqueName(
-  supabase: ReturnType<typeof createAdminClient>,
-  gameKey: GameKey,
-  attempt: number,
-) {
+function generateName(attempt: number) {
   const adjective = randomItem(ADJECTIVES);
   const noun = randomItem(NOUNS);
   const baseName = `${adjective} ${noun}`;
-  const name =
-    attempt === 0 ? baseName : `${baseName} ${randomNumber(100, 999)}`;
 
-  const { data } = await supabase
-    .from(LEADERBOARD_TABLE)
-    .select("id")
-    .eq("game_key", gameKey)
-    .eq("name", name)
-    .maybeSingle();
-
-  if (!data) return name;
-
-  return `${baseName} ${randomNumber(1000, 9999)}`;
+  return attempt === 0 ? baseName : `${baseName} ${randomNumber(1000, 9999)}`;
 }
 
 function getCountry(requestHeaders: Headers): Country | null {
