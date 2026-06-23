@@ -1,7 +1,12 @@
-import { createHash, randomBytes } from "crypto";
+import { randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+import {
+  GAME_PLAYER_COOKIE,
+  hashPlayerToken,
+  isValidPlayerToken,
+} from "@/lib/games/player-token";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -13,7 +18,6 @@ const GAMES = {
 } as const;
 
 const LEADERBOARD_TABLE = "game_leaderboard_entries";
-const PLAYER_COOKIE = "game_player_token";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2;
 const COUNTRY_HEADERS = [
   "x-vercel-ip-country",
@@ -112,10 +116,12 @@ export async function POST(request: Request, { params }: RouteContext) {
   }
 
   const cookieStore = await cookies();
-  const existingToken = cookieStore.get(PLAYER_COOKIE)?.value;
-  const token = isValidToken(existingToken) ? existingToken : createToken();
+  const existingToken = cookieStore.get(GAME_PLAYER_COOKIE)?.value;
+  const token = isValidPlayerToken(existingToken)
+    ? existingToken
+    : createToken();
   const shouldSetCookie = token !== existingToken;
-  const playerTokenHash = hashToken(token);
+  const playerTokenHash = hashPlayerToken(token);
   const country = getCountry(request.headers);
   const now = new Date().toISOString();
 
@@ -170,7 +176,7 @@ export async function POST(request: Request, { params }: RouteContext) {
   });
 
   if (shouldSetCookie) {
-    response.cookies.set(PLAYER_COOKIE, token, {
+    response.cookies.set(GAME_PLAYER_COOKIE, token, {
       httpOnly: true,
       maxAge: COOKIE_MAX_AGE,
       path: "/",
@@ -345,14 +351,6 @@ function getGameKey(value: string): GameKey | null {
 
 function createToken() {
   return randomBytes(32).toString("base64url");
-}
-
-function hashToken(token: string) {
-  return createHash("sha256").update(token).digest("hex");
-}
-
-function isValidToken(token: string | undefined): token is string {
-  return !!token && token.length >= 32 && token.length <= 128;
 }
 
 function randomItem<T>(items: readonly T[]) {

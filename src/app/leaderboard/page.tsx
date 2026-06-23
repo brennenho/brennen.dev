@@ -5,11 +5,17 @@ import {
   SectionSpacer,
   WorkspaceShell,
 } from "@/components/notion/workspace-shell";
+import { cookies } from "next/headers";
 import {
   LeaderboardTable,
   type LeaderboardRow,
 } from "@/components/notion/leaderboard-table";
 import { getPageEditedMetadata } from "@/lib/git";
+import {
+  GAME_PLAYER_COOKIE,
+  hashPlayerToken,
+  isValidPlayerToken,
+} from "@/lib/games/player-token";
 import { supabase } from "@/lib/supabase/client";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +32,7 @@ type GameLeaderboardEntry = {
   high_score: number;
   country: string | null;
   high_score_achieved_at: string;
+  player_token_hash: string;
 };
 
 export default async function LeaderboardPage() {
@@ -56,9 +63,12 @@ export default async function LeaderboardPage() {
 }
 
 async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
+  const currentPlayerTokenHash = await getCurrentPlayerTokenHash();
   const { data, error } = await supabase
     .from(LEADERBOARD_TABLE)
-    .select("id, name, high_score, country, high_score_achieved_at")
+    .select(
+      "id, name, high_score, country, high_score_achieved_at, player_token_hash",
+    )
     .eq("game_key", GAME_KEY)
     .order("high_score", { ascending: false })
     .order("high_score_achieved_at", { ascending: true })
@@ -70,11 +80,20 @@ async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
   return data.map((entry) => ({
     countryFlag: getCountryFlag(entry.country),
     id: entry.id,
+    isCurrentPlayer: entry.player_token_hash === currentPlayerTokenHash,
     name: entry.name,
     score: entry.high_score,
     date: formatLeaderboardDate(entry.high_score_achieved_at),
     location: entry.country ?? "Unknown",
   }));
+}
+
+async function getCurrentPlayerTokenHash() {
+  const token = (await cookies()).get(GAME_PLAYER_COOKIE)?.value;
+
+  if (!isValidPlayerToken(token)) return null;
+
+  return hashPlayerToken(token);
 }
 
 function getCountryFlag(country: string | null) {

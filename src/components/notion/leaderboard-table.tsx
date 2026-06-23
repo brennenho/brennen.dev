@@ -8,6 +8,7 @@ import {
 type LeaderboardRow = {
   id: string;
   countryFlag?: string;
+  isCurrentPlayer?: boolean;
   name: string;
   score: number;
   date: string;
@@ -68,6 +69,11 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
       minWidthClassName="min-w-[720px]"
       newButtonLabel={null}
       newPageLabel={null}
+      rowClassName={(row) =>
+        row.isCurrentPlayer
+          ? "bg-[#25382f] shadow-[inset_3px_0_0_#4EC38A] hover:bg-[#2d4438]"
+          : undefined
+      }
       rows={rows}
     />
   );
