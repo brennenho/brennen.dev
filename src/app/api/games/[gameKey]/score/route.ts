@@ -30,6 +30,9 @@ const COUNTRY_HEADERS = [
   "x-geo-country",
 ] as const;
 const UNKNOWN_COUNTRY_CODES = new Set(["", "XX", "ZZ", "UNKNOWN"]);
+const REGION_DISPLAY_NAMES = new Intl.DisplayNames(["en"], {
+  type: "region",
+});
 
 const ADJECTIVES = [
   "Brave",
@@ -81,6 +84,11 @@ type GameLeaderboardEntry = {
   id: string;
   name: string;
   high_score: number;
+};
+
+type Country = {
+  code: string;
+  name: string;
 };
 
 type GameKey = keyof typeof GAMES;
@@ -210,7 +218,7 @@ async function updateExistingEntry({
   score,
   supabase,
 }: {
-  country: string | null;
+  country: Country | null;
   existingEntry: GameLeaderboardEntry;
   gameKey: GameKey;
   isNewHighScore: boolean;
@@ -219,7 +227,8 @@ async function updateExistingEntry({
   supabase: ReturnType<typeof createAdminClient>;
 }) {
   const updatePayload: {
-    country?: string;
+    country_code?: string;
+    country_name?: string;
     high_score: number;
     high_score_achieved_at?: string;
     last_played_at: string;
@@ -229,7 +238,8 @@ async function updateExistingEntry({
   };
 
   if (country) {
-    updatePayload.country = country;
+    updatePayload.country_code = country.code;
+    updatePayload.country_name = country.name;
   }
 
   if (isNewHighScore) {
@@ -257,7 +267,7 @@ async function createEntry({
   score,
   supabase,
 }: {
-  country: string | null;
+  country: Country | null;
   gameKey: GameKey;
   now: string;
   playerTokenHash: string;
@@ -270,7 +280,8 @@ async function createEntry({
     const { data, error } = await supabase
       .from(LEADERBOARD_TABLE)
       .insert({
-        country: country ?? "Unknown",
+        country_code: country?.code ?? null,
+        country_name: country?.name ?? null,
         game_key: gameKey,
         high_score: score,
         high_score_achieved_at: now,
@@ -312,7 +323,7 @@ async function generateUniqueName(
   return `${baseName} ${randomNumber(1000, 9999)}`;
 }
 
-function getCountry(requestHeaders: Headers) {
+function getCountry(requestHeaders: Headers): Country | null {
   for (const header of COUNTRY_HEADERS) {
     const country = getCountryFromHeader(requestHeaders.get(header));
 
@@ -322,7 +333,7 @@ function getCountry(requestHeaders: Headers) {
   return null;
 }
 
-function getCountryFromHeader(value: string | null) {
+function getCountryFromHeader(value: string | null): Country | null {
   const candidates = value
     ?.split(",")
     .map((candidate) => candidate.trim().toUpperCase())
@@ -333,12 +344,15 @@ function getCountryFromHeader(value: string | null) {
     if (!/^[A-Z]{2}$/.test(countryCode)) continue;
 
     try {
-      return (
-        new Intl.DisplayNames(["en"], { type: "region" }).of(countryCode) ??
-        countryCode
-      );
+      return {
+        code: countryCode,
+        name: REGION_DISPLAY_NAMES.of(countryCode) ?? countryCode,
+      };
     } catch {
-      return countryCode;
+      return {
+        code: countryCode,
+        name: countryCode,
+      };
     }
   }
 

@@ -16,7 +16,7 @@ import {
   hashPlayerToken,
   isValidPlayerToken,
 } from "@/lib/games/player-token";
-import { supabase } from "@/lib/supabase/client";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +30,8 @@ type GameLeaderboardEntry = {
   id: string;
   name: string;
   high_score: number;
-  country: string | null;
+  country_code: string | null;
+  country_name: string | null;
   high_score_achieved_at: string;
   player_token_hash: string;
 };
@@ -64,10 +65,18 @@ export default async function LeaderboardPage() {
 
 async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
   const currentPlayerTokenHash = await getCurrentPlayerTokenHash();
+  let supabase: ReturnType<typeof createAdminClient>;
+
+  try {
+    supabase = createAdminClient();
+  } catch {
+    return [];
+  }
+
   const { data, error } = await supabase
     .from(LEADERBOARD_TABLE)
     .select(
-      "id, name, high_score, country, high_score_achieved_at, player_token_hash",
+      "id, name, high_score, country_code, country_name, high_score_achieved_at, player_token_hash",
     )
     .eq("game_key", GAME_KEY)
     .order("high_score", { ascending: false })
@@ -78,13 +87,13 @@ async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
   if (error || !data) return [];
 
   return data.map((entry) => ({
-    countryFlag: getCountryFlag(entry.country),
+    countryFlag: getCountryFlag(entry.country_code, entry.country_name),
     id: entry.id,
     isCurrentPlayer: entry.player_token_hash === currentPlayerTokenHash,
     name: entry.name,
     score: entry.high_score,
     date: formatLeaderboardDate(entry.high_score_achieved_at),
-    location: entry.country ?? "Unknown",
+    location: entry.country_name ?? "Unknown",
   }));
 }
 
@@ -96,12 +105,18 @@ async function getCurrentPlayerTokenHash() {
   return hashPlayerToken(token);
 }
 
-function getCountryFlag(country: string | null) {
-  const countryCode = getCountryCode(country);
+function getCountryFlag(
+  countryCode: string | null,
+  countryName: string | null,
+) {
+  const resolvedCountryCode =
+    countryCode?.trim().toUpperCase() ?? getCountryCode(countryName);
 
-  if (!countryCode) return undefined;
+  if (!resolvedCountryCode || !/^[A-Z]{2}$/.test(resolvedCountryCode)) {
+    return undefined;
+  }
 
-  return countryCode
+  return resolvedCountryCode
     .split("")
     .map((letter) => 127397 + letter.charCodeAt(0))
     .map((codePoint) => String.fromCodePoint(codePoint))
