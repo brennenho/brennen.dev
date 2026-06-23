@@ -106,3 +106,50 @@ grant execute on function public.submit_game_score(
   text,
   text
 ) to service_role;
+
+create or replace function public.get_game_leaderboard_rows(
+  p_game_key text,
+  p_player_token_hash text default null,
+  p_limit integer default 25
+)
+returns table (
+  id uuid,
+  name text,
+  high_score integer,
+  country_code text,
+  country_name text,
+  high_score_achieved_at timestamptz,
+  is_current_player boolean
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select
+    entries.id,
+    entries.name,
+    entries.high_score,
+    entries.country_code,
+    entries.country_name,
+    entries.high_score_achieved_at,
+    p_player_token_hash is not null
+      and entries.player_token_hash = p_player_token_hash as is_current_player
+  from public.game_leaderboard_entries as entries
+  where entries.game_key = p_game_key
+  order by
+    entries.high_score desc,
+    entries.high_score_achieved_at asc
+  limit least(greatest(coalesce(p_limit, 25), 1), 100);
+$$;
+
+revoke execute on function public.get_game_leaderboard_rows(
+  text,
+  text,
+  integer
+) from public, anon, authenticated;
+
+grant execute on function public.get_game_leaderboard_rows(
+  text,
+  text,
+  integer
+) to service_role;

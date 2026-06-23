@@ -5,35 +5,34 @@ import {
   SectionSpacer,
   WorkspaceShell,
 } from "@/components/notion/workspace-shell";
-import { cookies } from "next/headers";
 import {
   LeaderboardTable,
   type LeaderboardRow,
 } from "@/components/notion/leaderboard-table";
-import { getPageEditedMetadata } from "@/lib/git";
 import {
   GAME_PLAYER_COOKIE,
   hashPlayerToken,
   isValidPlayerToken,
 } from "@/lib/games/player-token";
+import { getPageEditedMetadata } from "@/lib/git";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
 const GAME_KEY = "dino";
-const LEADERBOARD_TABLE = "game_leaderboard_entries";
 const REGION_DISPLAY_NAMES = new Intl.DisplayNames(["en"], {
   type: "region",
 });
 
-type GameLeaderboardEntry = {
+type GameLeaderboardRow = {
   id: string;
   name: string;
   high_score: number;
   country_code: string | null;
   country_name: string | null;
   high_score_achieved_at: string;
-  player_token_hash: string;
+  is_current_player: boolean;
 };
 
 export default async function LeaderboardPage() {
@@ -73,28 +72,54 @@ async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
     return [];
   }
 
-  const { data, error } = await supabase
-    .from(LEADERBOARD_TABLE)
-    .select(
-      "id, name, high_score, country_code, country_name, high_score_achieved_at, player_token_hash",
-    )
-    .eq("game_key", GAME_KEY)
-    .order("high_score", { ascending: false })
-    .order("high_score_achieved_at", { ascending: true })
-    .limit(25)
-    .overrideTypes<GameLeaderboardEntry[], { merge: false }>();
+  const leaderboardResponse = (await supabase.rpc("get_game_leaderboard_rows", {
+    p_game_key: GAME_KEY,
+    p_limit: 25,
+    p_player_token_hash: currentPlayerTokenHash,
+  })) as unknown as {
+    data: unknown;
+    error: unknown;
+  };
 
-  if (error || !data) return [];
+  if (leaderboardResponse.error || !leaderboardResponse.data) return [];
 
-  return data.map((entry) => ({
+  return parseLeaderboardRows(leaderboardResponse.data).map((entry) => ({
     countryFlag: getCountryFlag(entry.country_code, entry.country_name),
     id: entry.id,
-    isCurrentPlayer: entry.player_token_hash === currentPlayerTokenHash,
+    isCurrentPlayer: entry.is_current_player,
     name: entry.name,
     score: entry.high_score,
     date: formatLeaderboardDate(entry.high_score_achieved_at),
     location: entry.country_name ?? "Unknown",
   }));
+}
+
+function parseLeaderboardRows(value: unknown) {
+  if (!Array.isArray(value)) return [];
+
+  return value.filter(isGameLeaderboardRow);
+}
+
+function isGameLeaderboardRow(value: unknown): value is GameLeaderboardRow {
+  if (!isRecord(value)) return false;
+
+  return (
+    typeof value.id === "string" &&
+    typeof value.name === "string" &&
+    typeof value.high_score === "number" &&
+    isNullableString(value.country_code) &&
+    isNullableString(value.country_name) &&
+    typeof value.high_score_achieved_at === "string" &&
+    typeof value.is_current_player === "boolean"
+  );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isNullableString(value: unknown): value is string | null {
+  return typeof value === "string" || value === null;
 }
 
 async function getCurrentPlayerTokenHash() {
