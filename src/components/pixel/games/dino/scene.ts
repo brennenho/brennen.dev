@@ -27,6 +27,10 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     game.reset();
   }
 
+  function score() {
+    return Math.floor(game.score);
+  }
+
   function action() {
     configureGame();
     game.action();
@@ -181,6 +185,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     render,
     reset,
     resize,
+    score,
     start,
     status,
     update,

@@ -14,6 +14,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const sceneRef = useRef<PixelScene | null>(null);
   const frameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
+  const submittedRunRef = useRef(false);
   const statusRef = useRef<PixelSceneStatus>("cover");
   const [isInteractive, setIsInteractive] = useState(false);
   const [status, setStatus] = useState<PixelSceneStatus>("cover");
@@ -33,6 +34,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
 
   const start = useCallback(() => {
     sceneRef.current?.start();
+    submittedRunRef.current = false;
     statusRef.current = "playing";
     setStatus("playing");
   }, []);
@@ -41,6 +43,23 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     sceneRef.current?.reset();
     statusRef.current = "cover";
     setStatus("cover");
+  }, []);
+
+  const submitScore = useCallback((score: number) => {
+    const body = JSON.stringify({ score });
+
+    void fetch("/api/games/dino/score", {
+      body,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      keepalive: true,
+      method: "POST",
+    }).catch((error: unknown) => {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("Unable to submit Dino score", error);
+      }
+    });
   }, []);
 
   const trigger = useCallback(() => {
@@ -94,8 +113,18 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       scene.update(delta);
       const nextStatus = scene.status();
       if (nextStatus !== statusRef.current) {
+        const previousStatus = statusRef.current;
         statusRef.current = nextStatus;
         setStatus(nextStatus);
+
+        if (
+          previousStatus === "playing" &&
+          nextStatus === "over" &&
+          !submittedRunRef.current
+        ) {
+          submittedRunRef.current = true;
+          submitScore(scene.score());
+        }
       }
       scene.render();
       frameRef.current = requestAnimationFrame(tick);
@@ -108,7 +137,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       window.removeEventListener("resize", resize);
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
-  }, [resize]);
+  }, [resize, submitScore]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
