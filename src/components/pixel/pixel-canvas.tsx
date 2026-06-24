@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createDinoScene } from "./games/dino/scene";
 import type { PixelScene, PixelSceneStatus } from "./scene";
 
+const DINO_CONFIG = getGameConfig("dino");
+
 type PixelCanvasProps = {
   className?: string;
 };
@@ -14,7 +16,9 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<PixelScene | null>(null);
   const frameRef = useRef<number | null>(null);
+  const isStartingRunRef = useRef(false);
   const lastTimeRef = useRef<number>(0);
+  const runTokenRef = useRef<string | null>(null);
   const submittedRunRef = useRef(false);
   const statusRef = useRef<PixelSceneStatus>("cover");
   const [isInteractive, setIsInteractive] = useState(false);
@@ -33,24 +37,67 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     scene.resize(canvas.width, canvas.height, scale);
   }, []);
 
-  const start = useCallback(() => {
-    sceneRef.current?.start();
-    submittedRunRef.current = false;
-    statusRef.current = "playing";
-    setStatus("playing");
+  const startRun = useCallback(async () => {
+    const response = await fetch(DINO_CONFIG.runEndpoint, {
+      cache: "no-store",
+      credentials: "same-origin",
+      method: "POST",
+    });
+
+    if (!response.ok) return null;
+
+    const body = (await response.json().catch(() => null)) as unknown;
+
+    if (!isRunResponse(body)) return null;
+
+    return body.runToken;
   }, []);
 
+  const start = useCallback(() => {
+    if (isStartingRunRef.current) return;
+
+    isStartingRunRef.current = true;
+
+    void startRun()
+      .then((runToken) => {
+        if (!runToken) return;
+
+        runTokenRef.current = runToken;
+        sceneRef.current?.start();
+        submittedRunRef.current = false;
+        statusRef.current = "playing";
+        setStatus("playing");
+      })
+      .catch((error: unknown) => {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("Unable to start Dino run", error);
+        }
+      })
+      .finally(() => {
+        isStartingRunRef.current = false;
+      });
+  }, [startRun]);
+
   const reset = useCallback(() => {
+    runTokenRef.current = null;
+    isStartingRunRef.current = false;
+    submittedRunRef.current = false;
     sceneRef.current?.reset();
     statusRef.current = "cover";
     setStatus("cover");
   }, []);
 
   const submitScore = useCallback((score: number) => {
-    const body = JSON.stringify({ score });
+    const runToken = runTokenRef.current;
 
-    void fetch(getGameConfig("dino").scoreEndpoint, {
+    if (!runToken) return;
+
+    runTokenRef.current = null;
+    const body = JSON.stringify({ runToken, score });
+
+    void fetch(DINO_CONFIG.scoreEndpoint, {
       body,
+      credentials: "same-origin",
       headers: {
         "Content-Type": "application/json",
       },
@@ -201,5 +248,14 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         </span>
       )}
     </button>
+  );
+}
+
+function isRunResponse(value: unknown): value is { runToken: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "runToken" in value &&
+    typeof value.runToken === "string"
   );
 }

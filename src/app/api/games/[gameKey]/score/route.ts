@@ -1,18 +1,20 @@
-import { randomBytes } from "crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+import { getGameConfig, getGameKey, type GameKey } from "@/lib/games/config";
 import {
   GAME_PLAYER_COOKIE,
   hashPlayerToken,
   isValidPlayerToken,
 } from "@/lib/games/player-token";
-import { getGameConfig, getGameKey, type GameKey } from "@/lib/games/config";
+import {
+  getGameRunTokenSecret,
+  verifyGameRunToken,
+} from "@/lib/games/run-token";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2;
 const COUNTRY_HEADERS = [
   "x-vercel-ip-country",
   "cf-ipcountry",
@@ -99,10 +101,64 @@ export async function POST(request: Request, { params }: RouteContext) {
     return NextResponse.json({ error: "Unknown game." }, { status: 404 });
   }
 
-  const score = await parseScore(request, getGameConfig(gameKey).maxScore);
+  const gameConfig = getGameConfig(gameKey);
+  const scoreSubmission = await parseScoreSubmission(
+    request,
+    gameConfig.maxScore,
+  );
 
-  if (score == null) {
+  if (!scoreSubmission) {
     return NextResponse.json({ error: "Invalid score." }, { status: 400 });
+  }
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get(GAME_PLAYER_COOKIE)?.value;
+
+  if (!isValidPlayerToken(token)) {
+    return NextResponse.json(
+      { error: "Start a game run before submitting a score." },
+      { status: 401 },
+    );
+  }
+
+  const playerTokenHash = hashPlayerToken(token);
+  let runTokenSecret: string;
+
+  try {
+    runTokenSecret = getGameRunTokenSecret();
+  } catch {
+    return NextResponse.json(
+      { error: "Game run verification is not configured." },
+      { status: 500 },
+    );
+  }
+
+  const run = verifyGameRunToken(scoreSubmission.runToken, {
+    expectedGameKey: gameKey,
+    expectedPlayerTokenHash: playerTokenHash,
+    maxAgeMs: gameConfig.runTokenMaxAgeSeconds * 1000,
+    secret: runTokenSecret,
+  });
+
+  if (!run) {
+    return NextResponse.json(
+      { error: "Invalid or expired game run." },
+      { status: 400 },
+    );
+  }
+
+  if (
+    scoreSubmission.score >
+    getMaxAllowedScore({
+      elapsedMs: run.elapsedMs,
+      scoreGraceSeconds: gameConfig.scoreGraceSeconds,
+      scoreRatePerSecond: gameConfig.scoreRatePerSecond,
+    })
+  ) {
+    return NextResponse.json(
+      { error: "Score is too high for this game run." },
+      { status: 400 },
+    );
   }
 
   let supabase: ReturnType<typeof createAdminClient>;
@@ -116,20 +172,13 @@ export async function POST(request: Request, { params }: RouteContext) {
     );
   }
 
-  const cookieStore = await cookies();
-  const existingToken = cookieStore.get(GAME_PLAYER_COOKIE)?.value;
-  const token = isValidPlayerToken(existingToken)
-    ? existingToken
-    : createToken();
-  const shouldSetCookie = token !== existingToken;
-  const playerTokenHash = hashPlayerToken(token);
   const country = getCountry(request.headers);
 
   const entry = await submitScore({
     country,
     gameKey,
     playerTokenHash,
-    score,
+    score: scoreSubmission.score,
     supabase,
   });
 
@@ -143,25 +192,16 @@ export async function POST(request: Request, { params }: RouteContext) {
   const response = NextResponse.json({
     name: entry.name,
     highScore: entry.high_score,
-    submittedScore: score,
+    submittedScore: scoreSubmission.score,
     isNewHighScore: entry.is_new_high_score,
   });
-
-  if (shouldSetCookie) {
-    response.cookies.set(GAME_PLAYER_COOKIE, token, {
-      httpOnly: true,
-      maxAge: COOKIE_MAX_AGE,
-      path: "/",
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
-  }
 
   return response;
 }
 
-async function parseScore(request: Request, maxScore: number) {
+async function parseScoreSubmission(request: Request, maxScore: number) {
   const body = (await request.json().catch(() => null)) as {
+    runToken?: unknown;
     score?: unknown;
   } | null;
   const score = Math.floor(Number(body?.score));
@@ -170,7 +210,28 @@ async function parseScore(request: Request, maxScore: number) {
     return null;
   }
 
-  return score;
+  if (typeof body?.runToken !== "string" || body.runToken.length > 4096) {
+    return null;
+  }
+
+  return {
+    runToken: body.runToken,
+    score,
+  };
+}
+
+function getMaxAllowedScore({
+  elapsedMs,
+  scoreGraceSeconds,
+  scoreRatePerSecond,
+}: {
+  elapsedMs: number;
+  scoreGraceSeconds: number;
+  scoreRatePerSecond: number;
+}) {
+  return Math.floor(
+    (elapsedMs / 1000 + scoreGraceSeconds) * scoreRatePerSecond,
+  );
 }
 
 async function submitScore({
@@ -202,7 +263,18 @@ async function submitScore({
 
     if (!error) return data;
 
-    if (error.code !== "23505") return null;
+    if (error.code !== "23505") {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("Unable to submit game score", {
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+          message: error.message,
+        });
+      }
+
+      return null;
+    }
   }
 
   return null;
@@ -250,10 +322,6 @@ function getCountryFromHeader(value: string | null): Country | null {
   }
 
   return null;
-}
-
-function createToken() {
-  return randomBytes(32).toString("base64url");
 }
 
 function randomItem<T>(items: readonly T[]) {

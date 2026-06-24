@@ -1,7 +1,11 @@
 const GAME_CONFIGS = {
   dino: {
+    maxScore: 20_000,
+    runEndpoint: "/api/games/dino/run",
+    runTokenMaxAgeSeconds: 60 * 30,
     scoreEndpoint: "/api/games/dino/score",
-    maxScore: 1_000_000,
+    scoreGraceSeconds: 4,
+    scoreRatePerSecond: 12,
   },
 } as const;
 
