@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+import { gameApiError } from "@/lib/games/api-response";
 import { getGameKey } from "@/lib/games/config";
 import {
   createPlayerToken,
@@ -26,7 +27,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
   const gameKey = getGameKey((await params).gameKey);
 
   if (!gameKey) {
-    return NextResponse.json({ error: "Unknown game." }, { status: 404 });
+    return gameApiError("Unknown game.", 404);
   }
 
   let secret: string;
@@ -34,10 +35,7 @@ export async function POST(_request: Request, { params }: RouteContext) {
   try {
     secret = getGameRunTokenSecret();
   } catch {
-    return NextResponse.json(
-      { error: "Game run verification is not configured." },
-      { status: 500 },
-    );
+    return gameApiError("Game run verification is not configured.", 500);
   }
 
   const cookieStore = await cookies();
