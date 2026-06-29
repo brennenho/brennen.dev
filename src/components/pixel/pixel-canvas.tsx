@@ -7,6 +7,7 @@ import { createDinoScene } from "./games/dino/scene";
 import type { PixelScene, PixelSceneStatus } from "./scene";
 
 const DINO_CONFIG = getGameConfig("dino");
+const DINO_HIGH_SCORE_STORAGE_KEY = "dino_high_score";
 
 type PixelCanvasProps = {
   className?: string;
@@ -18,6 +19,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const frameRef = useRef<number | null>(null);
   const isStartingRunRef = useRef(false);
   const lastTimeRef = useRef<number>(0);
+  const highScoreRef = useRef(0);
   const runTokenRef = useRef<string | null>(null);
   const submittedRunRef = useRef(false);
   const statusRef = useRef<PixelSceneStatus>("cover");
@@ -50,7 +52,24 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
 
     if (!isRunResponse(body)) return null;
 
-    return body.runToken;
+    return body;
+  }, []);
+
+  const setHighScoreValue = useCallback((score: number) => {
+    if (!Number.isFinite(score) || score < 0) return;
+
+    const nextHighScore = Math.floor(score);
+    highScoreRef.current = nextHighScore;
+    sceneRef.current?.setHighScore(nextHighScore);
+
+    try {
+      window.localStorage.setItem(
+        DINO_HIGH_SCORE_STORAGE_KEY,
+        String(nextHighScore),
+      );
+    } catch {
+      // Local storage can be unavailable in privacy-restricted contexts.
+    }
   }, []);
 
   const start = useCallback(() => {
@@ -59,10 +78,11 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     isStartingRunRef.current = true;
 
     void startRun()
-      .then((runToken) => {
-        if (!runToken) return;
+      .then((run) => {
+        if (!run) return;
 
-        runTokenRef.current = runToken;
+        setHighScoreValue(run.highScore);
+        runTokenRef.current = run.runToken;
         sceneRef.current?.start();
         submittedRunRef.current = false;
         statusRef.current = "playing";
@@ -76,7 +96,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       .finally(() => {
         isStartingRunRef.current = false;
       });
-  }, [startRun]);
+  }, [setHighScoreValue, startRun]);
 
   const reset = useCallback(() => {
     runTokenRef.current = null;
@@ -87,28 +107,39 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     setStatus("cover");
   }, []);
 
-  const submitScore = useCallback((score: number) => {
-    const runToken = runTokenRef.current;
+  const submitScore = useCallback(
+    (score: number) => {
+      const runToken = runTokenRef.current;
 
-    if (!runToken) return;
+      if (!runToken) return;
 
-    runTokenRef.current = null;
-    const body = JSON.stringify({ runToken, score });
+      runTokenRef.current = null;
+      const body = JSON.stringify({ runToken, score });
 
-    void fetch(DINO_CONFIG.scoreEndpoint, {
-      body,
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      keepalive: true,
-      method: "POST",
-    }).catch((error: unknown) => {
-      if (process.env.NODE_ENV === "development") {
-        console.warn("Unable to submit Dino score", error);
-      }
-    });
-  }, []);
+      void fetch(DINO_CONFIG.scoreEndpoint, {
+        body,
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        keepalive: true,
+        method: "POST",
+      })
+        .then(async (response) => {
+          const body = (await response.json().catch(() => null)) as unknown;
+
+          if (isScoreResponse(body)) {
+            setHighScoreValue(body.highScore);
+          }
+        })
+        .catch((error: unknown) => {
+          if (process.env.NODE_ENV === "development") {
+            console.warn("Unable to submit Dino score", error);
+          }
+        });
+    },
+    [setHighScoreValue],
+  );
 
   const trigger = useCallback(() => {
     if (!isInteractive) return;
@@ -153,6 +184,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
 
     const scene = createDinoScene(context);
     sceneRef.current = scene;
+    scene.setHighScore(highScoreRef.current);
     resize();
 
     const tick = (time: number) => {
@@ -186,6 +218,17 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
   }, [resize, submitScore]);
+
+  useEffect(() => {
+    const storedHighScore = window.localStorage.getItem(
+      DINO_HIGH_SCORE_STORAGE_KEY,
+    );
+    const parsedHighScore = Number(storedHighScore);
+
+    if (Number.isFinite(parsedHighScore) && parsedHighScore > 0) {
+      setHighScoreValue(parsedHighScore);
+    }
+  }, [setHighScoreValue]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -251,11 +294,24 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   );
 }
 
-function isRunResponse(value: unknown): value is { runToken: string } {
+function isRunResponse(
+  value: unknown,
+): value is { highScore: number; runToken: string } {
   return (
     typeof value === "object" &&
     value !== null &&
+    "highScore" in value &&
     "runToken" in value &&
+    typeof value.highScore === "number" &&
     typeof value.runToken === "string"
+  );
+}
+
+function isScoreResponse(value: unknown): value is { highScore: number } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "highScore" in value &&
+    typeof value.highScore === "number"
   );
 }

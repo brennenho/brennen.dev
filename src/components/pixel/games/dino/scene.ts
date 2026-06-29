@@ -11,6 +11,7 @@ const CLOCK_PERIOD_GAP = 4;
 export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   const display = new PixelDisplay(context);
   const game = new DinoEngine();
+  let highScore = 0;
 
   function resize(width: number, height: number, scale: number) {
     context.imageSmoothingEnabled = false;
@@ -31,6 +32,10 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     return Math.floor(game.score);
   }
 
+  function setHighScore(score: number) {
+    highScore = Math.max(0, Math.floor(score));
+  }
+
   function action() {
     configureGame();
     game.action();
@@ -49,6 +54,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
 
     drawGround();
     drawAmbientCover();
+    drawHighScore();
     drawScore();
     drawClockOverlay();
 
@@ -131,6 +137,13 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     display.text(display.columns - display.measureText(text) - 2, 2, text, 230);
   }
 
+  function drawHighScore() {
+    if (game.mode === "cover" || display.columns < 72) return;
+
+    const text = `HI:${String(highScore).padStart(5, "0")}`;
+    display.text(2, 2, text, 230);
+  }
+
   function drawClock(row: number) {
     const time = getLocalTimeParts();
     const hourWidth = display.measureText(time.hour);
@@ -186,6 +199,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     reset,
     resize,
     score,
+    setHighScore,
     start,
     status,
     update,

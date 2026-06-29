@@ -18,6 +18,33 @@ type SubmitGameScoreOptions = {
   supabase: ReturnType<typeof createAdminClient>;
 };
 
+type GetPlayerHighScoreOptions = {
+  gameKey: GameKey;
+  playerTokenHash: string;
+  supabase: ReturnType<typeof createAdminClient>;
+};
+
+type PlayerHighScoreEntry = {
+  high_score: number;
+};
+
+export async function getPlayerHighScore({
+  gameKey,
+  playerTokenHash,
+  supabase,
+}: GetPlayerHighScoreOptions) {
+  const { data, error } = await supabase
+    .from("game_leaderboard_entries")
+    .select("high_score")
+    .eq("game_key", gameKey)
+    .eq("player_token_hash", playerTokenHash)
+    .maybeSingle<PlayerHighScoreEntry>();
+
+  if (error) return 0;
+
+  return data?.high_score ?? 0;
+}
+
 export async function submitGameScore({
   country,
   gameKey,
