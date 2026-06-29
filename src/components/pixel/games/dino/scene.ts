@@ -11,6 +11,7 @@ const CLOCK_PERIOD_GAP = 4;
 export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   const display = new PixelDisplay(context);
   const game = new DinoEngine();
+  let highScore = 0;
 
   function resize(width: number, height: number, scale: number) {
     context.imageSmoothingEnabled = false;
@@ -27,6 +28,14 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     game.reset();
   }
 
+  function score() {
+    return currentScore();
+  }
+
+  function setHighScore(score: number) {
+    highScore = Math.max(0, Math.floor(score), currentScore());
+  }
+
   function action() {
     configureGame();
     game.action();
@@ -38,6 +47,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
 
   function update(delta: number) {
     game.update(delta);
+    highScore = Math.max(highScore, currentScore());
   }
 
   function render() {
@@ -45,6 +55,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
 
     drawGround();
     drawAmbientCover();
+    drawHighScore();
     drawScore();
     drawClockOverlay();
 
@@ -123,8 +134,19 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   function drawScore() {
     if (game.mode === "cover" || display.columns < 46) return;
 
-    const text = String(Math.floor(game.score)).padStart(5, "0");
+    const text = String(currentScore()).padStart(5, "0");
     display.text(display.columns - display.measureText(text) - 2, 2, text, 230);
+  }
+
+  function drawHighScore() {
+    if (game.mode === "cover" || display.columns < 72) return;
+
+    const text = `HI:${String(highScore).padStart(5, "0")}`;
+    display.text(2, 2, text, 230);
+  }
+
+  function currentScore() {
+    return Math.floor(game.score);
   }
 
   function drawClock(row: number) {
@@ -181,6 +203,8 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     render,
     reset,
     resize,
+    score,
+    setHighScore,
     start,
     status,
     update,

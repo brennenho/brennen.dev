@@ -1,0 +1,80 @@
+import { CalendarDays, MapPin, Trophy, UserRound } from "lucide-react";
+
+import {
+  NotionTable,
+  type NotionTableColumn,
+} from "@/components/notion/notion-table";
+
+type LeaderboardRow = {
+  id: string;
+  countryFlag?: string;
+  isCurrentPlayer?: boolean;
+  name: string;
+  score: number;
+  date: string;
+  location: string;
+};
+
+export type { LeaderboardRow };
+
+const leaderboardColumns = [
+  {
+    id: "name",
+    label: "Name",
+    icon: UserRound,
+    headerClassName: "w-[230px]",
+    render: (row) => row.name,
+  },
+  {
+    id: "score",
+    label: "Score",
+    icon: Trophy,
+    headerClassName: "w-[140px]",
+    render: (row) => row.score.toLocaleString(),
+  },
+  {
+    id: "date",
+    label: "Date",
+    icon: CalendarDays,
+    headerClassName: "w-[190px]",
+    render: (row) => row.date,
+  },
+  {
+    id: "location",
+    label: "Location",
+    icon: MapPin,
+    render: (row) => (
+      <span className="flex items-center gap-2">
+        {row.countryFlag ? (
+          <span
+            aria-label={`${row.location} flag`}
+            className="text-[15px] leading-none"
+            title={row.location}
+          >
+            {row.countryFlag}
+          </span>
+        ) : null}
+        <span>{row.location}</span>
+      </span>
+    ),
+  },
+] satisfies NotionTableColumn<LeaderboardRow>[];
+
+export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
+  return (
+    <NotionTable
+      columns={leaderboardColumns}
+      getRowKey={(row) => row.id}
+      emptyState="No scores yet"
+      minWidthClassName="min-w-[720px]"
+      newButtonLabel={null}
+      newPageLabel={null}
+      rowClassName={(row) =>
+        row.isCurrentPlayer
+          ? "bg-[#25382f] shadow-[inset_3px_0_0_#4EC38A] hover:bg-[#2d4438]"
+          : undefined
+      }
+      rows={rows}
+    />
+  );
+}

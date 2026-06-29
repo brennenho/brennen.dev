@@ -1,9 +1,13 @@
 "use client";
 
+import { getGameConfig } from "@/lib/games/config";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createDinoScene } from "./games/dino/scene";
 import type { PixelScene, PixelSceneStatus } from "./scene";
+
+const DINO_CONFIG = getGameConfig("dino");
+const DINO_HIGH_SCORE_STORAGE_KEY = "dino_high_score";
 
 type PixelCanvasProps = {
   className?: string;
@@ -13,7 +17,11 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<PixelScene | null>(null);
   const frameRef = useRef<number | null>(null);
+  const isStartingRunRef = useRef(false);
   const lastTimeRef = useRef<number>(0);
+  const highScoreRef = useRef(0);
+  const runTokenRef = useRef<string | null>(null);
+  const submittedRunRef = useRef(false);
   const statusRef = useRef<PixelSceneStatus>("cover");
   const [isInteractive, setIsInteractive] = useState(false);
   const [status, setStatus] = useState<PixelSceneStatus>("cover");
@@ -31,17 +39,107 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     scene.resize(canvas.width, canvas.height, scale);
   }, []);
 
-  const start = useCallback(() => {
-    sceneRef.current?.start();
-    statusRef.current = "playing";
-    setStatus("playing");
+  const startRun = useCallback(async () => {
+    const response = await fetch(DINO_CONFIG.runEndpoint, {
+      cache: "no-store",
+      credentials: "same-origin",
+      method: "POST",
+    });
+
+    if (!response.ok) return null;
+
+    const body = (await response.json().catch(() => null)) as unknown;
+
+    if (!isRunResponse(body)) return null;
+
+    return body;
   }, []);
 
+  const setHighScoreValue = useCallback((score: number) => {
+    if (!Number.isFinite(score) || score < 0) return;
+
+    const nextHighScore = Math.floor(score);
+    highScoreRef.current = nextHighScore;
+    sceneRef.current?.setHighScore(nextHighScore);
+
+    try {
+      window.localStorage.setItem(
+        DINO_HIGH_SCORE_STORAGE_KEY,
+        String(nextHighScore),
+      );
+    } catch {
+      // Local storage can be unavailable in privacy-restricted contexts.
+    }
+  }, []);
+
+  const start = useCallback(() => {
+    if (isStartingRunRef.current) return;
+
+    isStartingRunRef.current = true;
+
+    void startRun()
+      .then((run) => {
+        if (!run) return;
+
+        setHighScoreValue(run.highScore);
+        runTokenRef.current = run.runToken;
+        sceneRef.current?.start();
+        submittedRunRef.current = false;
+        statusRef.current = "playing";
+        setStatus("playing");
+      })
+      .catch((error: unknown) => {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("Unable to start Dino run", error);
+        }
+      })
+      .finally(() => {
+        isStartingRunRef.current = false;
+      });
+  }, [setHighScoreValue, startRun]);
+
   const reset = useCallback(() => {
+    runTokenRef.current = null;
+    isStartingRunRef.current = false;
+    submittedRunRef.current = false;
     sceneRef.current?.reset();
     statusRef.current = "cover";
     setStatus("cover");
   }, []);
+
+  const submitScore = useCallback(
+    (score: number) => {
+      const runToken = runTokenRef.current;
+
+      if (!runToken) return;
+
+      runTokenRef.current = null;
+      const body = JSON.stringify({ runToken, score });
+
+      void fetch(DINO_CONFIG.scoreEndpoint, {
+        body,
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        keepalive: true,
+        method: "POST",
+      })
+        .then(async (response) => {
+          const body = (await response.json().catch(() => null)) as unknown;
+
+          if (isScoreResponse(body)) {
+            setHighScoreValue(body.highScore);
+          }
+        })
+        .catch((error: unknown) => {
+          if (process.env.NODE_ENV === "development") {
+            console.warn("Unable to submit Dino score", error);
+          }
+        });
+    },
+    [setHighScoreValue],
+  );
 
   const trigger = useCallback(() => {
     if (!isInteractive) return;
@@ -86,6 +184,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
 
     const scene = createDinoScene(context);
     sceneRef.current = scene;
+    scene.setHighScore(highScoreRef.current);
     resize();
 
     const tick = (time: number) => {
@@ -94,8 +193,18 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       scene.update(delta);
       const nextStatus = scene.status();
       if (nextStatus !== statusRef.current) {
+        const previousStatus = statusRef.current;
         statusRef.current = nextStatus;
         setStatus(nextStatus);
+
+        if (
+          previousStatus === "playing" &&
+          nextStatus === "over" &&
+          !submittedRunRef.current
+        ) {
+          submittedRunRef.current = true;
+          submitScore(scene.score());
+        }
       }
       scene.render();
       frameRef.current = requestAnimationFrame(tick);
@@ -108,7 +217,18 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       window.removeEventListener("resize", resize);
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
-  }, [resize]);
+  }, [resize, submitScore]);
+
+  useEffect(() => {
+    const storedHighScore = window.localStorage.getItem(
+      DINO_HIGH_SCORE_STORAGE_KEY,
+    );
+    const parsedHighScore = Number(storedHighScore);
+
+    if (Number.isFinite(parsedHighScore) && parsedHighScore > 0) {
+      setHighScoreValue(parsedHighScore);
+    }
+  }, [setHighScoreValue]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -171,5 +291,27 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         </span>
       )}
     </button>
+  );
+}
+
+function isRunResponse(
+  value: unknown,
+): value is { highScore: number; runToken: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "highScore" in value &&
+    "runToken" in value &&
+    typeof value.highScore === "number" &&
+    typeof value.runToken === "string"
+  );
+}
+
+function isScoreResponse(value: unknown): value is { highScore: number } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "highScore" in value &&
+    typeof value.highScore === "number"
   );
 }
