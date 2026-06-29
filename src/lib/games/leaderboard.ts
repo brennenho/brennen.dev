@@ -1,6 +1,6 @@
 import type { GameKey } from "@/lib/games/config";
 import type { Country } from "@/lib/games/location";
-import { generatePlayerName } from "@/lib/games/player-name";
+import { generatePlayerNameCandidates } from "@/lib/games/player-name";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
 type GameLeaderboardEntry = {
@@ -52,9 +52,7 @@ export async function submitGameScore({
   score,
   supabase,
 }: SubmitGameScoreOptions) {
-  for (let attempt = 0; attempt < 6; attempt++) {
-    const name = generatePlayerName(attempt);
-
+  for (const name of generatePlayerNameCandidates()) {
     const { data, error } = await supabase
       .rpc("submit_game_score", {
         p_country_code: country?.code ?? null,
