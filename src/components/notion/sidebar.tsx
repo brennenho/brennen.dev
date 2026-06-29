@@ -1,24 +1,16 @@
+"use client";
+
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
+import {
+  favoriteItems,
+  type SidebarItem,
+} from "@/components/notion/sidebar-data";
+import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
 import { cn } from "@/lib/utils";
 import { Mail, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
-
-export type SidebarItem = {
-  href: string;
-  icon: string;
-  label: string;
-};
-
-export const favoriteItems: SidebarItem[] = [
-  { href: "/", icon: "👋", label: "hey, i’m brennen" },
-  { href: "/leaderboard", icon: "🏆", label: "leaderboard" },
-];
-
-export function isFavoritePath(path: string) {
-  return favoriteItems.some((item) => item.href === path);
-}
+import { useEffect, useState, type ReactNode } from "react";
 
 export function NotionSidebar({
   activePath,
@@ -33,6 +25,41 @@ export function NotionSidebar({
   musingItems: SidebarItem[];
   onNavigate?: () => void;
 }) {
+  const [leaderboardHighlighted, setLeaderboardHighlighted] = useState(false);
+
+  useEffect(() => {
+    function handleLeaderboardUpdated() {
+      setLeaderboardHighlighted(true);
+    }
+
+    window.addEventListener(
+      GAME_LEADERBOARD_UPDATED_EVENT,
+      handleLeaderboardUpdated,
+    );
+
+    return () => {
+      window.removeEventListener(
+        GAME_LEADERBOARD_UPDATED_EVENT,
+        handleLeaderboardUpdated,
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!leaderboardHighlighted) return;
+
+    const id = window.setTimeout(() => {
+      setLeaderboardHighlighted(false);
+    }, 3000);
+
+    return () => window.clearTimeout(id);
+  }, [leaderboardHighlighted]);
+
+  function handleNavigate() {
+    setLeaderboardHighlighted(false);
+    onNavigate?.();
+  }
+
   return (
     <aside
       className={cn(
@@ -64,8 +91,11 @@ export function NotionSidebar({
             <SidebarLink
               key={item.href}
               active={activePath === item.href}
+              highlighted={
+                leaderboardHighlighted && item.href === "/leaderboard"
+              }
               item={item}
-              onNavigate={onNavigate}
+              onNavigate={handleNavigate}
             />
           ))}
         </SidebarGroup>
@@ -83,7 +113,7 @@ export function NotionSidebar({
               key={item.href}
               active={activePath === item.href}
               item={item}
-              onNavigate={onNavigate}
+              onNavigate={handleNavigate}
             />
           ))}
         </SidebarGroup>
@@ -134,10 +164,12 @@ function SidebarGroup({
 
 function SidebarLink({
   active,
+  highlighted = false,
   item,
   onNavigate,
 }: {
   active: boolean;
+  highlighted?: boolean;
   item: SidebarItem;
   onNavigate?: () => void;
 }) {
@@ -146,12 +178,25 @@ function SidebarLink({
       href={item.href}
       onClick={onNavigate}
       className={cn(
-        "flex h-8 items-center gap-2 rounded-sm px-2 text-[#b8b8b5] transition-colors hover:bg-[#30302f]",
+        "relative flex h-8 items-center gap-2 rounded-sm px-2 text-[#b8b8b5] transition-[background-color,box-shadow,color] duration-300 hover:bg-[#30302f]",
         active && "bg-[#373736] text-[#f1f1ef]",
+        highlighted &&
+          "bg-[#3d3726] text-[#f1f1ef] shadow-[0_0_0_1px_rgba(245,197,66,0.28),0_0_18px_rgba(245,197,66,0.16)]",
       )}
     >
       <span className="w-5 text-[18px] leading-none">{item.icon}</span>
       <span className="truncate">{item.label}</span>
+      {highlighted ? (
+        <>
+          <span
+            aria-hidden="true"
+            className="ml-auto h-1.5 w-1.5 rounded-full bg-[#f5c542] shadow-[0_0_10px_rgba(245,197,66,0.75)]"
+          />
+          <span className="animate-in fade-in slide-in-from-left-1 pointer-events-none absolute top-1/2 left-full z-50 ml-3 hidden -translate-y-1/2 rounded-sm border border-[#3f3f3c] bg-[#252524] px-2.5 py-1.5 text-[12px] leading-none font-semibold whitespace-nowrap text-[#f1f1ef] shadow-lg min-[900px]:block">
+            Saved new high score
+          </span>
+        </>
+      ) : null}
     </Link>
   );
 }

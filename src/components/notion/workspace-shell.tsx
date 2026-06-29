@@ -2,9 +2,9 @@ import { EditedCommitLink } from "@/components/notion/edited-commit-link";
 import { MobileWorkspaceTopbar } from "@/components/notion/mobile-workspace-topbar";
 import {
   isFavoritePath,
-  NotionSidebar,
   type SidebarItem,
-} from "@/components/notion/sidebar";
+} from "@/components/notion/sidebar-data";
+import { NotionSidebar } from "@/components/notion/sidebar";
 import { TopbarActions } from "@/components/notion/topbar-actions";
 import { getMusingSummaries } from "@/lib/musings";
 import { cn } from "@/lib/utils";

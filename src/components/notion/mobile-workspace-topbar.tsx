@@ -1,7 +1,8 @@
 "use client";
 
 import { EditedCommitLink } from "@/components/notion/edited-commit-link";
-import { NotionSidebar, type SidebarItem } from "@/components/notion/sidebar";
+import type { SidebarItem } from "@/components/notion/sidebar-data";
+import { NotionSidebar } from "@/components/notion/sidebar";
 import { cn } from "@/lib/utils";
 import { Check, Lock, Menu, Share2, Star, X } from "lucide-react";
 import { useEffect, useState } from "react";

@@ -1,6 +1,7 @@
 "use client";
 
 import { getGameConfig } from "@/lib/games/config";
+import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createDinoScene } from "./games/dino/scene";
@@ -130,6 +131,10 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
 
           if (isScoreResponse(body)) {
             setHighScoreValue(body.highScore);
+
+            if (body.isNewHighScore) {
+              window.dispatchEvent(new Event(GAME_LEADERBOARD_UPDATED_EVENT));
+            }
           }
         })
         .catch((error: unknown) => {
@@ -307,11 +312,16 @@ function isRunResponse(
   );
 }
 
-function isScoreResponse(value: unknown): value is { highScore: number } {
+function isScoreResponse(value: unknown): value is {
+  highScore: number;
+  isNewHighScore: boolean;
+} {
   return (
     typeof value === "object" &&
     value !== null &&
     "highScore" in value &&
-    typeof value.highScore === "number"
+    "isNewHighScore" in value &&
+    typeof value.highScore === "number" &&
+    typeof value.isNewHighScore === "boolean"
   );
 }
