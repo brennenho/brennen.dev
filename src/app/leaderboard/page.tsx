@@ -2,9 +2,10 @@ import {
   LeaderboardTable,
   type LeaderboardRow,
 } from "@/components/notion/leaderboard-table";
+import { NotionCallout } from "@/components/notion/notion-callout";
 import { NotionInlineCode } from "@/components/notion/notion-inline-code";
+import { NotionLink } from "@/components/notion/notion-link";
 import {
-  NotionCallout,
   PageContent,
   PageIcon,
   PageTitle,
@@ -20,7 +21,6 @@ import {
 import { getPageEditedMetadata } from "@/lib/git";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cookies } from "next/headers";
-import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -186,11 +186,8 @@ function CurrentPlayerStatusCallout({
   if (!status) {
     return (
       <NotionCallout icon="🎮">
-        You&apos;re unranked. Return{" "}
-        <Link className="underline" href="/">
-          home
-        </Link>{" "}
-        and play a game to see your position on the leaderboard.
+        You&apos;re unranked. Return <NotionLink href="/">home</NotionLink> and
+        play a game to see your position on the leaderboard.
       </NotionCallout>
     );
   }

@@ -1,15 +1,15 @@
 import { EditedCommitLink } from "@/components/notion/edited-commit-link";
 import { MobileWorkspaceTopbar } from "@/components/notion/mobile-workspace-topbar";
+import { NotionSidebar } from "@/components/notion/sidebar";
 import {
   isFavoritePath,
   type SidebarItem,
 } from "@/components/notion/sidebar-data";
-import { NotionSidebar } from "@/components/notion/sidebar";
 import { TopbarActions } from "@/components/notion/topbar-actions";
 import { getMusingSummaries } from "@/lib/musings";
 import { cn } from "@/lib/utils";
 import { Lock } from "lucide-react";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 type WorkspaceShellProps = {
   children: ReactNode;
@@ -28,10 +28,6 @@ const pageTitleClassName =
   "text-[42px] leading-[1.12] font-bold tracking-normal text-[#f1f1ef] sm:text-[48px]";
 const bodyTextClassName =
   "text-[16px] leading-[1.5] font-medium text-[#f1f1ef]";
-const calloutInlineCodeStyle = {
-  "--notion-inline-code-bg": "rgba(255, 255, 255, 0.11)",
-  "--notion-inline-code-color": "#ff6472",
-} as CSSProperties;
 
 export async function WorkspaceShell({
   children,
@@ -176,24 +172,6 @@ export function PageTitle({ children }: { children: ReactNode }) {
 
 export function SectionSpacer() {
   return <div aria-hidden="true" className="h-6 shrink-0" />;
-}
-
-export function NotionCallout({
-  children,
-  icon = "🎯",
-}: {
-  children: ReactNode;
-  icon?: ReactNode;
-}) {
-  return (
-    <div
-      className="notion-callout flex items-start gap-3 rounded-md bg-[#1f432f] px-4 py-3.5 text-[16px] leading-[1.55] font-medium text-[#f4f4f2] sm:leading-[1.5]"
-      style={calloutInlineCodeStyle}
-    >
-      <span className="mt-0.5 text-[20px] leading-none">{icon}</span>
-      <div>{children}</div>
-    </div>
-  );
 }
 
 export function NotionList({ children }: { children: ReactNode }) {

@@ -1,8 +1,8 @@
 import { ExperienceTable } from "@/components/notion/experience-table";
 import { FontShuffleName } from "@/components/notion/font-shuffle-name";
 import { MacDock } from "@/components/notion/mac-dock";
+import { NotionCallout } from "@/components/notion/notion-callout";
 import {
-  NotionCallout,
   NotionList,
   NotionParagraph,
   PageContent,
