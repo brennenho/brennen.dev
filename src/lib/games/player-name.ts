@@ -7,7 +7,7 @@ export const PLAYER_NAME_COUNT = ADJECTIVES.length * NOUNS.length;
 
 export function generatePlayerNameCandidates() {
   const names = ADJECTIVES.flatMap((adjective) =>
-    NOUNS.map((noun) => `${adjective} ${noun}`),
+    NOUNS.map((noun) => `${adjective}${noun}`),
   );
 
   return shuffle(names);

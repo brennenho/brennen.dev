@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
+import { NotionInlineCode } from "@/components/notion/notion-inline-code";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import type { MDXRemoteProps } from "next-mdx-remote/rsc";
 import Link from "next/link";
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import type { ComponentPropsWithoutRef, CSSProperties, ReactNode } from "react";
 
 const bodyClassName = "text-[16px] leading-[1.62] font-medium text-[#f1f1ef]";
 const blockGapClassName = "gap-[12px] sm:gap-[14px]";
@@ -19,6 +20,11 @@ const calloutColors = {
 } as const;
 
 type CalloutColor = keyof typeof calloutColors;
+
+const calloutInlineCodeStyle = {
+  "--notion-inline-code-bg": "rgba(255, 255, 255, 0.11)",
+  "--notion-inline-code-color": "#ff6472",
+} as CSSProperties;
 
 function NotionMdxCallout({
   children,
@@ -37,9 +43,10 @@ function NotionMdxCallout({
   return (
     <div
       className={cn(
-        "flex items-start gap-3 rounded-md px-4 py-3.5 text-[16px] leading-[1.62] font-medium text-[#f1f1ef]",
+        "notion-callout flex items-start gap-3 rounded-md px-4 py-3.5 text-[16px] leading-[1.62] font-medium text-[#f1f1ef]",
         colorClassName,
       )}
+      style={calloutInlineCodeStyle}
     >
       <span className="mt-0.5 text-[20px] leading-none">{icon}</span>
       <div className="min-w-0">{children}</div>
@@ -68,25 +75,12 @@ function MdxAnchor({ children, href }: ComponentPropsWithoutRef<"a">) {
   );
 }
 
-function MdxCode({ children, className }: ComponentPropsWithoutRef<"code">) {
-  return (
-    <code
-      className={cn(
-        "rounded bg-[#2f2f2e] px-1.5 py-0.5 font-mono text-[0.9em] text-[#eb5757]",
-        className,
-      )}
-    >
-      {children}
-    </code>
-  );
-}
-
 const components = {
   a: MdxAnchor,
   blockquote({ children }: ComponentPropsWithoutRef<"blockquote">) {
     return <NotionMdxCallout>{children}</NotionMdxCallout>;
   },
-  code: MdxCode,
+  code: NotionInlineCode,
   h1({ children }: ComponentPropsWithoutRef<"h1">) {
     return (
       <h2 className="text-[30px] leading-tight font-bold text-[#f1f1ef]">

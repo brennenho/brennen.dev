@@ -1,14 +1,16 @@
 import {
+  LeaderboardTable,
+  type LeaderboardRow,
+} from "@/components/notion/leaderboard-table";
+import { NotionInlineCode } from "@/components/notion/notion-inline-code";
+import {
+  NotionCallout,
   PageContent,
   PageIcon,
   PageTitle,
   SectionSpacer,
   WorkspaceShell,
 } from "@/components/notion/workspace-shell";
-import {
-  LeaderboardTable,
-  type LeaderboardRow,
-} from "@/components/notion/leaderboard-table";
 import type { GameKey } from "@/lib/games/config";
 import {
   GAME_PLAYER_COOKIE,
@@ -18,6 +20,7 @@ import {
 import { getPageEditedMetadata } from "@/lib/git";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cookies } from "next/headers";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -36,10 +39,24 @@ type GameLeaderboardRow = {
   is_current_player: boolean;
 };
 
+type CurrentPlayerLeaderboardEntry = {
+  id: string;
+  name: string;
+  high_score: number;
+  high_score_achieved_at: string;
+};
+
+type CurrentPlayerLeaderboardStatus = {
+  highScore: number;
+  name: string;
+  position: number | null;
+};
+
 export default async function LeaderboardPage() {
   const { commitDate, dateLabel, commitTimestamp, commitTitle, commitUrl } =
     await getPageEditedMetadata("src/app/leaderboard/page.tsx");
-  const leaderboardRows = await getLeaderboardRows();
+  const { currentPlayerStatus, leaderboardRows } =
+    await getLeaderboardPageData();
 
   return (
     <WorkspaceShell
@@ -55,6 +72,7 @@ export default async function LeaderboardPage() {
       <PageContent>
         <PageIcon>🏆</PageIcon>
         <PageTitle>leaderboard</PageTitle>
+        <CurrentPlayerStatusCallout status={currentPlayerStatus} />
 
         <SectionSpacer />
         <LeaderboardTable rows={leaderboardRows} />
@@ -63,16 +81,37 @@ export default async function LeaderboardPage() {
   );
 }
 
-async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
+async function getLeaderboardPageData() {
   const currentPlayerTokenHash = await getCurrentPlayerTokenHash();
   let supabase: ReturnType<typeof createAdminClient>;
 
   try {
     supabase = createAdminClient();
   } catch {
-    return [];
+    return {
+      currentPlayerStatus: null,
+      leaderboardRows: [],
+    };
   }
 
+  const [leaderboardRows, currentPlayerStatus] = await Promise.all([
+    getLeaderboardRows({ currentPlayerTokenHash, supabase }),
+    getCurrentPlayerStatus({ currentPlayerTokenHash, supabase }),
+  ]);
+
+  return {
+    currentPlayerStatus,
+    leaderboardRows,
+  };
+}
+
+async function getLeaderboardRows({
+  currentPlayerTokenHash,
+  supabase,
+}: {
+  currentPlayerTokenHash: string | null;
+  supabase: ReturnType<typeof createAdminClient>;
+}): Promise<LeaderboardRow[]> {
   const leaderboardResponse = (await supabase.rpc("get_game_leaderboard_rows", {
     p_game_key: GAME_KEY,
     p_limit: 25,
@@ -93,6 +132,84 @@ async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
     date: formatLeaderboardDate(entry.high_score_achieved_at),
     location: entry.country_name ?? "Unknown",
   }));
+}
+
+async function getCurrentPlayerStatus({
+  currentPlayerTokenHash,
+  supabase,
+}: {
+  currentPlayerTokenHash: string | null;
+  supabase: ReturnType<typeof createAdminClient>;
+}): Promise<CurrentPlayerLeaderboardStatus | null> {
+  if (!currentPlayerTokenHash) return null;
+
+  const { data: currentPlayerEntry, error: currentPlayerError } = await supabase
+    .from("game_leaderboard_entries")
+    .select("id, name, high_score, high_score_achieved_at")
+    .eq("game_key", GAME_KEY)
+    .eq("player_token_hash", currentPlayerTokenHash)
+    .maybeSingle<CurrentPlayerLeaderboardEntry>();
+
+  if (currentPlayerError || !currentPlayerEntry) return null;
+
+  const [higherScoreResponse, earlierTieResponse] = await Promise.all([
+    supabase
+      .from("game_leaderboard_entries")
+      .select("id", { count: "exact", head: true })
+      .eq("game_key", GAME_KEY)
+      .gt("high_score", currentPlayerEntry.high_score),
+    supabase
+      .from("game_leaderboard_entries")
+      .select("id", { count: "exact", head: true })
+      .eq("game_key", GAME_KEY)
+      .eq("high_score", currentPlayerEntry.high_score)
+      .lt("high_score_achieved_at", currentPlayerEntry.high_score_achieved_at),
+  ]);
+
+  const position =
+    higherScoreResponse.error || earlierTieResponse.error
+      ? null
+      : (higherScoreResponse.count ?? 0) + (earlierTieResponse.count ?? 0) + 1;
+
+  return {
+    highScore: currentPlayerEntry.high_score,
+    name: currentPlayerEntry.name,
+    position,
+  };
+}
+
+function CurrentPlayerStatusCallout({
+  status,
+}: {
+  status: CurrentPlayerLeaderboardStatus | null;
+}) {
+  if (!status) {
+    return (
+      <NotionCallout icon="🎮">
+        You&apos;re unranked. Return{" "}
+        <Link className="underline" href="/">
+          home
+        </Link>{" "}
+        and play a game to see your position on the leaderboard.
+      </NotionCallout>
+    );
+  }
+
+  return (
+    <NotionCallout icon="🏁">
+      You&apos;re playing as <NotionInlineCode>{status.name}</NotionInlineCode>.
+      Your current position is{" "}
+      <NotionInlineCode>
+        {formatLeaderboardPosition(status.position)}
+      </NotionInlineCode>{" "}
+      with a high score of{" "}
+      <NotionInlineCode>{status.highScore.toLocaleString()}</NotionInlineCode>.
+    </NotionCallout>
+  );
+}
+
+function formatLeaderboardPosition(position: number | null) {
+  return position ? `#${position.toLocaleString()}` : "unavailable";
 }
 
 function parseLeaderboardRows(value: unknown) {
