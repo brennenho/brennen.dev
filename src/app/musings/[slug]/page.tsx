@@ -1,10 +1,6 @@
-import { NotionMdx } from "@/components/notion/mdx";
-import {
-  PageContent,
-  PageIcon,
-  PageTitle,
-  WorkspaceShell,
-} from "@/components/notion/workspace-shell";
+import { PageContent, PageIcon, PageTitle } from "@/components/blocks";
+import { MdxContent } from "@/components/mdx";
+import { WorkspaceShell } from "@/components/workspace";
 import { getPageEditedMetadata } from "@/lib/git";
 import {
   formatMusingDate,
@@ -51,7 +47,7 @@ export default async function MusingPage({
         <p className="-mt-[10px] text-[14px] leading-[1.4] font-medium text-[#858582]">
           {formatMusingDate(post.date)} • {post.readTime}
         </p>
-        <NotionMdx source={post.content} />
+        <MdxContent source={post.content} />
       </PageContent>
     </WorkspaceShell>
   );

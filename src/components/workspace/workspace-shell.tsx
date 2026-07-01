@@ -1,15 +1,11 @@
-import { EditedCommitLink } from "@/components/notion/edited-commit-link";
-import { MobileWorkspaceTopbar } from "@/components/notion/mobile-workspace-topbar";
-import { NotionSidebar } from "@/components/notion/sidebar";
-import {
-  isFavoritePath,
-  type SidebarItem,
-} from "@/components/notion/sidebar-data";
-import { TopbarActions } from "@/components/notion/topbar-actions";
 import { getMusingSummaries } from "@/lib/musings";
-import { cn } from "@/lib/utils";
 import { Lock } from "lucide-react";
 import type { ReactNode } from "react";
+import { EditedCommitLink } from "./edited-commit-link";
+import { MobileWorkspaceTopbar } from "./mobile-workspace-topbar";
+import { WorkspaceSidebar as WorkspaceSidebarNav } from "./sidebar";
+import { isFavoritePath, type SidebarItem } from "./sidebar-data";
+import { TopbarActions } from "./topbar-actions";
 
 type WorkspaceShellProps = {
   children: ReactNode;
@@ -22,12 +18,6 @@ type WorkspaceShellProps = {
   pageIcon?: string;
   pageTitle?: string;
 };
-
-const pageContentClassName = "mx-auto max-w-[900px] px-6 sm:px-8";
-const pageTitleClassName =
-  "text-[42px] leading-[1.12] font-bold tracking-normal text-[#f1f1ef] sm:text-[48px]";
-const bodyTextClassName =
-  "text-[16px] leading-[1.5] font-medium text-[#f1f1ef]";
 
 export async function WorkspaceShell({
   children,
@@ -51,7 +41,10 @@ export async function WorkspaceShell({
 
   return (
     <div className="min-h-screen bg-[#191919] text-[#f1f1ef]">
-      <WorkspaceSidebar activePath={activePath} musingItems={musingItems} />
+      <DesktopWorkspaceSidebar
+        activePath={activePath}
+        musingItems={musingItems}
+      />
       <div className="min-h-screen min-[900px]:pl-[244px]">
         <MobileWorkspaceTopbar
           activePath={activePath}
@@ -124,7 +117,7 @@ function WorkspaceTopbar({
   );
 }
 
-function WorkspaceSidebar({
+function DesktopWorkspaceSidebar({
   activePath,
   musingItems,
 }: {
@@ -132,64 +125,10 @@ function WorkspaceSidebar({
   musingItems: SidebarItem[];
 }) {
   return (
-    <NotionSidebar
+    <WorkspaceSidebarNav
       activePath={activePath}
       className="fixed inset-y-0 left-0 z-50 hidden w-[244px] min-[900px]:flex"
       musingItems={musingItems}
     />
   );
-}
-
-export function PageIcon({ children }: { children: ReactNode }) {
-  return (
-    <div className="text-[72px] leading-none sm:text-[78px]">{children}</div>
-  );
-}
-
-export function PageContent({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <article
-      className={cn(
-        pageContentClassName,
-        "flex flex-col gap-[10px] pt-[80px] pb-24",
-        className,
-      )}
-    >
-      {children}
-    </article>
-  );
-}
-
-export function PageTitle({ children }: { children: ReactNode }) {
-  return <h1 className={cn(pageTitleClassName, "mb-[10px]")}>{children}</h1>;
-}
-
-export function SectionSpacer() {
-  return <div aria-hidden="true" className="h-6 shrink-0" />;
-}
-
-export function NotionList({ children }: { children: ReactNode }) {
-  return (
-    <ul className={cn("list-disc space-y-[10px] pl-6", bodyTextClassName)}>
-      {children}
-    </ul>
-  );
-}
-
-export function SectionTitle({ children }: { children: ReactNode }) {
-  return (
-    <h2 className="text-[24px] leading-tight font-bold text-[#f1f1ef] sm:text-[26px]">
-      {children}
-    </h2>
-  );
-}
-
-export function NotionParagraph({ children }: { children: ReactNode }) {
-  return <p className={bodyTextClassName}>{children}</p>;
 }

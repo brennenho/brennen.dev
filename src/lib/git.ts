@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 const FALLBACK_DATE = "2026-01-01T12:00:00.000Z";
@@ -17,11 +17,11 @@ type CommitMetadata = {
 const localSourceExtensions = [".ts", ".tsx", ".js", ".jsx", ".json"];
 const metadataFiles = new Set([
   "src/lib/git.ts",
-  "src/components/notion/edited-commit-link.tsx",
-  "src/components/notion/mobile-workspace-topbar.tsx",
-  "src/components/notion/sidebar.tsx",
-  "src/components/notion/topbar-actions.tsx",
-  "src/components/notion/workspace-shell.tsx",
+  "src/components/workspace/edited-commit-link.tsx",
+  "src/components/workspace/mobile-workspace-topbar.tsx",
+  "src/components/workspace/sidebar.tsx",
+  "src/components/workspace/topbar-actions.tsx",
+  "src/components/workspace/workspace-shell.tsx",
   // Musings data feeds global navigation, but edits there should not mark every
   // page that renders the sidebar as edited.
   "src/lib/musings.ts",
@@ -69,7 +69,15 @@ function resolveLocalImport(fromPath: string, specifier: string) {
     ),
   ];
 
-  return candidates.find((candidate) => existsSync(candidate)) ?? null;
+  return candidates.find(isReadableFile) ?? null;
+}
+
+function isReadableFile(filePath: string) {
+  try {
+    return statSync(filePath).isFile();
+  } catch {
+    return false;
+  }
 }
 
 function getLocalSpecifiers(source: string) {
@@ -112,7 +120,7 @@ function collectEditedPaths(entryPath: string) {
     const repoPath = toRepoPath(absolutePath);
 
     if (visited.has(absolutePath) || metadataFiles.has(repoPath)) return;
-    if (!existsSync(absolutePath)) return;
+    if (!isReadableFile(absolutePath)) return;
 
     visited.add(absolutePath);
     paths.add(repoPath);

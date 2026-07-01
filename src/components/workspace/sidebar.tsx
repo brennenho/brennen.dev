@@ -1,18 +1,15 @@
 "use client";
 
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
-import {
-  favoriteItems,
-  type SidebarItem,
-} from "@/components/notion/sidebar-data";
 import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
 import { cn } from "@/lib/utils";
 import { Mail, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
+import { favoriteItems, type SidebarItem } from "./sidebar-data";
 
-export function NotionSidebar({
+export function WorkspaceSidebar({
   activePath,
   className,
   headerAction,

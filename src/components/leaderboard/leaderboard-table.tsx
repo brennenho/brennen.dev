@@ -1,9 +1,6 @@
 import { CalendarDays, MapPin, Trophy, UserRound } from "lucide-react";
 
-import {
-  NotionTable,
-  type NotionTableColumn,
-} from "@/components/notion/notion-table";
+import { Table, type TableColumn } from "@/components/blocks";
 
 type LeaderboardRow = {
   id: string;
@@ -58,11 +55,11 @@ const leaderboardColumns = [
       </span>
     ),
   },
-] satisfies NotionTableColumn<LeaderboardRow>[];
+] satisfies TableColumn<LeaderboardRow>[];
 
 export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
   return (
-    <NotionTable
+    <Table
       columns={leaderboardColumns}
       getRowKey={(row) => row.id}
       emptyState="No scores yet"

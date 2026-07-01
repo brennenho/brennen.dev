@@ -1,12 +1,18 @@
+import {
+  Callout,
+  InlineCode,
+  List,
+  Paragraph,
+  SectionTitle,
+  Spacer,
+  SubsectionTitle,
+  TextLink,
+} from "@/components/blocks";
 import { cn } from "@/lib/utils";
-import { NotionInlineCode } from "@/components/notion/notion-inline-code";
-import { NotionCallout } from "@/components/notion/notion-callout";
-import { NotionLink } from "@/components/notion/notion-link";
-import { MDXRemote } from "next-mdx-remote/rsc";
 import type { MDXRemoteProps } from "next-mdx-remote/rsc";
+import { MDXRemote } from "next-mdx-remote/rsc";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-const bodyClassName = "text-[16px] leading-[1.62] font-medium text-[#f1f1ef]";
 const blockGapClassName = "gap-[12px] sm:gap-[14px]";
 function MdxCallout({
   children,
@@ -18,16 +24,16 @@ function MdxCallout({
   icon?: ReactNode;
 }) {
   return (
-    <NotionCallout color={color} icon={icon}>
+    <Callout color={color} icon={icon}>
       {children}
-    </NotionCallout>
+    </Callout>
   );
 }
 
 function MdxAnchor({ children, href }: ComponentPropsWithoutRef<"a">) {
   if (!href) return <span>{children}</span>;
 
-  return <NotionLink href={href}>{children}</NotionLink>;
+  return <TextLink href={href}>{children}</TextLink>;
 }
 
 const components = {
@@ -35,43 +41,27 @@ const components = {
   blockquote({ children }: ComponentPropsWithoutRef<"blockquote">) {
     return <MdxCallout>{children}</MdxCallout>;
   },
-  code: NotionInlineCode,
+  code: InlineCode,
   h1({ children }: ComponentPropsWithoutRef<"h1">) {
-    return (
-      <h2 className="text-[30px] leading-tight font-bold text-[#f1f1ef]">
-        {children}
-      </h2>
-    );
+    return <SectionTitle>{children}</SectionTitle>;
   },
   h2({ children }: ComponentPropsWithoutRef<"h2">) {
-    return (
-      <h2 className="pt-7 text-[24px] leading-tight font-bold text-[#f1f1ef] sm:text-[26px]">
-        {children}
-      </h2>
-    );
+    return <SectionTitle className="pt-7">{children}</SectionTitle>;
   },
   h3({ children }: ComponentPropsWithoutRef<"h3">) {
-    return (
-      <h3 className="pt-4 text-[20px] leading-tight font-bold text-[#f1f1ef]">
-        {children}
-      </h3>
-    );
+    return <SubsectionTitle className="pt-4">{children}</SubsectionTitle>;
   },
   hr() {
-    return <div aria-hidden="true" className="h-6 shrink-0" />;
+    return <Spacer />;
   },
   li({ children }: ComponentPropsWithoutRef<"li">) {
     return <li className="pl-1">{children}</li>;
   },
   ol({ children }: ComponentPropsWithoutRef<"ol">) {
-    return (
-      <ol className={cn("list-decimal space-y-[10px] pl-6", bodyClassName)}>
-        {children}
-      </ol>
-    );
+    return <List ordered>{children}</List>;
   },
   p({ children }: ComponentPropsWithoutRef<"p">) {
-    return <p className={bodyClassName}>{children}</p>;
+    return <Paragraph>{children}</Paragraph>;
   },
   pre({ children }: ComponentPropsWithoutRef<"pre">) {
     return (
@@ -84,16 +74,12 @@ const components = {
     return <strong className="font-bold text-[#f1f1ef]">{children}</strong>;
   },
   ul({ children }: ComponentPropsWithoutRef<"ul">) {
-    return (
-      <ul className={cn("list-disc space-y-[10px] pl-6", bodyClassName)}>
-        {children}
-      </ul>
-    );
+    return <List>{children}</List>;
   },
   Callout: MdxCallout,
 } satisfies MDXRemoteProps["components"];
 
-export function NotionMdx({ source }: { source: string }) {
+export function MdxContent({ source }: { source: string }) {
   return (
     <div className={cn("flex flex-col", blockGapClassName)}>
       <MDXRemote source={source} components={components} />

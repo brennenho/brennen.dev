@@ -14,13 +14,13 @@ const calloutColors = {
 } as const;
 
 const calloutInlineCodeStyle = {
-  "--notion-inline-code-bg": "rgba(255, 255, 255, 0.11)",
-  "--notion-inline-code-color": "#ff6472",
+  "--block-inline-code-bg": "rgba(255, 255, 255, 0.11)",
+  "--block-inline-code-color": "#ff6472",
 } as CSSProperties;
 
-type NotionCalloutColor = keyof typeof calloutColors;
+type CalloutColor = keyof typeof calloutColors;
 
-type NotionCalloutProps = {
+type CalloutProps = {
   children: ReactNode;
   className?: string;
   color?: string;
@@ -28,17 +28,17 @@ type NotionCalloutProps = {
   icon?: ReactNode;
 };
 
-export function NotionCallout({
+export function Callout({
   children,
   className,
   color = "green",
   contentClassName,
   icon = "🎯",
-}: NotionCalloutProps) {
+}: CalloutProps) {
   return (
     <div
       className={cn(
-        "notion-callout flex items-start gap-3 rounded-md px-4 py-3.5 text-[16px] leading-[1.55] font-medium text-[#f4f4f2] sm:leading-[1.5]",
+        "block-callout flex items-start gap-3 rounded-md px-4 py-3.5 text-[16px] leading-[1.55] font-medium text-[#f4f4f2] sm:leading-normal",
         getCalloutColorClassName(color),
         className,
       )}
@@ -52,6 +52,6 @@ export function NotionCallout({
 
 function getCalloutColorClassName(color: string) {
   return color in calloutColors
-    ? calloutColors[color as NotionCalloutColor]
+    ? calloutColors[color as CalloutColor]
     : calloutColors.gray;
 }

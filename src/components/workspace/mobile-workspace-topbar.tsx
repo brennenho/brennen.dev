@@ -1,11 +1,11 @@
 "use client";
 
-import { EditedCommitLink } from "@/components/notion/edited-commit-link";
-import type { SidebarItem } from "@/components/notion/sidebar-data";
-import { NotionSidebar } from "@/components/notion/sidebar";
 import { cn } from "@/lib/utils";
 import { Check, Lock, Menu, Share2, Star, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { EditedCommitLink } from "./edited-commit-link";
+import { WorkspaceSidebar } from "./sidebar";
+import type { SidebarItem } from "./sidebar-data";
 
 type MobileWorkspaceTopbarProps = {
   activePath: string;
@@ -123,7 +123,7 @@ export function MobileWorkspaceTopbar({
             className="absolute inset-0 bg-black/45"
             onClick={() => setOpen(false)}
           />
-          <NotionSidebar
+          <WorkspaceSidebar
             activePath={activePath}
             className="relative w-full sm:w-[92vw] sm:max-w-[280px]"
             headerAction={

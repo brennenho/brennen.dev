@@ -9,7 +9,7 @@ import type {
 
 import { cn } from "@/lib/utils";
 
-export type NotionTableColumn<Row> = {
+export type TableColumn<Row> = {
   id: string;
   label: ReactNode;
   icon?: LucideIcon;
@@ -18,7 +18,7 @@ export type NotionTableColumn<Row> = {
   render: (row: Row) => ReactNode;
 };
 
-export type NotionTableRowLink = {
+export type TableRowLink = {
   href: string;
   ariaLabel: string;
   className?: string;
@@ -26,31 +26,31 @@ export type NotionTableRowLink = {
   target?: HTMLAttributeAnchorTarget;
 };
 
-export type NotionTableAction = {
+export type TableAction = {
   ariaLabel?: string;
   onClick: MouseEventHandler<HTMLButtonElement>;
 };
 
-export type NotionTableProps<Row> = {
-  columns: NotionTableColumn<Row>[];
+export type TableProps<Row> = {
+  columns: TableColumn<Row>[];
   rows: Row[];
   getRowKey: (row: Row, index: number) => Key;
   className?: string;
   emptyState?: ReactNode;
-  getRowLink?: (row: Row, index: number) => NotionTableRowLink | undefined;
+  getRowLink?: (row: Row, index: number) => TableRowLink | undefined;
   minWidthClassName?: string;
   newButtonLabel?: ReactNode;
-  newButtonAction?: NotionTableAction;
-  newButtonLink?: NotionTableRowLink;
+  newButtonAction?: TableAction;
+  newButtonLink?: TableRowLink;
   newPageLabel?: ReactNode;
-  newPageAction?: NotionTableAction;
-  newPageLink?: NotionTableRowLink;
+  newPageAction?: TableAction;
+  newPageLink?: TableRowLink;
   rowClassName?: string | ((row: Row, index: number) => string | undefined);
   tableClassName?: string;
   viewLabel?: ReactNode;
 };
 
-export function NotionTable<Row>({
+export function Table<Row>({
   columns,
   rows,
   getRowKey,
@@ -67,7 +67,7 @@ export function NotionTable<Row>({
   rowClassName,
   tableClassName,
   viewLabel = "Table",
-}: NotionTableProps<Row>) {
+}: TableProps<Row>) {
   const hasToolbar = viewLabel != null || newButtonLabel != null;
 
   return (

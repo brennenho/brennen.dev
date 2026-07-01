@@ -1,17 +1,17 @@
 import {
-  LeaderboardTable,
-  type LeaderboardRow,
-} from "@/components/notion/leaderboard-table";
-import { NotionCallout } from "@/components/notion/notion-callout";
-import { NotionInlineCode } from "@/components/notion/notion-inline-code";
-import { NotionLink } from "@/components/notion/notion-link";
-import {
+  Callout,
+  InlineCode,
   PageContent,
   PageIcon,
   PageTitle,
-  SectionSpacer,
-  WorkspaceShell,
-} from "@/components/notion/workspace-shell";
+  Spacer,
+  TextLink,
+} from "@/components/blocks";
+import {
+  LeaderboardTable,
+  type LeaderboardRow,
+} from "@/components/leaderboard";
+import { WorkspaceShell } from "@/components/workspace";
 import type { GameKey } from "@/lib/games/config";
 import {
   GAME_PLAYER_COOKIE,
@@ -74,7 +74,7 @@ export default async function LeaderboardPage() {
         <PageTitle>leaderboard</PageTitle>
         <CurrentPlayerStatusCallout status={currentPlayerStatus} />
 
-        <SectionSpacer />
+        <Spacer />
         <LeaderboardTable rows={leaderboardRows} />
       </PageContent>
     </WorkspaceShell>
@@ -185,23 +185,21 @@ function CurrentPlayerStatusCallout({
 }) {
   if (!status) {
     return (
-      <NotionCallout icon="🎮">
-        You&apos;re unranked. Return <NotionLink href="/">home</NotionLink> and
-        play a game to see your position on the leaderboard.
-      </NotionCallout>
+      <Callout icon="🎮">
+        You&apos;re unranked. Return <TextLink href="/">home</TextLink> and play
+        a game to see your position on the leaderboard.
+      </Callout>
     );
   }
 
   return (
-    <NotionCallout icon="🏁">
-      You&apos;re playing as <NotionInlineCode>{status.name}</NotionInlineCode>.
-      Your current position is{" "}
-      <NotionInlineCode>
-        {formatLeaderboardPosition(status.position)}
-      </NotionInlineCode>{" "}
-      with a high score of{" "}
-      <NotionInlineCode>{status.highScore.toLocaleString()}</NotionInlineCode>.
-    </NotionCallout>
+    <Callout icon="🏁">
+      You&apos;re playing as <InlineCode>{status.name}</InlineCode>. Your
+      current position is{" "}
+      <InlineCode>{formatLeaderboardPosition(status.position)}</InlineCode> with
+      a high score of{" "}
+      <InlineCode>{status.highScore.toLocaleString()}</InlineCode>.
+    </Callout>
   );
 }
 

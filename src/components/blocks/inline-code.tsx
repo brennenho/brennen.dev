@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { ComponentPropsWithoutRef } from "react";
 
-export function NotionInlineCode({
+export function InlineCode({
   children,
   className,
   style,
@@ -10,12 +10,12 @@ export function NotionInlineCode({
   return (
     <code
       className={cn(
-        "notion-inline-code rounded px-1.5 py-0.5 font-mono text-[0.9em]",
+        "inline-code rounded px-1.5 py-0.5 font-mono text-[0.9em]",
         className,
       )}
       style={{
-        backgroundColor: "var(--notion-inline-code-bg, #2f2f2e)",
-        color: "var(--notion-inline-code-color, #eb5757)",
+        backgroundColor: "var(--block-inline-code-bg, #2f2f2e)",
+        color: "var(--block-inline-code-color, #eb5757)",
         ...style,
       }}
       {...props}

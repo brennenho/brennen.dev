@@ -196,12 +196,12 @@ export function SpotifyMention() {
           href={href}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex max-w-full items-center gap-2 rounded-md bg-[#333332] px-2 py-1 text-[15px] leading-[1.25] font-bold text-[#f1f1ef] transition-colors hover:bg-[#3d3d3c]"
+          className="inline-flex max-w-full items-center gap-2 rounded-md bg-[#333332] px-2 py-1 text-[15px] leading-tight font-bold text-[#f1f1ef] transition-colors hover:bg-[#3d3d3c]"
         >
           <SpotifyLogo className="h-5 w-5 shrink-0 text-[#1ed760]" />
           <span className="shrink-0 text-[#a9a9a7]">Spotify</span>
           {loaded ? (
-            <span className="min-w-0 text-wrap break-words">{song}</span>
+            <span className="wrap-break-words min-w-0 text-wrap">{song}</span>
           ) : (
             <Skeleton className="h-4 w-20" />
           )}

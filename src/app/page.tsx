@@ -1,19 +1,17 @@
-import { ExperienceTable } from "@/components/notion/experience-table";
-import { FontShuffleName } from "@/components/notion/font-shuffle-name";
-import { MacDock } from "@/components/notion/mac-dock";
-import { NotionCallout } from "@/components/notion/notion-callout";
 import {
-  NotionList,
-  NotionParagraph,
+  Callout,
+  List,
   PageContent,
   PageIcon,
   PageTitle,
-  SectionSpacer,
+  Paragraph,
   SectionTitle,
-  WorkspaceShell,
-} from "@/components/notion/workspace-shell";
-import { PixelCanvas } from "@/components/pixel/pixel-canvas";
-import { SpotifyMention } from "@/components/spotify/spotify-mention";
+  Spacer,
+} from "@/components/blocks";
+import { ExperienceTable, FontShuffleName, MacDock } from "@/components/home";
+import { PixelCanvas } from "@/components/pixel";
+import { SpotifyMention } from "@/components/spotify";
+import { WorkspaceShell } from "@/components/workspace";
 import { getPageEditedMetadata } from "@/lib/git";
 
 export default async function HomePage() {
@@ -42,14 +40,14 @@ export default async function HomePage() {
             hey, i’m <FontShuffleName />
           </PageTitle>
 
-          <NotionCallout>
+          <Callout>
             I create intuitive products that simplify, accelerate, and
             personalize — with an emphasis on applied AI.
-          </NotionCallout>
+          </Callout>
 
-          <SectionSpacer />
+          <Spacer />
           <SectionTitle>about</SectionTitle>
-          <NotionList>
+          <List>
             <li>
               Studying Computer Engineering & Computer Science at the University
               of Southern California
@@ -68,17 +66,17 @@ export default async function HomePage() {
             <li>
               <SpotifyMention />
             </li>
-          </NotionList>
+          </List>
 
-          <SectionSpacer />
+          <Spacer />
           <SectionTitle>my dock</SectionTitle>
-          <NotionParagraph>
+          <Paragraph>
             My favorites and daily drivers — a glimpse into life as a student
             and developer.
-          </NotionParagraph>
+          </Paragraph>
           <MacDock />
 
-          <SectionSpacer />
+          <Spacer />
           <SectionTitle>experience</SectionTitle>
           <ExperienceTable />
         </PageContent>

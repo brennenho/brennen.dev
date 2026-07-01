@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  NotionTable,
-  type NotionTableColumn,
-} from "@/components/notion/notion-table";
+import { Table, type TableColumn } from "@/components/blocks";
 import experiences from "@/content/experience.json";
 import {
   ArrowRight,
@@ -75,7 +72,7 @@ const experienceColumns = [
     headerClassName: "w-[90px]",
     render: () => null,
   },
-] satisfies NotionTableColumn<ExperienceRow>[];
+] satisfies TableColumn<ExperienceRow>[];
 
 export function ExperienceTable() {
   const showActionToast = () => {
@@ -94,7 +91,7 @@ export function ExperienceTable() {
   };
 
   return (
-    <NotionTable
+    <Table
       columns={experienceColumns}
       getRowKey={(data) => data.id}
       getRowLink={(data) => ({
