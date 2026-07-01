@@ -64,6 +64,13 @@
     "name": "Figma",
     "image": "/img/dock/figma.png",
     "href": "https://www.figma.com/",
+    "running": false
+  },
+  {
+    "id": "codex",
+    "name": "Codex",
+    "image": "/img/dock/codex.png",
+    "href": "https://codex.com/",
     "running": true
   },
   {
