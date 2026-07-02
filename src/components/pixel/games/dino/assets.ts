@@ -139,6 +139,19 @@ export const CACTUS_TALL = bitmapToSprite(
 
 export const CACTUS_SPRITES = [CACTUS_SMALL, CACTUS_TALL] as const;
 
+export const CLOUD = bitmapToSprite(
+  [
+    "00000011110000000000000",
+    "00001111111100001110000",
+    "00011100011110011111000",
+    "00111000001111111111100",
+    "01110000000111111111110",
+    "11111111111111111111111",
+    "01111111111111111111110",
+  ],
+  23,
+);
+
 function bitmapToSprite(rows: readonly string[], width: number): Sprite {
   return rows.map((row) =>
     row

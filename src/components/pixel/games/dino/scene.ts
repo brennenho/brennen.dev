@@ -1,22 +1,33 @@
 import { PixelDisplay } from "../../display";
 import type { PixelScene } from "../../scene";
-import { DINO, DINO_RUN_1, DINO_RUN_2 } from "./assets";
+import { CLOUD, DINO, DINO_RUN_1, DINO_RUN_2 } from "./assets";
 import { DinoEngine, type DinoObstacle } from "./engine";
 
 const CLOCK_COLON = ["##", "##", "  ", "  ", "  ", "##", "##"] as const;
 const CLOCK_COLON_GAP = 2;
 const CLOCK_HEIGHT = CLOCK_COLON.length;
 const CLOCK_PERIOD_GAP = 4;
+const CLOUD_BRIGHTNESS = 104;
+const CLOUD_MAX_COUNT = 3;
+const CLOUD_SPEED_COEFFICIENT = 0.13;
+
+type Cloud = {
+  gap: number;
+  x: number;
+  y: number;
+};
 
 export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   const display = new PixelDisplay(context);
   const game = new DinoEngine();
+  let clouds: Cloud[] = [];
   let highScore = 0;
 
   function resize(width: number, height: number, scale: number) {
     context.imageSmoothingEnabled = false;
     display.resize(width, height, scale);
     configureGame();
+    seedClouds();
   }
 
   function start() {
@@ -51,12 +62,14 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
 
   function update(delta: number) {
     game.update(delta);
+    updateClouds(delta);
     highScore = Math.max(highScore, currentScore());
   }
 
   function render() {
     display.clear();
 
+    drawClouds();
     drawGround();
     drawAmbientCover();
     drawHighScore();
@@ -82,6 +95,43 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
       columns: display.columns,
       groundRow: groundRow(),
       playerX: playerX(),
+    });
+  }
+
+  function seedClouds() {
+    if (clouds.length > 0 || display.columns < 140) return;
+
+    clouds = [
+      createCloud(randomBetween(display.columns * 0.42, display.columns * 0.7)),
+    ];
+  }
+
+  function updateClouds(delta: number) {
+    if (display.columns < 140 || game.mode === "over") return;
+
+    const speed = game.speed * CLOUD_SPEED_COEFFICIENT;
+    clouds = clouds
+      .map((cloud) => ({ ...cloud, x: cloud.x - speed * delta }))
+      .filter((cloud) => cloud.x > -cloudWidth());
+
+    const lastCloud = clouds.at(-1);
+
+    if (!lastCloud) {
+      clouds.push(createCloud(display.columns + randomBetween(0, 24)));
+      return;
+    }
+
+    if (
+      clouds.length < CLOUD_MAX_COUNT &&
+      display.columns - lastCloud.x > lastCloud.gap
+    ) {
+      clouds.push(createCloud(display.columns + randomBetween(0, 24)));
+    }
+  }
+
+  function drawClouds() {
+    clouds.forEach((cloud) => {
+      display.sprite(Math.round(cloud.x), cloud.y, CLOUD, CLOUD_BRIGHTNESS);
     });
   }
 
@@ -202,6 +252,29 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     );
   }
 
+  function createCloud(x: number): Cloud {
+    return {
+      gap: randomBetween(cloudMinGap(), cloudMaxGap()),
+      x,
+      y: randomSkyRow(),
+    };
+  }
+
+  function randomSkyRow() {
+    const top = 13;
+    const bottom = Math.max(top, Math.min(32, game.groundRow() - 34));
+
+    return Math.round(randomBetween(top, bottom));
+  }
+
+  function cloudMinGap() {
+    return Math.max(54, display.columns * 0.2);
+  }
+
+  function cloudMaxGap() {
+    return Math.max(cloudMinGap() + 34, display.columns * 0.52);
+  }
+
   return {
     action,
     render,
@@ -233,4 +306,12 @@ function terrainNoise(value: number) {
   const x = Math.sin(value * 12.9898 + 78.233) * 43758.5453;
 
   return x - Math.floor(x);
+}
+
+function cloudWidth() {
+  return CLOUD[0]?.length ?? 0;
+}
+
+function randomBetween(minimum: number, maximum: number) {
+  return minimum + Math.random() * (maximum - minimum);
 }
