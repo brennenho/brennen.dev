@@ -9,8 +9,8 @@ type BitmapGlyph = {
   data: string[];
 };
 
-const CSS_DOT_SIZE = 2;
-const CSS_CELL_SIZE = 4;
+const CSS_DOT_SIZE = 1.5;
+const CSS_CELL_SIZE = 3;
 
 export class PixelDisplay {
   private cells = new Uint8Array(0);

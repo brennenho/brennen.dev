@@ -28,6 +28,10 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     game.reset();
   }
 
+  function releaseAction() {
+    game.releaseAction();
+  }
+
   function score() {
     return currentScore();
   }
@@ -59,15 +63,15 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     drawScore();
     drawClockOverlay();
 
+    drawDino();
+    game.obstacles.forEach(drawCactus);
+
     if (game.mode === "over") {
       display.text(
         centerText("GAME OVER"),
         Math.max(2, game.groundRow() - 16),
         "GAME OVER",
       );
-    } else {
-      drawDino();
-      game.obstacles.forEach(drawCactus);
     }
 
     display.render();
@@ -116,7 +120,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   function drawDino() {
     const shouldRun = game.mode === "playing" && game.playerOffset === 0;
     const frame = shouldRun
-      ? Math.floor(game.elapsed / 120) % 2 === 0
+      ? Math.floor(game.elapsed / game.runFrameInterval()) % 2 === 0
         ? DINO_RUN_1
         : DINO_RUN_2
       : DINO;
@@ -179,7 +183,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   }
 
   function groundRow() {
-    const ratio = display.columns < 120 ? 0.54 : 0.67;
+    const ratio = display.columns < 120 ? 0.54 : 0.72;
 
     return Math.max(15, Math.round(display.rows * ratio));
   }
@@ -187,7 +191,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   function playerX() {
     return Math.max(
       8,
-      Math.min(display.columns - 18, Math.round(display.columns * 0.24)),
+      Math.min(display.columns - 18, Math.round(display.columns * 0.21)),
     );
   }
 
@@ -202,6 +206,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     action,
     render,
     reset,
+    releaseAction,
     resize,
     score,
     setHighScore,

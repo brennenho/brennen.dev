@@ -18,6 +18,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<PixelScene | null>(null);
   const frameRef = useRef<number | null>(null);
+  const actionHeldRef = useRef(false);
   const isStartingRunRef = useRef(false);
   const lastTimeRef = useRef<number>(0);
   const highScoreRef = useRef(0);
@@ -73,33 +74,46 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     }
   }, []);
 
-  const start = useCallback(() => {
-    if (isStartingRunRef.current) return;
+  const start = useCallback(
+    ({ jump = false }: { jump?: boolean } = {}) => {
+      if (isStartingRunRef.current) return;
 
-    isStartingRunRef.current = true;
+      isStartingRunRef.current = true;
 
-    void startRun()
-      .then((run) => {
-        if (!run) return;
+      void startRun()
+        .then((run) => {
+          if (!run) return;
 
-        setHighScoreValue(run.highScore);
-        runTokenRef.current = run.runToken;
-        sceneRef.current?.start();
-        submittedRunRef.current = false;
-        statusRef.current = "playing";
-        setStatus("playing");
-      })
-      .catch((error: unknown) => {
-        if (process.env.NODE_ENV === "development") {
-          console.warn("Unable to start Dino run", error);
-        }
-      })
-      .finally(() => {
-        isStartingRunRef.current = false;
-      });
-  }, [setHighScoreValue, startRun]);
+          setHighScoreValue(run.highScore);
+          runTokenRef.current = run.runToken;
+          sceneRef.current?.start();
+
+          if (jump) {
+            sceneRef.current?.action();
+
+            if (!actionHeldRef.current) {
+              sceneRef.current?.releaseAction();
+            }
+          }
+
+          submittedRunRef.current = false;
+          statusRef.current = "playing";
+          setStatus("playing");
+        })
+        .catch((error: unknown) => {
+          if (process.env.NODE_ENV === "development") {
+            console.warn("Unable to start Dino run", error);
+          }
+        })
+        .finally(() => {
+          isStartingRunRef.current = false;
+        });
+    },
+    [setHighScoreValue, startRun],
+  );
 
   const reset = useCallback(() => {
+    actionHeldRef.current = false;
     runTokenRef.current = null;
     isStartingRunRef.current = false;
     submittedRunRef.current = false;
@@ -151,7 +165,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     if (!sceneRef.current) return;
 
     if (statusRef.current === "cover") {
-      start();
+      start({ jump: true });
       return;
     }
 
@@ -162,6 +176,10 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
 
     sceneRef.current.action();
   }, [isInteractive, reset, start]);
+
+  const releaseAction = useCallback(() => {
+    sceneRef.current?.releaseAction();
+  }, []);
 
   useEffect(() => {
     const query = window.matchMedia("(min-width: 768px)");
@@ -239,12 +257,10 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!isInteractive) return;
 
-      if (
-        event.code === "Space" ||
-        event.code === "ArrowUp" ||
-        event.code === "KeyW"
-      ) {
+      if (isActionKey(event.code)) {
         event.preventDefault();
+        if (event.repeat) return;
+        actionHeldRef.current = true;
         trigger();
       } else if (event.code === "Escape") {
         event.preventDefault();
@@ -252,9 +268,46 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       }
     };
 
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (!isInteractive) return;
+      if (!isActionKey(event.code)) return;
+
+      event.preventDefault();
+      actionHeldRef.current = false;
+      releaseAction();
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isInteractive, reset, trigger]);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [isInteractive, releaseAction, reset, trigger]);
+
+  const handlePointerDown = useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.button !== 0) return;
+
+      actionHeldRef.current = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      trigger();
+    },
+    [trigger],
+  );
+
+  const handlePointerRelease = useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+
+      actionHeldRef.current = false;
+      releaseAction();
+    },
+    [releaseAction],
+  );
 
   return (
     <button
@@ -273,7 +326,9 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         isInteractive ? "cursor-pointer" : "cursor-default",
         className,
       )}
-      onClick={trigger}
+      onPointerCancel={handlePointerRelease}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerRelease}
     >
       <canvas
         ref={canvasRef}
@@ -296,6 +351,15 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         </span>
       )}
     </button>
+  );
+}
+
+function isActionKey(code: string) {
+  return (
+    code === "Space" ||
+    code === "ArrowUp" ||
+    code === "KeyW" ||
+    code === "Enter"
   );
 }
 
