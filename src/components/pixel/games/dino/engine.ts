@@ -1,6 +1,7 @@
 import {
+  CACTUS_SMALL_GROUPS,
   CACTUS_SMALL,
-  CACTUS_SPRITES,
+  CACTUS_TALL_GROUPS,
   CACTUS_TALL,
   DINO,
   DINO_HEIGHT,
@@ -46,6 +47,8 @@ const CHROME_MAX_GAP_COEFFICIENT = 1.5;
 const CHROME_OBSTACLE_MIN_GAP = 120;
 const CHROME_ACCELERATION = 0.001;
 const CHROME_RUN_FRAME_INTERVAL = 1000 / 12;
+const CHROME_SMALL_CACTUS_MULTIPLE_SPEED = 4;
+const CHROME_TALL_CACTUS_MULTIPLE_SPEED = 7;
 const TREX_X_SCALE = DINO_WIDTH / CHROME_TREX_WIDTH;
 const TREX_Y_SCALE = DINO_HEIGHT / CHROME_TREX_HEIGHT;
 const START_SPEED = chromeFrameSpeedToColumns(CHROME_START_SPEED);
@@ -211,8 +214,7 @@ export class DinoEngine {
   }
 
   private spawnObstacle() {
-    const difficulty = this.difficulty();
-    const sprite = weightedRandomCactus(difficulty);
+    const sprite = randomCactus(this.chromeSpeed());
 
     this.obstacles.push({
       followingObstacleCreated: false,
@@ -220,13 +222,6 @@ export class DinoEngine {
       sprite,
       x: this.columns + obstacleWidth({ sprite }),
     });
-  }
-
-  private difficulty() {
-    return Math.min(
-      1,
-      Math.sqrt(this.score / (this.isCompact() ? 2200 : 1400)),
-    );
   }
 
   private obstacleGap(sprite: Sprite) {
@@ -394,15 +389,35 @@ function spriteHasCell(sprite: Sprite, x: number, y: number) {
   return sprite[y]?.[x] !== " " && sprite[y]?.[x] !== undefined;
 }
 
-function weightedRandomCactus(difficulty: number) {
-  if (Math.random() < 0.68 - difficulty * 0.28) return CACTUS_SMALL;
-
-  return (
-    CACTUS_SPRITES[Math.floor(Math.random() * CACTUS_SPRITES.length)] ??
-    CACTUS_SMALL
+function randomCactus(chromeSpeed: number) {
+  const useSmallCactus = Math.random() < 0.5;
+  const groups = useSmallCactus ? CACTUS_SMALL_GROUPS : CACTUS_TALL_GROUPS;
+  const multipleSpeed = useSmallCactus
+    ? CHROME_SMALL_CACTUS_MULTIPLE_SPEED
+    : CHROME_TALL_CACTUS_MULTIPLE_SPEED;
+  const groupIndex = randomCactusGroupIndex(
+    chromeSpeed,
+    multipleSpeed,
+    groups.length,
   );
+
+  return groups[groupIndex] ?? groups[0] ?? CACTUS_SMALL;
+}
+
+function randomCactusGroupIndex(
+  chromeSpeed: number,
+  multipleSpeed: number,
+  groupCount: number,
+) {
+  if (chromeSpeed < multipleSpeed) return 0;
+
+  return randomInteger(0, groupCount - 1);
 }
 
 function randomBetween(minimum: number, maximum: number) {
   return minimum + Math.random() * (maximum - minimum);
+}
+
+function randomInteger(minimum: number, maximum: number) {
+  return Math.floor(minimum + Math.random() * (maximum - minimum + 1));
 }
