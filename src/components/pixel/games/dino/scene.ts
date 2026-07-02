@@ -80,11 +80,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     game.obstacles.forEach(drawCactus);
 
     if (game.mode === "over") {
-      display.text(
-        centerText("GAME OVER"),
-        Math.max(2, game.groundRow() - 16),
-        "GAME OVER",
-      );
+      drawGameOver();
     }
 
     display.render();
@@ -183,6 +179,20 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     const y = game.groundRow() - obstacle.sprite.length + 1;
 
     display.sprite(x, y, obstacle.sprite, 238);
+  }
+
+  function drawGameOver() {
+    const text = "GAME OVER";
+    const textColumn = centerText(text);
+    const textRow = Math.max(2, game.groundRow() - 19);
+
+    display.eraseRect(
+      textColumn - 2,
+      textRow - 2,
+      display.measureText(text) + 4,
+      11,
+    );
+    display.text(textColumn, textRow, text);
   }
 
   function drawScore() {

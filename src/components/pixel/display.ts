@@ -71,6 +71,14 @@ export class PixelDisplay {
     }
   }
 
+  eraseRect(column: number, row: number, width: number, height: number) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        this.erase(column + x, row + y);
+      }
+    }
+  }
+
   line(
     startColumn: number,
     startRow: number,
@@ -158,6 +166,15 @@ export class PixelDisplay {
     }
 
     this.context.globalAlpha = 1;
+  }
+
+  private erase(column: number, row: number) {
+    const x = Math.round(column);
+    const y = Math.round(row);
+
+    if (x < 0 || x >= this.columns || y < 0 || y >= this.rows) return;
+
+    this.cells[y * this.columns + x] = 0;
   }
 }
 
