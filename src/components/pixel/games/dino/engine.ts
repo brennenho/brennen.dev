@@ -180,9 +180,7 @@ export class DinoEngine {
       followingObstacleCreated: false,
       gap: this.obstacleGap(variant),
       variant,
-      x: this.columnsToChrome(
-        Math.round(this.columns * (compact ? 0.68 : 0.79)),
-      ),
+      x: this.columnsToChrome(Math.round(this.columns * (compact ? 0.6 : 0.7))),
     };
   }
 
