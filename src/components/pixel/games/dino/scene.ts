@@ -9,6 +9,7 @@ const CLOCK_HEIGHT = CLOCK_COLON.length;
 const CLOCK_PERIOD_GAP = 4;
 const CLOUD_BRIGHTNESS = 104;
 const CLOUD_MAX_COUNT = 3;
+const CLOUD_MIN_COLUMNS = 140;
 const CLOUD_SPEED_COEFFICIENT = 0.13;
 
 type Cloud = {
@@ -27,6 +28,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     context.imageSmoothingEnabled = false;
     display.resize(width, height, scale);
     configureGame();
+    syncCloudsToSky();
     seedClouds();
   }
 
@@ -95,7 +97,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   }
 
   function seedClouds() {
-    if (clouds.length > 0 || display.columns < 140) return;
+    if (clouds.length > 0 || !shouldShowClouds()) return;
 
     clouds = [
       createCloud(randomBetween(display.columns * 0.42, display.columns * 0.7)),
@@ -103,7 +105,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   }
 
   function updateClouds(delta: number) {
-    if (display.columns < 140 || game.mode === "over") return;
+    if (!shouldShowClouds() || game.mode === "over") return;
 
     const speed = game.speed * CLOUD_SPEED_COEFFICIENT;
     clouds = clouds
@@ -271,10 +273,40 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   }
 
   function randomSkyRow() {
-    const top = 13;
-    const bottom = Math.max(top, Math.min(32, game.groundRow() - 34));
+    const { bottom, top } = cloudSkyRows();
 
     return Math.round(randomBetween(top, bottom));
+  }
+
+  function syncCloudsToSky() {
+    if (!shouldShowClouds()) {
+      clouds = [];
+      return;
+    }
+
+    const { bottom, top } = cloudSkyRows();
+    clouds = clouds.map((cloud) => ({
+      ...cloud,
+      y: Math.max(top, Math.min(cloud.y, bottom)),
+    }));
+  }
+
+  function shouldShowClouds() {
+    return display.columns >= CLOUD_MIN_COLUMNS;
+  }
+
+  function cloudSkyRows() {
+    const top = Math.max(4, Math.round(display.rows * 0.08));
+    const bottom = Math.max(
+      top,
+      Math.min(
+        Math.round(display.rows * 0.32),
+        game.playerY() - cloudHeight() - 4,
+        game.groundRow() - cloudHeight() - 18,
+      ),
+    );
+
+    return { bottom, top };
   }
 
   function cloudMinGap() {
@@ -320,6 +352,10 @@ function terrainNoise(value: number) {
 
 function cloudWidth() {
   return CLOUD[0]?.length ?? 0;
+}
+
+function cloudHeight() {
+  return CLOUD.length;
 }
 
 function randomBetween(minimum: number, maximum: number) {
