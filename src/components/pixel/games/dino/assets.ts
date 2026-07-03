@@ -1,4 +1,18 @@
 export type Sprite = readonly string[];
+export type CactusType = "cactusSmall" | "cactusLarge";
+export type CactusVariant = {
+  // Chrome uses logical cactus dimensions for spacing; our bitmap can differ.
+  readonly chromeBaseWidth: number;
+  readonly chromeSize: 1 | 2 | 3;
+  readonly multipleSpeed: number;
+  readonly sprite: Sprite;
+  readonly type: CactusType;
+};
+
+const CHROME_SMALL_CACTUS_WIDTH = 17;
+const CHROME_TALL_CACTUS_WIDTH = 25;
+const CHROME_SMALL_CACTUS_MULTIPLE_SPEED = 4;
+const CHROME_TALL_CACTUS_MULTIPLE_SPEED = 7;
 
 export const DINO_WIDTH = 20;
 export const DINO = bitmapToSprite(
@@ -276,16 +290,58 @@ export const CACTUS_TALL_MIXED = bitmapToSprite(
 );
 
 export const CACTUS_SMALL_GROUPS = [
-  CACTUS_SMALL,
-  CACTUS_SMALL_DOUBLE,
-  CACTUS_SMALL_TRIPLE,
-] as const;
+  cactusVariant(
+    CACTUS_SMALL,
+    "cactusSmall",
+    CHROME_SMALL_CACTUS_WIDTH,
+    1,
+    CHROME_SMALL_CACTUS_MULTIPLE_SPEED,
+  ),
+  cactusVariant(
+    CACTUS_SMALL_DOUBLE,
+    "cactusSmall",
+    CHROME_SMALL_CACTUS_WIDTH,
+    2,
+    CHROME_SMALL_CACTUS_MULTIPLE_SPEED,
+  ),
+  cactusVariant(
+    CACTUS_SMALL_TRIPLE,
+    "cactusSmall",
+    CHROME_SMALL_CACTUS_WIDTH,
+    3,
+    CHROME_SMALL_CACTUS_MULTIPLE_SPEED,
+  ),
+] as const satisfies readonly CactusVariant[];
 export const CACTUS_TALL_GROUPS = [
-  CACTUS_TALL,
-  CACTUS_TALL_DOUBLE,
-  CACTUS_TALL_TRIPLE,
-  CACTUS_TALL_MIXED,
-] as const;
+  cactusVariant(
+    CACTUS_TALL,
+    "cactusLarge",
+    CHROME_TALL_CACTUS_WIDTH,
+    1,
+    CHROME_TALL_CACTUS_MULTIPLE_SPEED,
+  ),
+  cactusVariant(
+    CACTUS_TALL_DOUBLE,
+    "cactusLarge",
+    CHROME_TALL_CACTUS_WIDTH,
+    2,
+    CHROME_TALL_CACTUS_MULTIPLE_SPEED,
+  ),
+  cactusVariant(
+    CACTUS_TALL_TRIPLE,
+    "cactusLarge",
+    CHROME_TALL_CACTUS_WIDTH,
+    3,
+    CHROME_TALL_CACTUS_MULTIPLE_SPEED,
+  ),
+  cactusVariant(
+    CACTUS_TALL_MIXED,
+    "cactusLarge",
+    CHROME_TALL_CACTUS_WIDTH,
+    3,
+    CHROME_TALL_CACTUS_MULTIPLE_SPEED,
+  ),
+] as const satisfies readonly CactusVariant[];
 
 export const CLOUD = bitmapToSprite(
   [
@@ -308,4 +364,20 @@ function bitmapToSprite(rows: readonly string[], width: number): Sprite {
       .replaceAll("0", " ")
       .replaceAll("1", "#"),
   );
+}
+
+function cactusVariant(
+  sprite: Sprite,
+  type: CactusType,
+  chromeBaseWidth: number,
+  chromeSize: 1 | 2 | 3,
+  multipleSpeed: number,
+): CactusVariant {
+  return {
+    chromeBaseWidth,
+    chromeSize,
+    multipleSpeed,
+    sprite,
+    type,
+  };
 }

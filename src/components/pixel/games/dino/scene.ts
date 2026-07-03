@@ -175,10 +175,10 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   }
 
   function drawCactus(obstacle: DinoObstacle) {
-    const x = Math.round(obstacle.x);
-    const y = game.groundRow() - obstacle.sprite.length + 1;
+    const x = Math.round(game.obstacleX(obstacle));
+    const y = game.groundRow() - obstacle.variant.sprite.length + 1;
 
-    display.sprite(x, y, obstacle.sprite, 238);
+    display.sprite(x, y, obstacle.variant.sprite, 238);
   }
 
   function drawGameOver() {
