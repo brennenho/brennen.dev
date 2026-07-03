@@ -22,6 +22,8 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const isStartingRunRef = useRef(false);
   const lastTimeRef = useRef<number>(0);
   const highScoreRef = useRef(0);
+  const pendingScoreRef = useRef<number | null>(null);
+  const runRequestIdRef = useRef(0);
   const runTokenRef = useRef<string | null>(null);
   const submittedRunRef = useRef(false);
   const statusRef = useRef<PixelSceneStatus>("cover");
@@ -74,61 +76,8 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     }
   }, []);
 
-  const start = useCallback(
-    ({ jump = false }: { jump?: boolean } = {}) => {
-      if (isStartingRunRef.current) return;
-
-      isStartingRunRef.current = true;
-
-      void startRun()
-        .then((run) => {
-          if (!run) return;
-
-          setHighScoreValue(run.highScore);
-          runTokenRef.current = run.runToken;
-          sceneRef.current?.start();
-
-          if (jump) {
-            sceneRef.current?.action();
-
-            if (!actionHeldRef.current) {
-              sceneRef.current?.releaseAction();
-            }
-          }
-
-          submittedRunRef.current = false;
-          statusRef.current = "playing";
-          setStatus("playing");
-        })
-        .catch((error: unknown) => {
-          if (process.env.NODE_ENV === "development") {
-            console.warn("Unable to start Dino run", error);
-          }
-        })
-        .finally(() => {
-          isStartingRunRef.current = false;
-        });
-    },
-    [setHighScoreValue, startRun],
-  );
-
-  const reset = useCallback(() => {
-    actionHeldRef.current = false;
-    runTokenRef.current = null;
-    isStartingRunRef.current = false;
-    submittedRunRef.current = false;
-    sceneRef.current?.reset();
-    statusRef.current = "cover";
-    setStatus("cover");
-  }, []);
-
-  const submitScore = useCallback(
-    (score: number) => {
-      const runToken = runTokenRef.current;
-
-      if (!runToken) return;
-
-      runTokenRef.current = null;
+  const sendScore = useCallback(
+    (runToken: string, score: number) => {
       const body = JSON.stringify({ runToken, score });
 
       void fetch(DINO_CONFIG.scoreEndpoint, {
@@ -160,12 +109,79 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     [setHighScoreValue],
   );
 
+  const start = useCallback(() => {
+    if (isStartingRunRef.current) return;
+
+    const runRequestId = runRequestIdRef.current + 1;
+    runRequestIdRef.current = runRequestId;
+    isStartingRunRef.current = true;
+    pendingScoreRef.current = null;
+    runTokenRef.current = null;
+    submittedRunRef.current = false;
+    sceneRef.current?.start();
+    statusRef.current = "playing";
+    setStatus("playing");
+
+    void startRun()
+      .then((run) => {
+        if (!run || runRequestIdRef.current !== runRequestId) return;
+
+        setHighScoreValue(run.highScore);
+
+        const pendingScore = pendingScoreRef.current;
+        if (pendingScore !== null) {
+          pendingScoreRef.current = null;
+          sendScore(run.runToken, pendingScore);
+          return;
+        }
+
+        runTokenRef.current = run.runToken;
+      })
+      .catch((error: unknown) => {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("Unable to start Dino run", error);
+        }
+      })
+      .finally(() => {
+        if (runRequestIdRef.current === runRequestId) {
+          isStartingRunRef.current = false;
+        }
+      });
+  }, [sendScore, setHighScoreValue, startRun]);
+
+  const reset = useCallback(() => {
+    actionHeldRef.current = false;
+    pendingScoreRef.current = null;
+    runRequestIdRef.current += 1;
+    runTokenRef.current = null;
+    isStartingRunRef.current = false;
+    submittedRunRef.current = false;
+    sceneRef.current?.reset();
+    statusRef.current = "cover";
+    setStatus("cover");
+  }, []);
+
+  const submitScore = useCallback(
+    (score: number) => {
+      const runToken = runTokenRef.current;
+
+      if (!runToken) {
+        pendingScoreRef.current = score;
+        return;
+      }
+
+      runTokenRef.current = null;
+      sendScore(runToken, score);
+    },
+    [sendScore],
+  );
+
   const trigger = useCallback(() => {
     if (!isInteractive) return;
     if (!sceneRef.current) return;
 
     if (statusRef.current === "cover") {
-      start({ jump: true });
+      start();
       return;
     }
 
