@@ -183,7 +183,7 @@ export function Table<Row>({
                             <Link
                               aria-label={rowLink.ariaLabel}
                               className={cn(
-                                "absolute inset-y-0 right-0 left-0 z-10 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none",
+                                "absolute inset-0 z-10 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none",
                                 rowLink.className,
                               )}
                               href={rowLink.href}
