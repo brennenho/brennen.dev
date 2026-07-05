@@ -1,6 +1,10 @@
 import { PixelDisplay } from "../../display";
 import type { PixelScene } from "../../scene";
+<<<<<<< Updated upstream
 import { DINO, DINO_RUN_1, DINO_RUN_2 } from "./assets";
+=======
+import { CLOUD } from "./assets";
+>>>>>>> Stashed changes
 import { DinoEngine, type DinoObstacle } from "./engine";
 
 const CLOCK_COLON = ["##", "##", "  ", "  ", "  ", "##", "##"] as const;
@@ -28,6 +32,21 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     game.reset();
   }
 
+<<<<<<< Updated upstream
+=======
+  function releaseAction() {
+    game.releaseAction();
+  }
+
+  function duck() {
+    game.setDuck(true);
+  }
+
+  function releaseDuck() {
+    game.setDuck(false);
+  }
+
+>>>>>>> Stashed changes
   function score() {
     return currentScore();
   }
@@ -114,6 +133,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
   }
 
   function drawDino() {
+<<<<<<< Updated upstream
     const shouldRun = game.mode === "playing" && game.playerOffset === 0;
     const frame = shouldRun
       ? Math.floor(game.elapsed / 120) % 2 === 0
@@ -129,6 +149,30 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     const y = game.groundRow() - obstacle.sprite.length + 1;
 
     display.sprite(x, y, obstacle.sprite, 238);
+=======
+    display.sprite(game.playerX(), game.playerY(), game.dinoSprite(), 255);
+  }
+
+  function drawCactus(obstacle: DinoObstacle) {
+    const x = Math.round(game.obstacleX(obstacle));
+    const y = game.obstacleY(obstacle);
+
+    display.sprite(x, y, game.obstacleSprite(obstacle), 238);
+  }
+
+  function drawGameOver() {
+    const text = "GAME OVER";
+    const textColumn = centerText(text);
+    const textRow = Math.max(2, game.groundRow() - 19);
+
+    display.eraseRect(
+      textColumn - 2,
+      textRow - 2,
+      display.measureText(text) + 4,
+      11,
+    );
+    display.text(textColumn, textRow, text);
+>>>>>>> Stashed changes
   }
 
   function drawScore() {
@@ -200,6 +244,8 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
 
   return {
     action,
+    duck,
+    releaseDuck,
     render,
     reset,
     resize,

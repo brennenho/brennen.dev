@@ -18,6 +18,11 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<PixelScene | null>(null);
   const frameRef = useRef<number | null>(null);
+<<<<<<< Updated upstream
+=======
+  const actionHeldRef = useRef(false);
+  const duckHeldRef = useRef(false);
+>>>>>>> Stashed changes
   const isStartingRunRef = useRef(false);
   const lastTimeRef = useRef<number>(0);
   const highScoreRef = useRef(0);
@@ -246,12 +251,43 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       ) {
         event.preventDefault();
         trigger();
+      } else if (isDuckKey(event.code)) {
+        // The game owns the key only if the initial press happened while
+        // playing; it then keeps consuming repeats (and the release) even if
+        // the run ends mid-hold, so the page never starts scrolling. A fresh
+        // press outside a run scrolls the page as usual.
+        if (!duckHeldRef.current && statusRef.current !== "playing") return;
+        event.preventDefault();
+        if (event.repeat) return;
+        duckHeldRef.current = true;
+        sceneRef.current?.duck();
       } else if (event.code === "Escape") {
         event.preventDefault();
         reset();
       }
     };
 
+<<<<<<< Updated upstream
+=======
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (!isInteractive) return;
+
+      if (isDuckKey(event.code)) {
+        if (!duckHeldRef.current) return;
+        event.preventDefault();
+        duckHeldRef.current = false;
+        sceneRef.current?.releaseDuck();
+        return;
+      }
+
+      if (!isActionKey(event.code)) return;
+
+      event.preventDefault();
+      actionHeldRef.current = false;
+      releaseAction();
+    };
+
+>>>>>>> Stashed changes
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isInteractive, reset, trigger]);
@@ -263,7 +299,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         !isInteractive
           ? "Pixel canvas cover"
           : status === "playing"
-            ? "Jump in the pixel canvas game"
+            ? "Jump or duck in the pixel canvas game"
             : "Start the pixel canvas game"
       }
       aria-disabled={!isInteractive}
@@ -282,12 +318,12 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       />
       {isInteractive && status === "cover" && (
         <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-          click or press space
+          click or press ↑ to play
         </span>
       )}
       {isInteractive && status === "playing" && (
         <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-          esc to exit
+          ↑ jump · ↓ duck · esc to exit
         </span>
       )}
       {isInteractive && status === "over" && (
@@ -299,6 +335,22 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   );
 }
 
+<<<<<<< Updated upstream
+=======
+function isDuckKey(code: string) {
+  return code === "ArrowDown" || code === "KeyS";
+}
+
+function isActionKey(code: string) {
+  return (
+    code === "Space" ||
+    code === "ArrowUp" ||
+    code === "KeyW" ||
+    code === "Enter"
+  );
+}
+
+>>>>>>> Stashed changes
 function isRunResponse(
   value: unknown,
 ): value is { highScore: number; runToken: string } {

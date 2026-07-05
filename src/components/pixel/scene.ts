@@ -2,6 +2,8 @@ export type PixelSceneStatus = "cover" | "playing" | "over";
 
 export type PixelScene = {
   action: () => void;
+  duck: () => void;
+  releaseDuck: () => void;
   render: () => void;
   reset: () => void;
   resize: (width: number, height: number, scale: number) => void;

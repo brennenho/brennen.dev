@@ -1,4 +1,37 @@
 export type Sprite = readonly string[];
+<<<<<<< Updated upstream
+=======
+export type ObstacleType = "cactusSmall" | "cactusLarge" | "pterodactyl";
+export type ObstacleVariant = {
+  // Chrome uses logical obstacle dimensions for spacing; our bitmap can differ.
+  readonly chromeBaseWidth: number;
+  readonly chromeMinGap: number;
+  readonly chromeSize: 1 | 2 | 3;
+  // Chrome px above the ground line; one is picked at random per spawn.
+  readonly flightHeights: readonly number[];
+  readonly frames: readonly Sprite[];
+  readonly minSpeed: number;
+  readonly multipleSpeed: number;
+  readonly speedOffset: number;
+  readonly type: ObstacleType;
+};
+
+const CHROME_SMALL_CACTUS_WIDTH = 17;
+const CHROME_TALL_CACTUS_WIDTH = 25;
+const CHROME_SMALL_CACTUS_MULTIPLE_SPEED = 4;
+const CHROME_TALL_CACTUS_MULTIPLE_SPEED = 7;
+const CHROME_CACTUS_MIN_GAP = 120;
+const CHROME_PTERODACTYL_WIDTH = 46;
+const CHROME_PTERODACTYL_MIN_GAP = 150;
+const CHROME_PTERODACTYL_MIN_SPEED = 8.5;
+const CHROME_PTERODACTYL_SPEED_OFFSET = 0.8;
+// Chrome's desktop height set (yPos 100/75/50 as px above the ground line):
+// low is jumped, mid is ducked under, high is run under. The mid height is 25
+// in Chrome, where inset collision boxes let the wing visually overlap the
+// ducked dino; our collision is pixel-perfect, so it sits slightly higher to
+// keep a row of clearance over the full-size ducked head.
+const CHROME_PTERODACTYL_FLIGHT_HEIGHTS = [0, 29, 50] as const;
+>>>>>>> Stashed changes
 
 export const DINO_WIDTH = 20;
 export const DINO = bitmapToSprite(
@@ -83,6 +116,52 @@ export const DINO_RUN_2 = bitmapToSprite(
 );
 export const DINO_HEIGHT = DINO.length;
 
+<<<<<<< Updated upstream
+=======
+// Downsampled 2:1 from Chrome's real duck frames (59x26 of art within the
+// 59x47 cell, sheet x=1112/1171). The duck is a flat wedge: the head stays
+// level with the back, with the eye at row 2 and the open mouth at row 7.
+export const DINO_DUCK_1 = bitmapToSprite(
+  [
+    "010000000000000000111111100",
+    "011100011111111001111111110",
+    "011111111111111111101111110",
+    "001111111111111111111111110",
+    "000111111111111111111111110",
+    "000011111111111111111111110",
+    "000011111111111111111100000",
+    "000001111111111100111111000",
+    "000000111111111100000000000",
+    "000000100111001100000000000",
+    "000000110110000100000000000",
+    "000000000100000000000000000",
+    "000000000110000000000000000",
+  ],
+  27,
+);
+
+export const DINO_DUCK_2 = bitmapToSprite(
+  [
+    "010000000000000000111111100",
+    "011100011111111001111111110",
+    "011111111111111111101111110",
+    "001111111111111111111111110",
+    "000111111111111111111111110",
+    "000011111111111111111111110",
+    "000011111111111111111100000",
+    "000001111111111100111111000",
+    "000000111111111100000000000",
+    "000000111011101100000000000",
+    "000000110000000100000000000",
+    "000000100000000000000000000",
+    "000000110000000000000000000",
+  ],
+  27,
+);
+
+// Single cactus sprites are handmade; grouped variants follow Chrome's
+// one/two/three cactus sprite set while preserving the handmade silhouettes.
+>>>>>>> Stashed changes
 export const CACTUS_SMALL = bitmapToSprite(
   [
     "000010000",
@@ -137,7 +216,223 @@ export const CACTUS_TALL = bitmapToSprite(
   12,
 );
 
+<<<<<<< Updated upstream
 export const CACTUS_SPRITES = [CACTUS_SMALL, CACTUS_TALL] as const;
+=======
+export const CACTUS_TALL_DOUBLE = bitmapToSprite(
+  [
+    "0000011000000000001100000",
+    "0000111100000000011110000",
+    "0000111100000000011110000",
+    "0000111100000000011110000",
+    "0000111100100000011110010",
+    "0100111101110010011110111",
+    "1110111101110111011110111",
+    "1110111101110111011110111",
+    "1110111101110111011110111",
+    "1110111101110111011110111",
+    "1110111101110111011110111",
+    "1111111111110111111111111",
+    "1111111111100111111111110",
+    "0111111111000011111111100",
+    "0011111100000001111110000",
+    "0000111100000000011110000",
+    "0000111100000000011110000",
+    "0000111100000000011110000",
+    "0000111100000000011110000",
+    "0000111100000000011110000",
+    "0000111100000000011110000",
+    "0000111100000000011110000",
+  ],
+  25,
+);
+
+export const CACTUS_TALL_TRIPLE = bitmapToSprite(
+  [
+    "00000110000000000011000000000001100000",
+    "00001111000000000111100000000011110000",
+    "00001111000000000111100000000011110000",
+    "00001111000000000111100000000011110000",
+    "00001111001000000111100100000011110010",
+    "01001111011100100111101110010011110111",
+    "11101111011101110111101110111011110111",
+    "11101111011101110111101110111011110111",
+    "11101111011101110111101110111011110111",
+    "11101111011101110111101110111011110111",
+    "11101111011101110111101110111011110111",
+    "11111111111101111111111110111111111111",
+    "11111111111001111111111100111111111110",
+    "01111111110000111111111000011111111100",
+    "00111111000000011111100000001111110000",
+    "00001111000000000111100000000011110000",
+    "00001111000000000111100000000011110000",
+    "00001111000000000111100000000011110000",
+    "00001111000000000111100000000011110000",
+    "00001111000000000111100000000011110000",
+    "00001111000000000111100000000011110000",
+    "00001111000000000111100000000011110000",
+  ],
+  38,
+);
+
+export const CACTUS_TALL_MIXED = bitmapToSprite(
+  [
+    "0000011000000000000000000000000001100000",
+    "0000111100000000000000000000000011110000",
+    "0000111100000000000000000000000011110000",
+    "0000111100000000000000000000000011110000",
+    "0000111100100000010000000000000011110010",
+    "0100111101110000111000000000010011110111",
+    "1110111101110000111000000000111011110111",
+    "1110111101110000111010000000111011110111",
+    "1110111101110000111010000000111011110111",
+    "1110111101110110111010000000111011110111",
+    "1110111101110110111010010000111011110111",
+    "1111111111110110111110111000111111111111",
+    "1111111111100110111100111010111111111110",
+    "0111111111000011111000111010011111111100",
+    "0011111100000001110010111010001111110000",
+    "0000111100000000110010111110000011110000",
+    "0000111100000000110001111100000011110000",
+    "0000111100000000110000111000000011110000",
+    "0000111100000000110000111000000011110000",
+    "0000111100000000110000111000000011110000",
+    "0000111100000000110000111000000011110000",
+    "0000111100000000110000010000000011110000",
+  ],
+  40,
+);
+
+// Chrome's pterodactyl is 46x40; at the dino's scale that is 21x18. The body
+// and head stay put between frames so the flap animation reads correctly.
+export const PTERODACTYL_WING_UP = bitmapToSprite(
+  [
+    "000000000000110000000",
+    "000000000001110000000",
+    "000000000001111000000",
+    "000000000011111000000",
+    "000000000011111100000",
+    "000000000111111100000",
+    "000000000111111110000",
+    "000000001111111110000",
+    "000011001111111111000",
+    "001101011111111111100",
+    "111111111111111111111",
+    "000111111111111111111",
+    "000000111111111111000",
+    "000000001111110000000",
+    "000000000000000000000",
+    "000000000000000000000",
+    "000000000000000000000",
+    "000000000000000000000",
+  ],
+  21,
+);
+
+export const PTERODACTYL_WING_DOWN = bitmapToSprite(
+  [
+    "000000000000000000000",
+    "000000000000000000000",
+    "000000000000000000000",
+    "000000000000000000000",
+    "000000000000000000000",
+    "000000000000000000000",
+    "000000000000000000000",
+    "000000000000000000000",
+    "000011001111111111000",
+    "001101011111111111100",
+    "111111111111111111111",
+    "000111111111111111111",
+    "000000111111111111000",
+    "000000001111111100000",
+    "000000000111111000000",
+    "000000000111110000000",
+    "000000000011100000000",
+    "000000000011000000000",
+  ],
+  21,
+);
+
+export const CACTUS_SMALL_GROUPS = [
+  cactusVariant(
+    CACTUS_SMALL,
+    "cactusSmall",
+    CHROME_SMALL_CACTUS_WIDTH,
+    1,
+    CHROME_SMALL_CACTUS_MULTIPLE_SPEED,
+  ),
+  cactusVariant(
+    CACTUS_SMALL_DOUBLE,
+    "cactusSmall",
+    CHROME_SMALL_CACTUS_WIDTH,
+    2,
+    CHROME_SMALL_CACTUS_MULTIPLE_SPEED,
+  ),
+  cactusVariant(
+    CACTUS_SMALL_TRIPLE,
+    "cactusSmall",
+    CHROME_SMALL_CACTUS_WIDTH,
+    3,
+    CHROME_SMALL_CACTUS_MULTIPLE_SPEED,
+  ),
+] as const satisfies readonly ObstacleVariant[];
+export const CACTUS_TALL_GROUPS = [
+  cactusVariant(
+    CACTUS_TALL,
+    "cactusLarge",
+    CHROME_TALL_CACTUS_WIDTH,
+    1,
+    CHROME_TALL_CACTUS_MULTIPLE_SPEED,
+  ),
+  cactusVariant(
+    CACTUS_TALL_DOUBLE,
+    "cactusLarge",
+    CHROME_TALL_CACTUS_WIDTH,
+    2,
+    CHROME_TALL_CACTUS_MULTIPLE_SPEED,
+  ),
+  cactusVariant(
+    CACTUS_TALL_TRIPLE,
+    "cactusLarge",
+    CHROME_TALL_CACTUS_WIDTH,
+    3,
+    CHROME_TALL_CACTUS_MULTIPLE_SPEED,
+  ),
+  cactusVariant(
+    CACTUS_TALL_MIXED,
+    "cactusLarge",
+    CHROME_TALL_CACTUS_WIDTH,
+    3,
+    CHROME_TALL_CACTUS_MULTIPLE_SPEED,
+  ),
+] as const satisfies readonly ObstacleVariant[];
+export const PTERODACTYL_GROUPS = [
+  {
+    chromeBaseWidth: CHROME_PTERODACTYL_WIDTH,
+    chromeMinGap: CHROME_PTERODACTYL_MIN_GAP,
+    chromeSize: 1,
+    flightHeights: CHROME_PTERODACTYL_FLIGHT_HEIGHTS,
+    frames: [PTERODACTYL_WING_UP, PTERODACTYL_WING_DOWN],
+    minSpeed: CHROME_PTERODACTYL_MIN_SPEED,
+    multipleSpeed: Number.POSITIVE_INFINITY,
+    speedOffset: CHROME_PTERODACTYL_SPEED_OFFSET,
+    type: "pterodactyl",
+  },
+] as const satisfies readonly ObstacleVariant[];
+
+export const CLOUD = bitmapToSprite(
+  [
+    "00000011110000000000000",
+    "00001111111100001110000",
+    "00011100011110011111000",
+    "00111000001111111111100",
+    "01110000000111111111110",
+    "11111111111111111111111",
+    "01111111111111111111110",
+  ],
+  23,
+);
+>>>>>>> Stashed changes
 
 function bitmapToSprite(rows: readonly string[], width: number): Sprite {
   return rows.map((row) =>
@@ -148,3 +443,26 @@ function bitmapToSprite(rows: readonly string[], width: number): Sprite {
       .replaceAll("1", "#"),
   );
 }
+<<<<<<< Updated upstream
+=======
+
+function cactusVariant(
+  sprite: Sprite,
+  type: ObstacleType,
+  chromeBaseWidth: number,
+  chromeSize: 1 | 2 | 3,
+  multipleSpeed: number,
+): ObstacleVariant {
+  return {
+    chromeBaseWidth,
+    chromeMinGap: CHROME_CACTUS_MIN_GAP,
+    chromeSize,
+    flightHeights: [0],
+    frames: [sprite],
+    minSpeed: 0,
+    multipleSpeed,
+    speedOffset: 0,
+    type,
+  };
+}
+>>>>>>> Stashed changes
