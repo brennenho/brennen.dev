@@ -29,7 +29,12 @@ const experienceColumns = [
     icon: Briefcase,
     headerClassName: "w-[210px]",
     render: (data) => (
-      <span className="relative z-0 flex items-center gap-2">
+      <a
+        className="inline-flex items-center gap-2 rounded-sm focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+        href={data.link}
+        rel="noreferrer"
+        target="_blank"
+      >
         <span
           className={`relative h-6 w-6 shrink-0 overflow-hidden rounded-sm ${
             "transparent" in data && data.transparent ? "bg-white" : ""
@@ -43,7 +48,7 @@ const experienceColumns = [
           />
         </span>
         <span>{data.name.toLowerCase()}</span>
-      </span>
+      </a>
     ),
   },
   {
@@ -94,13 +99,6 @@ export function ExperienceTable() {
     <Table
       columns={experienceColumns}
       getRowKey={(data) => data.id}
-      getRowLink={(data) => ({
-        href: data.link,
-        ariaLabel: `${data.name} website`,
-        className: "right-[90px]",
-        rel: "noreferrer",
-        target: "_blank",
-      })}
       newButtonAction={{
         ariaLabel: "Show action toast",
         onClick: showActionToast,
