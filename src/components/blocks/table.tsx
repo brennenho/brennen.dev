@@ -168,32 +168,43 @@ export function Table<Row>({
                       )}
                       key={getRowKey(row, index)}
                     >
-                      {columns.map((column, columnIndex) => (
-                        <td
-                          className={cn(
-                            columnIndex > 0 && "border-l border-[#30302f]",
-                            "px-2 py-1.5",
-                            typeof column.cellClassName === "function"
-                              ? column.cellClassName(row, index)
-                              : column.cellClassName,
-                          )}
-                          key={column.id}
-                        >
-                          {columnIndex === 0 && rowLink ? (
-                            <Link
-                              aria-label={rowLink.ariaLabel}
-                              className={cn(
-                                "absolute inset-y-0 right-0 left-0 z-10 cursor-pointer focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none",
-                                rowLink.className,
-                              )}
-                              href={rowLink.href}
-                              rel={rowLink.rel}
-                              target={rowLink.target}
-                            />
-                          ) : null}
-                          {column.render(row)}
-                        </td>
-                      ))}
+                      {columns.map((column, columnIndex) => {
+                        const cellContent = column.render(row);
+
+                        return (
+                          <td
+                            className={cn(
+                              columnIndex > 0 && "border-l border-[#30302f]",
+                              rowLink ? "p-0" : "px-2 py-1.5",
+                              typeof column.cellClassName === "function"
+                                ? column.cellClassName(row, index)
+                                : column.cellClassName,
+                            )}
+                            key={column.id}
+                          >
+                            {rowLink ? (
+                              <Link
+                                aria-label={
+                                  columnIndex === 0
+                                    ? rowLink.ariaLabel
+                                    : undefined
+                                }
+                                className={cn(
+                                  "block h-full px-2 py-1.5 focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none",
+                                  rowLink.className,
+                                )}
+                                href={rowLink.href}
+                                rel={rowLink.rel}
+                                target={rowLink.target}
+                              >
+                                {cellContent}
+                              </Link>
+                            ) : (
+                              cellContent
+                            )}
+                          </td>
+                        );
+                      })}
                     </tr>
                   );
                 })

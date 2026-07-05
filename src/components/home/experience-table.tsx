@@ -29,7 +29,7 @@ const experienceColumns = [
     icon: Briefcase,
     headerClassName: "w-[210px]",
     render: (data) => (
-      <span className="relative z-0 flex items-center gap-2">
+      <span className="flex items-center gap-2">
         <span
           className={`relative h-6 w-6 shrink-0 overflow-hidden rounded-sm ${
             "transparent" in data && data.transparent ? "bg-white" : ""
@@ -97,7 +97,6 @@ export function ExperienceTable() {
       getRowLink={(data) => ({
         href: data.link,
         ariaLabel: `${data.name} website`,
-        className: "right-[90px]",
         rel: "noreferrer",
         target: "_blank",
       })}
