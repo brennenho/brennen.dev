@@ -18,9 +18,12 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<PixelScene | null>(null);
   const frameRef = useRef<number | null>(null);
+  const actionHeldRef = useRef(false);
   const isStartingRunRef = useRef(false);
   const lastTimeRef = useRef<number>(0);
   const highScoreRef = useRef(0);
+  const pendingScoreRef = useRef<number | null>(null);
+  const runRequestIdRef = useRef(0);
   const runTokenRef = useRef<string | null>(null);
   const submittedRunRef = useRef(false);
   const statusRef = useRef<PixelSceneStatus>("cover");
@@ -73,48 +76,8 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     }
   }, []);
 
-  const start = useCallback(() => {
-    if (isStartingRunRef.current) return;
-
-    isStartingRunRef.current = true;
-
-    void startRun()
-      .then((run) => {
-        if (!run) return;
-
-        setHighScoreValue(run.highScore);
-        runTokenRef.current = run.runToken;
-        sceneRef.current?.start();
-        submittedRunRef.current = false;
-        statusRef.current = "playing";
-        setStatus("playing");
-      })
-      .catch((error: unknown) => {
-        if (process.env.NODE_ENV === "development") {
-          console.warn("Unable to start Dino run", error);
-        }
-      })
-      .finally(() => {
-        isStartingRunRef.current = false;
-      });
-  }, [setHighScoreValue, startRun]);
-
-  const reset = useCallback(() => {
-    runTokenRef.current = null;
-    isStartingRunRef.current = false;
-    submittedRunRef.current = false;
-    sceneRef.current?.reset();
-    statusRef.current = "cover";
-    setStatus("cover");
-  }, []);
-
-  const submitScore = useCallback(
-    (score: number) => {
-      const runToken = runTokenRef.current;
-
-      if (!runToken) return;
-
-      runTokenRef.current = null;
+  const sendScore = useCallback(
+    (runToken: string, score: number) => {
       const body = JSON.stringify({ runToken, score });
 
       void fetch(DINO_CONFIG.scoreEndpoint, {
@@ -146,6 +109,73 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     [setHighScoreValue],
   );
 
+  const start = useCallback(() => {
+    if (isStartingRunRef.current) return;
+
+    const runRequestId = runRequestIdRef.current + 1;
+    runRequestIdRef.current = runRequestId;
+    isStartingRunRef.current = true;
+    pendingScoreRef.current = null;
+    runTokenRef.current = null;
+    submittedRunRef.current = false;
+    sceneRef.current?.start();
+    statusRef.current = "playing";
+    setStatus("playing");
+
+    void startRun()
+      .then((run) => {
+        if (!run || runRequestIdRef.current !== runRequestId) return;
+
+        setHighScoreValue(run.highScore);
+
+        const pendingScore = pendingScoreRef.current;
+        if (pendingScore !== null) {
+          pendingScoreRef.current = null;
+          sendScore(run.runToken, pendingScore);
+          return;
+        }
+
+        runTokenRef.current = run.runToken;
+      })
+      .catch((error: unknown) => {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("Unable to start Dino run", error);
+        }
+      })
+      .finally(() => {
+        if (runRequestIdRef.current === runRequestId) {
+          isStartingRunRef.current = false;
+        }
+      });
+  }, [sendScore, setHighScoreValue, startRun]);
+
+  const reset = useCallback(() => {
+    actionHeldRef.current = false;
+    pendingScoreRef.current = null;
+    runRequestIdRef.current += 1;
+    runTokenRef.current = null;
+    isStartingRunRef.current = false;
+    submittedRunRef.current = false;
+    sceneRef.current?.reset();
+    statusRef.current = "cover";
+    setStatus("cover");
+  }, []);
+
+  const submitScore = useCallback(
+    (score: number) => {
+      const runToken = runTokenRef.current;
+
+      if (!runToken) {
+        pendingScoreRef.current = score;
+        return;
+      }
+
+      runTokenRef.current = null;
+      sendScore(runToken, score);
+    },
+    [sendScore],
+  );
+
   const trigger = useCallback(() => {
     if (!isInteractive) return;
     if (!sceneRef.current) return;
@@ -162,6 +192,10 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
 
     sceneRef.current.action();
   }, [isInteractive, reset, start]);
+
+  const releaseAction = useCallback(() => {
+    sceneRef.current?.releaseAction();
+  }, []);
 
   useEffect(() => {
     const query = window.matchMedia("(min-width: 768px)");
@@ -239,12 +273,10 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!isInteractive) return;
 
-      if (
-        event.code === "Space" ||
-        event.code === "ArrowUp" ||
-        event.code === "KeyW"
-      ) {
+      if (isActionKey(event.code)) {
         event.preventDefault();
+        if (event.repeat) return;
+        actionHeldRef.current = true;
         trigger();
       } else if (event.code === "Escape") {
         event.preventDefault();
@@ -252,9 +284,46 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       }
     };
 
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (!isInteractive) return;
+      if (!isActionKey(event.code)) return;
+
+      event.preventDefault();
+      actionHeldRef.current = false;
+      releaseAction();
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isInteractive, reset, trigger]);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [isInteractive, releaseAction, reset, trigger]);
+
+  const handlePointerDown = useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.button !== 0) return;
+
+      actionHeldRef.current = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      trigger();
+    },
+    [trigger],
+  );
+
+  const handlePointerRelease = useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+
+      actionHeldRef.current = false;
+      releaseAction();
+    },
+    [releaseAction],
+  );
 
   return (
     <button
@@ -273,7 +342,9 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         isInteractive ? "cursor-pointer" : "cursor-default",
         className,
       )}
-      onClick={trigger}
+      onPointerCancel={handlePointerRelease}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerRelease}
     >
       <canvas
         ref={canvasRef}
@@ -296,6 +367,15 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         </span>
       )}
     </button>
+  );
+}
+
+function isActionKey(code: string) {
+  return (
+    code === "Space" ||
+    code === "ArrowUp" ||
+    code === "KeyW" ||
+    code === "Enter"
   );
 }
 

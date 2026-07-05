@@ -1,16 +1,23 @@
 import {
-  CACTUS_SMALL,
-  CACTUS_SPRITES,
-  CACTUS_TALL,
+  CACTUS_SMALL_GROUPS,
+  CACTUS_TALL_GROUPS,
+  DINO,
   DINO_HEIGHT,
   DINO_WIDTH,
+  DINO_RUN_1,
+  DINO_RUN_2,
+  type CactusType,
+  type CactusVariant,
   type Sprite,
 } from "./assets";
 
 export type DinoMode = "cover" | "playing" | "over";
 
 export type DinoObstacle = {
-  sprite: Sprite;
+  followingObstacleCreated: boolean;
+  // Chrome pixels. Rendering converts these into pixel-canvas columns.
+  gap: number;
+  variant: CactusVariant;
   x: number;
 };
 
@@ -20,18 +27,40 @@ type DinoEngineOptions = {
   playerX: number;
 };
 
-const START_SPEED = 0.073;
-const MAX_SPEED = 0.135;
-const MOBILE_START_SPEED = 0.055;
-const MOBILE_MAX_SPEED = 0.104;
-const JUMP_VELOCITY = -0.24;
-const MOBILE_JUMP_VELOCITY = -0.265;
-const GRAVITY = 0.00095;
-const MOBILE_GRAVITY = 0.00082;
-const MIN_SPAWN_GAP = 88;
-const MAX_SPAWN_GAP = 168;
-const MOBILE_MIN_SPAWN_GAP = 112;
-const MOBILE_MAX_SPAWN_GAP = 196;
+type PositionedSprite = {
+  sprite: Sprite;
+  x: number;
+  y: number;
+};
+
+const FRAME_MS = 1000 / 60;
+const CHROME_FPS = 60;
+const CHROME_MS_PER_FRAME = 1000 / CHROME_FPS;
+const CHROME_DEFAULT_WIDTH = 600;
+const CHROME_TREX_WIDTH = 44;
+const CHROME_TREX_HEIGHT = 47;
+const CHROME_GRAVITY = 0.6;
+const CHROME_INITIAL_JUMP_VELOCITY = 10;
+const CHROME_DROP_VELOCITY = 5;
+const CHROME_MIN_JUMP_HEIGHT = 30;
+const CHROME_MAX_JUMP_HEIGHT = 63;
+const CHROME_START_SPEED = 6;
+const CHROME_MAX_SPEED = 13;
+const CHROME_GAP_COEFFICIENT = 0.6;
+const CHROME_MAX_GAP_COEFFICIENT = 1.5;
+const CHROME_OBSTACLE_MIN_GAP = 120;
+const CHROME_ACCELERATION = 0.001;
+const CHROME_MOBILE_SPEED_COEFFICIENT = 1.2;
+const CHROME_MAX_OBSTACLE_DUPLICATION = 2;
+const CHROME_DISTANCE_COEFFICIENT = 0.025;
+// Chrome's late-game gaps can exceed the viewport, leaving the screen briefly
+// cactus-free. Cap gaps below one screen so the next cactus always enters
+// before the previous one exits.
+const GAP_MAX_VIEWPORT_FRACTION = 0.85;
+const GAP_CEILING_SPREAD = 0.8;
+const CHROME_RUN_FRAME_INTERVAL = 1000 / 12;
+const TREX_X_SCALE = DINO_WIDTH / CHROME_TREX_WIDTH;
+const TREX_Y_SCALE = DINO_HEIGHT / CHROME_TREX_HEIGHT;
 
 export class DinoEngine {
   elapsed = 0;
@@ -39,12 +68,15 @@ export class DinoEngine {
   obstacles: DinoObstacle[] = [];
   playerOffset = 0;
   score = 0;
-  speed = START_SPEED;
+  speed = chromeFrameSpeedToColumns(CHROME_START_SPEED);
   worldOffset = 0;
 
   private columns = 1;
+  private currentSpeed = CHROME_START_SPEED;
+  private distanceRan = 0;
   private groundRowValue = 15;
-  private nextSpawnDistance = 0;
+  private obstacleHistory: CactusType[] = [];
+  private reachedMinJumpHeight = false;
   private playerXValue = 8;
   private velocity = 0;
 
@@ -57,26 +89,33 @@ export class DinoEngine {
   reset() {
     this.mode = "cover";
     this.obstacles = [];
+    this.obstacleHistory = [];
     this.playerOffset = 0;
     this.score = 0;
-    this.speed = this.startSpeed();
+    this.distanceRan = 0;
+    this.currentSpeed = CHROME_START_SPEED;
+    this.syncDisplaySpeed();
+    this.elapsed = 0;
     this.worldOffset = 0;
+    this.reachedMinJumpHeight = false;
     this.velocity = 0;
-    this.nextSpawnDistance = 0;
   }
 
   start() {
+    const firstObstacle = this.coverCactus();
+
     this.mode = "playing";
-    this.obstacles = [this.coverCactus()];
+    this.obstacles = [firstObstacle];
+    this.obstacleHistory = [firstObstacle.variant.type];
     this.playerOffset = 0;
     this.score = 0;
-    this.speed = this.startSpeed();
+    this.distanceRan = 0;
+    this.currentSpeed = CHROME_START_SPEED;
+    this.syncDisplaySpeed();
+    this.elapsed = 0;
     this.worldOffset = 0;
+    this.reachedMinJumpHeight = false;
     this.velocity = 0;
-    this.nextSpawnDistance = randomBetween(
-      this.minSpawnGap(),
-      this.maxSpawnGap(),
-    );
   }
 
   action() {
@@ -85,9 +124,18 @@ export class DinoEngine {
       return;
     }
 
-    if (this.playerOffset === 0) {
+    if (this.isGrounded()) {
       this.velocity = this.jumpVelocity();
+      this.reachedMinJumpHeight = false;
     }
+  }
+
+  releaseAction() {
+    this.endJump();
+  }
+
+  runFrameInterval() {
+    return CHROME_RUN_FRAME_INTERVAL;
   }
 
   update(delta: number) {
@@ -95,16 +143,19 @@ export class DinoEngine {
 
     if (this.mode !== "playing") return;
 
-    const distance = this.speed * delta;
-    this.worldOffset += distance;
-    this.score += delta * 0.012;
-    this.speed = this.currentTargetSpeed();
+    const distance = this.frameDistance(delta);
+    this.worldOffset += distance * TREX_X_SCALE;
+    this.distanceRan += (this.currentSpeed * delta) / CHROME_MS_PER_FRAME;
+    this.score = chromeScore(this.distanceRan);
     this.updateJump(delta);
     this.updateObstacles(distance);
 
     if (this.hasCollision()) {
       this.mode = "over";
+      return;
     }
+
+    this.accelerate(delta);
   }
 
   playerY() {
@@ -123,96 +174,137 @@ export class DinoEngine {
 
   coverCactus() {
     const compact = this.isCompact();
+    const variant = compact ? CACTUS_SMALL_GROUPS[0] : CACTUS_TALL_GROUPS[0];
 
     return {
-      sprite: compact ? CACTUS_SMALL : CACTUS_TALL,
-      x: Math.round(this.columns * (compact ? 0.68 : 0.79)),
+      followingObstacleCreated: false,
+      gap: this.obstacleGap(variant),
+      variant,
+      x: this.columnsToChrome(Math.round(this.columns * (compact ? 0.6 : 0.7))),
     };
   }
 
+  obstacleX(obstacle: DinoObstacle) {
+    return this.chromeToColumns(obstacle.x);
+  }
+
   private updateJump(delta: number) {
-    if (this.playerOffset >= 0 && this.velocity >= 0) return;
+    if (this.isGrounded()) return;
 
     this.playerOffset += this.velocity * delta;
     this.velocity += this.gravity() * delta;
 
+    if (this.playerOffset <= -this.minJumpHeight()) {
+      this.reachedMinJumpHeight = true;
+    }
+
+    if (this.playerOffset <= -this.maxJumpHeight()) {
+      this.endJump();
+    }
+
     if (this.playerOffset > 0) {
       this.playerOffset = 0;
+      this.reachedMinJumpHeight = false;
       this.velocity = 0;
     }
   }
 
   private updateObstacles(distance: number) {
-    this.nextSpawnDistance -= distance;
-
-    if (this.nextSpawnDistance <= 0) {
-      this.spawnObstacle();
-    }
-
     this.obstacles = this.obstacles
       .map((obstacle) => ({ ...obstacle, x: obstacle.x - distance }))
-      .filter((obstacle) => obstacle.x > -18);
+      .filter((obstacle) => isObstacleVisible(obstacle));
+
+    const lastObstacle = this.obstacles.at(-1);
+
+    if (!lastObstacle) {
+      this.spawnObstacle();
+      return;
+    }
+
+    if (
+      !lastObstacle.followingObstacleCreated &&
+      isObstacleVisible(lastObstacle) &&
+      lastObstacle.x +
+        chromeObstacleWidth(lastObstacle.variant) +
+        lastObstacle.gap <
+        this.chromeViewportWidth()
+    ) {
+      this.spawnObstacle();
+      lastObstacle.followingObstacleCreated = true;
+    }
   }
 
   private spawnObstacle() {
-    const difficulty = this.difficulty();
-    const sprite = weightedRandomCactus(difficulty);
+    const variant = randomCactus(this.currentSpeed, this.obstacleHistory);
 
     this.obstacles.push({
-      sprite,
-      x: this.columns + 4,
+      followingObstacleCreated: false,
+      gap: this.obstacleGap(variant),
+      variant,
+      x: this.chromeViewportWidth() + variant.chromeBaseWidth,
     });
-
-    const minGap =
-      this.minSpawnGap() - difficulty * (this.isCompact() ? 14 : 24);
-    const maxGap =
-      this.maxSpawnGap() - difficulty * (this.isCompact() ? 30 : 52);
-    this.nextSpawnDistance = randomBetween(minGap, maxGap);
+    this.obstacleHistory.unshift(variant.type);
+    this.obstacleHistory.splice(CHROME_MAX_OBSTACLE_DUPLICATION);
   }
 
-  private currentTargetSpeed() {
-    return (
-      this.startSpeed() +
-      (this.maxSpeed() - this.startSpeed()) * this.difficulty()
+  private obstacleGap(variant: CactusVariant) {
+    const chromeWidth = chromeObstacleWidth(variant);
+    const scale = this.worldScale();
+    const ceiling = this.chromeViewportWidth() * GAP_MAX_VIEWPORT_FRACTION;
+    const minGap = Math.min(
+      Math.round(
+        (chromeWidth * this.currentSpeed +
+          CHROME_OBSTACLE_MIN_GAP * CHROME_GAP_COEFFICIENT) *
+          scale,
+      ),
+      ceiling * GAP_CEILING_SPREAD,
     );
+    const maxGap = Math.min(
+      Math.round(minGap * CHROME_MAX_GAP_COEFFICIENT),
+      ceiling,
+    );
+
+    return randomInteger(minGap, maxGap);
   }
 
-  private difficulty() {
-    return Math.min(
-      1,
-      Math.sqrt(this.score / (this.isCompact() ? 2200 : 1400)),
-    );
+  private endJump() {
+    const dropVelocity = this.dropVelocity();
+
+    if (this.reachedMinJumpHeight && this.velocity < dropVelocity) {
+      this.velocity = dropVelocity;
+    }
   }
 
   private hasCollision() {
     const dino = {
-      height: DINO_HEIGHT,
-      width: DINO_WIDTH,
+      sprite: this.currentDinoSprite(),
       x: this.playerX(),
       y: this.playerY(),
     };
 
-    const forgiveness = this.isCompact() ? 3 : 0;
-
     return this.obstacles.some((obstacle) => {
       const cactus = {
-        height: obstacle.sprite.length,
-        width: obstacle.sprite[0]?.length ?? 0,
-        x: Math.round(obstacle.x),
-        y: this.groundRow() - obstacle.sprite.length + 1,
+        sprite: obstacle.variant.sprite,
+        x: Math.round(this.obstacleX(obstacle)),
+        y: this.groundRow() - obstacle.variant.sprite.length + 1,
       };
 
-      return (
-        dino.x + 5 + forgiveness < cactus.x + cactus.width - 1 &&
-        dino.x + dino.width - 4 - forgiveness > cactus.x + 1 &&
-        dino.y + 3 + forgiveness < cactus.y + cactus.height &&
-        dino.y + dino.height - 2 - forgiveness > cactus.y + 2
-      );
+      return spritesOverlap(dino, cactus);
     });
   }
 
+  private currentDinoSprite() {
+    const shouldRun = this.mode === "playing" && this.isGrounded();
+
+    if (!shouldRun) return DINO;
+
+    return Math.floor(this.elapsed / this.runFrameInterval()) % 2 === 0
+      ? DINO_RUN_1
+      : DINO_RUN_2;
+  }
+
   private gravity() {
-    return this.isCompact() ? MOBILE_GRAVITY : GRAVITY;
+    return chromeFrameGravityToRows(CHROME_GRAVITY);
   }
 
   private isCompact() {
@@ -220,35 +312,193 @@ export class DinoEngine {
   }
 
   private jumpVelocity() {
-    return this.isCompact() ? MOBILE_JUMP_VELOCITY : JUMP_VELOCITY;
+    return chromeFrameVelocityToRows(
+      -(CHROME_INITIAL_JUMP_VELOCITY + this.currentSpeed / 10),
+    );
   }
 
-  private maxSpawnGap() {
-    return this.isCompact() ? MOBILE_MAX_SPAWN_GAP : MAX_SPAWN_GAP;
+  private maxJumpHeight() {
+    return CHROME_MAX_JUMP_HEIGHT * TREX_Y_SCALE;
   }
 
-  private maxSpeed() {
-    return this.isCompact() ? MOBILE_MAX_SPEED : MAX_SPEED;
+  private minJumpHeight() {
+    return CHROME_MIN_JUMP_HEIGHT * TREX_Y_SCALE;
   }
 
-  private minSpawnGap() {
-    return this.isCompact() ? MOBILE_MIN_SPAWN_GAP : MIN_SPAWN_GAP;
+  private dropVelocity() {
+    return chromeFrameVelocityToRows(-CHROME_DROP_VELOCITY);
   }
 
-  private startSpeed() {
-    return this.isCompact() ? MOBILE_START_SPEED : START_SPEED;
+  private isGrounded() {
+    return this.playerOffset >= 0 && this.velocity >= 0;
+  }
+
+  private accelerate(delta: number) {
+    if (this.currentSpeed >= CHROME_MAX_SPEED) return;
+
+    this.currentSpeed = Math.min(
+      CHROME_MAX_SPEED,
+      this.currentSpeed + CHROME_ACCELERATION * (delta / FRAME_MS),
+    );
+    this.syncDisplaySpeed();
+  }
+
+  private frameDistance(delta: number) {
+    return (this.effectiveSpeed() * delta) / CHROME_MS_PER_FRAME;
+  }
+
+  private syncDisplaySpeed() {
+    this.speed = chromeFrameSpeedToColumns(this.effectiveSpeed());
+  }
+
+  // Chrome always simulates a fixed 600px-wide world and scales the rendering.
+  // Our world width follows the canvas, so speed and gap distances scale with
+  // it to keep wall-clock pacing identical to Chrome at any width. Below 600px
+  // this matches Chrome's mobile speed formula.
+  private worldScale() {
+    const width = this.chromeViewportWidth();
+
+    if (width >= CHROME_DEFAULT_WIDTH) return width / CHROME_DEFAULT_WIDTH;
+
+    return Math.min(
+      1,
+      (width * CHROME_MOBILE_SPEED_COEFFICIENT) / CHROME_DEFAULT_WIDTH,
+    );
+  }
+
+  private effectiveSpeed() {
+    return this.currentSpeed * this.worldScale();
+  }
+
+  private chromeViewportWidth() {
+    return this.columns / TREX_X_SCALE;
+  }
+
+  private chromeToColumns(value: number) {
+    return value * TREX_X_SCALE;
+  }
+
+  private columnsToChrome(value: number) {
+    return value / TREX_X_SCALE;
   }
 }
 
-function weightedRandomCactus(difficulty: number) {
-  if (Math.random() < 0.68 - difficulty * 0.28) return CACTUS_SMALL;
+function chromeObstacleWidth(variant: CactusVariant) {
+  return variant.chromeBaseWidth * variant.chromeSize;
+}
+
+function visualChromeWidth(variant: CactusVariant) {
+  return spriteWidth(variant.sprite) / TREX_X_SCALE;
+}
+
+function spriteWidth(sprite: Sprite) {
+  return sprite[0]?.length ?? 0;
+}
+
+function chromeFrameVelocityToRows(value: number) {
+  return (value * TREX_Y_SCALE) / FRAME_MS;
+}
+
+function chromeFrameGravityToRows(value: number) {
+  return (value * TREX_Y_SCALE) / (FRAME_MS * FRAME_MS);
+}
+
+function chromeFrameSpeedToColumns(value: number) {
+  return (value * TREX_X_SCALE) / FRAME_MS;
+}
+
+function spritesOverlap(first: PositionedSprite, second: PositionedSprite) {
+  const left = Math.max(Math.round(first.x), Math.round(second.x));
+  const right = Math.min(
+    Math.round(first.x) + spriteWidth(first.sprite),
+    Math.round(second.x) + spriteWidth(second.sprite),
+  );
+  const top = Math.max(Math.round(first.y), Math.round(second.y));
+  const bottom = Math.min(
+    Math.round(first.y) + first.sprite.length,
+    Math.round(second.y) + second.sprite.length,
+  );
+
+  for (let y = top; y < bottom; y++) {
+    for (let x = left; x < right; x++) {
+      if (
+        spriteHasCell(
+          first.sprite,
+          x - Math.round(first.x),
+          y - Math.round(first.y),
+        ) &&
+        spriteHasCell(
+          second.sprite,
+          x - Math.round(second.x),
+          y - Math.round(second.y),
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function spriteHasCell(sprite: Sprite, x: number, y: number) {
+  return sprite[y]?.[x] !== " " && sprite[y]?.[x] !== undefined;
+}
+
+function randomCactus(
+  chromeSpeed: number,
+  obstacleHistory: readonly CactusType[],
+): CactusVariant {
+  const cactusGroups = [CACTUS_SMALL_GROUPS, CACTUS_TALL_GROUPS] as const;
+  const allowedGroups = cactusGroups.filter(
+    (group) => !isDuplicateObstacle(group[0].type, obstacleHistory),
+  );
+  const groups =
+    allowedGroups[randomInteger(0, allowedGroups.length - 1)] ??
+    cactusGroups[0];
+  const firstGroup = groups[0];
+
+  if (chromeSpeed < firstGroup.multipleSpeed) return firstGroup;
+
+  const chromeSize = randomInteger(1, 3) as CactusVariant["chromeSize"];
+  const variantsForSize = groups.filter(
+    (variant) => variant.chromeSize === chromeSize,
+  );
 
   return (
-    CACTUS_SPRITES[Math.floor(Math.random() * CACTUS_SPRITES.length)] ??
-    CACTUS_SMALL
+    variantsForSize[randomInteger(0, variantsForSize.length - 1)] ?? firstGroup
   );
 }
 
-function randomBetween(minimum: number, maximum: number) {
-  return minimum + Math.random() * (maximum - minimum);
+function isDuplicateObstacle(
+  obstacleType: CactusType,
+  obstacleHistory: readonly CactusType[],
+) {
+  let duplicateCount = 0;
+
+  for (const previousObstacleType of obstacleHistory) {
+    duplicateCount =
+      previousObstacleType === obstacleType ? duplicateCount + 1 : 0;
+
+    if (duplicateCount >= CHROME_MAX_OBSTACLE_DUPLICATION) return true;
+  }
+
+  return false;
+}
+
+function randomInteger(minimum: number, maximum: number) {
+  return Math.floor(minimum + Math.random() * (maximum - minimum + 1));
+}
+
+function chromeScore(distanceRan: number) {
+  return Math.round(Math.ceil(distanceRan) * CHROME_DISTANCE_COEFFICIENT);
+}
+
+function isObstacleVisible(obstacle: DinoObstacle) {
+  const width = Math.max(
+    chromeObstacleWidth(obstacle.variant),
+    visualChromeWidth(obstacle.variant),
+  );
+
+  return obstacle.x + width > 0;
 }

@@ -9,8 +9,8 @@ type BitmapGlyph = {
   data: string[];
 };
 
-const CSS_DOT_SIZE = 2;
-const CSS_CELL_SIZE = 4;
+const CSS_DOT_SIZE = 1.5;
+const CSS_CELL_SIZE = 3;
 
 export class PixelDisplay {
   private cells = new Uint8Array(0);
@@ -67,6 +67,14 @@ export class PixelDisplay {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         this.set(column + x, row + y, value);
+      }
+    }
+  }
+
+  eraseRect(column: number, row: number, width: number, height: number) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        this.erase(column + x, row + y);
       }
     }
   }
@@ -158,6 +166,15 @@ export class PixelDisplay {
     }
 
     this.context.globalAlpha = 1;
+  }
+
+  private erase(column: number, row: number) {
+    const x = Math.round(column);
+    const y = Math.round(row);
+
+    if (x < 0 || x >= this.columns || y < 0 || y >= this.rows) return;
+
+    this.cells[y * this.columns + x] = 0;
   }
 }
 

@@ -4,6 +4,7 @@ export type PixelScene = {
   action: () => void;
   render: () => void;
   reset: () => void;
+  releaseAction: () => void;
   resize: (width: number, height: number, scale: number) => void;
   score: () => number;
   setHighScore: (score: number) => void;
