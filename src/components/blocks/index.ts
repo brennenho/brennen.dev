@@ -1,4 +1,5 @@
 export { Callout } from "./callout";
+export { Comment, Discussion } from "./comment";
 export { PageTitle, SectionTitle, SubsectionTitle } from "./heading";
 export { InlineCode } from "./inline-code";
 export { TextLink } from "./link";
