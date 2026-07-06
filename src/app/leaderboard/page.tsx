@@ -24,6 +24,20 @@ import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "leaderboard",
+  openGraph: {
+    title: "leaderboard",
+    url: "https://brennen.dev/leaderboard",
+    siteName: "Brennen Ho",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "leaderboard",
+  },
+};
+
 const GAME_KEY = "dino" satisfies GameKey;
 const REGION_DISPLAY_NAMES = new Intl.DisplayNames(["en"], {
   type: "region",

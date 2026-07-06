@@ -15,6 +15,36 @@ export async function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const post = await getMusingPost(slug);
+
+  if (!post) return {};
+
+  const description = `${formatMusingDate(post.date)} • ${post.readTime}`;
+
+  return {
+    title: post.title,
+    description,
+    openGraph: {
+      title: post.title,
+      description,
+      url: `https://brennen.dev${post.href}`,
+      siteName: "Brennen Ho",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+    },
+  };
+}
+
 export default async function MusingPage({
   params,
 }: {
