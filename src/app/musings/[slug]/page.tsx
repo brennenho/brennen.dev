@@ -7,6 +7,7 @@ import {
   getMusingPost,
   getMusingSummaries,
 } from "@/lib/musings";
+import { formatViewCount, getViewCount } from "@/lib/views";
 import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
@@ -57,8 +58,13 @@ export default async function MusingPage({
     notFound();
   }
 
-  const { commitDate, dateLabel, commitTimestamp, commitTitle, commitUrl } =
-    await getPageEditedMetadata(post.filePath);
+  const [
+    { commitDate, dateLabel, commitTimestamp, commitTitle, commitUrl },
+    views,
+  ] = await Promise.all([
+    getPageEditedMetadata(post.filePath),
+    getViewCount(post.href),
+  ]);
 
   return (
     <WorkspaceShell
@@ -76,6 +82,12 @@ export default async function MusingPage({
         <PageTitle>{post.title}</PageTitle>
         <p className="-mt-[10px] text-[14px] leading-[1.4] font-medium text-[#858582]">
           {formatMusingDate(post.date)} • {post.readTime}
+          {views !== null && views > 0 && (
+            <>
+              {" "}
+              • {formatViewCount(views)} {views === 1 ? "view" : "views"}
+            </>
+          )}
         </p>
         <MdxContent source={post.content} />
       </PageContent>
