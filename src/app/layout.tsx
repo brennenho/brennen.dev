@@ -17,21 +17,13 @@ export const metadata: Metadata = {
       "I create intuitive products that simplify, accelerate, and personalize — with an emphasis on applied AI.",
     url: "https://brennen.dev",
     siteName: "Brennen Ho",
-    images: [
-      {
-        url: "/favicon.ico",
-        width: 2400,
-        height: 2400,
-        alt: "Brennen Ho",
-      },
-    ],
+    type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Brennen Ho",
     description:
       "I create intuitive products that simplify, accelerate, and personalize — with an emphasis on applied AI.",
-    images: ["/favicon.ico"],
   },
 };
 
