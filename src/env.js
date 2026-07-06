@@ -13,6 +13,8 @@ export const env = createEnv({
     SPOTIFY_REFRESH_TOKEN: z.string(),
     GAME_RUN_TOKEN_SECRET: z.string().optional(),
     SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+    POSTHOG_PERSONAL_API_KEY: z.string().optional(),
+    POSTHOG_PROJECT_ID: z.string().optional(),
   },
 
   /**
@@ -38,6 +40,8 @@ export const env = createEnv({
     SPOTIFY_REFRESH_TOKEN: process.env.SPOTIFY_REFRESH_TOKEN,
     GAME_RUN_TOKEN_SECRET: process.env.GAME_RUN_TOKEN_SECRET,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    POSTHOG_PERSONAL_API_KEY: process.env.POSTHOG_PERSONAL_API_KEY,
+    POSTHOG_PROJECT_ID: process.env.POSTHOG_PROJECT_ID,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
