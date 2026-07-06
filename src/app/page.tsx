@@ -1,5 +1,6 @@
 import {
   Callout,
+  Comment,
   List,
   PageContent,
   PageIcon,
@@ -49,11 +50,10 @@ export default async function HomePage() {
           <SectionTitle>about</SectionTitle>
           <List>
             <li>
-              Studying Computer Engineering & Computer Science at the University
-              of Southern California
-              <ul className="mt-[10px] list-disc pl-6">
-                <li>Minoring in Psychology</li>
-              </ul>
+              Studying Computer Engineering & Computer Science at the{" "}
+              <Comment comment="w/ a psychology minor">
+                University of Southern California
+              </Comment>
             </li>
             <li>
               I’m fascinated in applied ai and product development, especially

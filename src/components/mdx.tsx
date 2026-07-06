@@ -1,5 +1,7 @@
 import {
   Callout,
+  Comment,
+  Discussion,
   InlineCode,
   List,
   Paragraph,
@@ -77,12 +79,18 @@ const components = {
     return <List>{children}</List>;
   },
   Callout: MdxCallout,
+  Comment,
+  Discussion,
 } satisfies MDXRemoteProps["components"];
 
 export function MdxContent({ source }: { source: string }) {
   return (
     <div className={cn("flex flex-col", blockGapClassName)}>
-      <MDXRemote source={source} components={components} />
+      <MDXRemote
+        source={source}
+        components={components}
+        options={{ blockJS: false }}
+      />
     </div>
   );
 }
