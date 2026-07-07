@@ -24,6 +24,7 @@ export default async function OpengraphImage({
   const post = await getMusingPost(slug);
 
   return renderOgCard({
+    cover: "solid",
     emoji: post?.emoji ?? "💭",
     title: post?.title ?? "musings",
   });
