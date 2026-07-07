@@ -25,7 +25,6 @@ import { cookies } from "next/headers";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "leaderboard",
   openGraph: {
     title: "leaderboard",
     url: "https://brennen.dev/leaderboard",

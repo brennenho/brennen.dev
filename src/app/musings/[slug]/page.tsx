@@ -29,7 +29,9 @@ export async function generateMetadata({
   const description = `${formatMusingDate(post.date)} • ${post.readTime}`;
 
   return {
-    title: post.title,
+    title: {
+      absolute: `${post.title} • Brennen Ho`,
+    },
     description,
     openGraph: {
       title: post.title,
