@@ -9,6 +9,7 @@ export const OG_IMAGE_CONTENT_TYPE = "image/png";
 const COVER_HEIGHT = 264;
 const HORIZONTAL_PADDING = 100;
 const EMOJI_SIZE = 148;
+const PRIMARY_GREEN = "#059669";
 
 const geistBold = readFile(
   path.join(
@@ -18,16 +19,20 @@ const geistBold = readFile(
 );
 
 type OgCardOptions = {
-  cover?: boolean;
+  cover?: "pixel" | "solid";
+  coverColor?: string;
   emoji: string;
   title: string;
 };
 
 export async function renderOgCard({
-  cover = false,
+  cover,
+  coverColor = PRIMARY_GREEN,
   emoji,
   title,
 }: OgCardOptions) {
+  const hasCover = Boolean(cover);
+
   return new ImageResponse(
     <div
       style={{
@@ -38,7 +43,7 @@ export async function renderOgCard({
         width: "100%",
       }}
     >
-      {cover ? (
+      {cover === "pixel" ? (
         // eslint-disable-next-line @next/next/no-img-element -- satori renders plain elements, not next/image
         <img
           alt=""
@@ -46,13 +51,21 @@ export async function renderOgCard({
           src={renderPixelCoverDataUri(OG_IMAGE_SIZE.width, COVER_HEIGHT)}
           width={OG_IMAGE_SIZE.width}
         />
+      ) : cover === "solid" ? (
+        <div
+          style={{
+            backgroundColor: coverColor,
+            height: COVER_HEIGHT,
+            width: OG_IMAGE_SIZE.width,
+          }}
+        />
       ) : null}
       <div
         style={{
           display: "flex",
           flex: 1,
           flexDirection: "column",
-          justifyContent: cover ? "flex-start" : "center",
+          justifyContent: hasCover ? "flex-start" : "center",
           padding: `0 ${HORIZONTAL_PADDING}px`,
           position: "relative",
         }}
@@ -62,7 +75,7 @@ export async function renderOgCard({
             display: "flex",
             fontSize: EMOJI_SIZE,
             lineHeight: 1,
-            ...(cover
+            ...(hasCover
               ? {
                   left: HORIZONTAL_PADDING,
                   position: "absolute",
@@ -81,7 +94,7 @@ export async function renderOgCard({
             fontWeight: 700,
             lineClamp: 1,
             lineHeight: 1.2,
-            marginTop: cover ? EMOJI_SIZE / 2 + 44 : 48,
+            marginTop: hasCover ? EMOJI_SIZE / 2 + 44 : 48,
           }}
         >
           {title}

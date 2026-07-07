@@ -10,7 +10,7 @@ export const size = OG_IMAGE_SIZE;
 
 export default async function OpengraphImage() {
   return renderOgCard({
-    cover: true,
+    cover: "pixel",
     emoji: "👋",
     title: "hey, i’m brennen",
   });
