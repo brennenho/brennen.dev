@@ -62,21 +62,21 @@ export function MobileWorkspaceTopbar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-12 items-center justify-between border-b border-transparent bg-[#191919]/95 px-2 text-[14px] text-[#b3b3b1] backdrop-blur min-[900px]:hidden">
+      <header className="sticky top-0 z-40 flex h-12 items-center justify-between border-b border-transparent bg-background/95 px-2 text-[14px] text-muted-foreground backdrop-blur min-[900px]:hidden">
         <div className="flex min-w-0 flex-1 items-center gap-1">
           <button
             type="button"
             aria-label="Open sidebar"
             onClick={() => setOpen(true)}
-            className="cursor-pointer rounded-sm p-2 text-[#d6d6d4] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]"
+            className="cursor-pointer rounded-sm p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <Menu className="h-5 w-5" />
           </button>
           <span className="text-[18px] leading-none">{pageIcon}</span>
-          <span className="min-w-0 truncate font-medium text-[#efefed]">
+          <span className="min-w-0 truncate font-medium text-foreground">
             {pageTitle}
           </span>
-          <Lock className="hidden h-3.5 w-3.5 shrink-0 text-[#858582] min-[430px]:block" />
+          <Lock className="hidden h-3.5 w-3.5 shrink-0 text-muted-foreground min-[430px]:block" />
         </div>
 
         <div className="ml-2 flex shrink-0 items-center gap-1">
@@ -92,7 +92,7 @@ export function MobileWorkspaceTopbar({
             type="button"
             aria-label={copied ? "Copied page link" : "Copy page link"}
             onClick={copyPageLink}
-            className="cursor-pointer rounded-sm p-2 text-[#d6d6d4] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]"
+            className="cursor-pointer rounded-sm p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             {copied ? (
               <Check className="h-[18px] w-[18px]" />
@@ -103,7 +103,7 @@ export function MobileWorkspaceTopbar({
           <span
             aria-label={isFavorite ? "Favorited" : "Not favorited"}
             className={cn(
-              "hidden p-2 text-[#d6d6d4] min-[430px]:block",
+              "hidden p-2 text-muted-foreground min-[430px]:block",
               isFavorite && "text-[#f5c542]",
             )}
           >
@@ -131,7 +131,7 @@ export function MobileWorkspaceTopbar({
                 type="button"
                 aria-label="Close sidebar"
                 onClick={() => setOpen(false)}
-                className="cursor-pointer rounded-sm p-2 text-[#d6d6d4] transition-colors hover:bg-[#30302f] hover:text-[#f1f1ef]"
+                className="cursor-pointer rounded-sm p-2 text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               >
                 <X className="h-5 w-5" />
               </button>

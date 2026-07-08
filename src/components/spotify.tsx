@@ -196,10 +196,10 @@ export function SpotifyMention() {
           href={href}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex max-w-full items-center gap-2 rounded-md bg-[#333332] px-2 py-1 text-[15px] leading-tight font-bold text-[#f1f1ef] transition-colors hover:bg-[#3d3d3c]"
+          className="inline-flex max-w-full items-center gap-2 rounded-md bg-secondary px-2 py-1 text-[15px] leading-tight font-bold text-secondary-foreground transition-colors hover:bg-[#e6e6e4] dark:hover:bg-[#3d3d3c]"
         >
           <SpotifyLogo className="h-5 w-5 shrink-0 text-[#1ed760]" />
-          <span className="shrink-0 text-[#a9a9a7]">Spotify</span>
+          <span className="shrink-0 text-muted-foreground">Spotify</span>
           {loaded ? (
             <span className="wrap-break-words min-w-0 text-wrap">{song}</span>
           ) : (
@@ -218,11 +218,10 @@ export function SpotifyMention() {
           className={cn("fixed z-50", open ? "block" : "hidden")}
         >
           <Card
-            className="w-full rounded-md border-[#3a3a39] bg-[#2f2f2e] p-4 text-[#f1f1ef] shadow-none"
-            style={{ boxShadow: "none" }}
+            className="w-full rounded-md border-border bg-popover p-4 text-popover-foreground shadow-md dark:shadow-none"
           >
             <CardContent className="flex flex-row items-center gap-4 p-0">
-              <div className="flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border border-[#3a3a39] bg-[#202020] shadow-none">
+              <div className="flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border border-border bg-muted shadow-none">
                 {track && image ? (
                   <Image
                     src={image.url}
@@ -242,7 +241,7 @@ export function SpotifyMention() {
                     {track ? (
                       <>
                         <div className="flex flex-row items-center justify-between">
-                          <div className="line-clamp-2 text-sm font-semibold text-[#f1f1ef]">
+                          <div className="line-clamp-2 text-sm font-semibold text-popover-foreground">
                             {song}
                           </div>
                           {isLive ? (
@@ -256,13 +255,13 @@ export function SpotifyMention() {
                           ) : (
                             <Badge
                               variant="secondary"
-                              className="flex items-center gap-1.5 self-start bg-[#3d3d3c] text-[#d4d4d1]"
+                              className="flex items-center gap-1.5 self-start bg-secondary text-secondary-foreground"
                             >
                               offline
                             </Badge>
                           )}
                         </div>
-                        <div className="line-clamp-1 text-xs text-[#d4d4d1] italic">
+                        <div className="line-clamp-1 text-xs text-muted-foreground italic">
                           {artist}
                         </div>
                       </>
@@ -276,7 +275,7 @@ export function SpotifyMention() {
                 </div>
 
                 {track && isLive && duration > 0 ? (
-                  <div className="flex flex-row items-center gap-1 text-xs font-medium text-[#f1f1ef] tabular-nums">
+                  <div className="flex flex-row items-center gap-1 text-xs font-medium text-popover-foreground tabular-nums">
                     {formatTime(progress)}
                     <Progress
                       value={progressPercent}

@@ -14,8 +14,8 @@ export function InlineCode({
         className,
       )}
       style={{
-        backgroundColor: "var(--block-inline-code-bg, #2f2f2e)",
-        color: "var(--block-inline-code-color, #eb5757)",
+        backgroundColor: "var(--block-inline-code-bg)",
+        color: "var(--block-inline-code-color)",
         ...style,
       }}
       {...props}

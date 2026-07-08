@@ -1,4 +1,4 @@
-import { PixelDisplay } from "../../display";
+import { PixelDisplay, type PixelPalette } from "../../display";
 import type { PixelScene } from "../../scene";
 import { CLOUD, DINO, DINO_RUN_1, DINO_RUN_2 } from "./assets";
 import { DinoEngine, type DinoObstacle } from "./engine";
@@ -317,6 +317,10 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     return Math.max(cloudMinGap() + 34, display.columns * 0.52);
   }
 
+  function setPalette(palette: PixelPalette) {
+    display.setPalette(palette);
+  }
+
   return {
     action,
     render,
@@ -325,6 +329,7 @@ export function createDinoScene(context: CanvasRenderingContext2D): PixelScene {
     resize,
     score,
     setHighScore,
+    setPalette,
     start,
     status,
     update,

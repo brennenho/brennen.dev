@@ -156,7 +156,7 @@ export function Comment({ children, className, ...thread }: CommentProps) {
       {open
         ? createPortal(
             <div
-              className="fixed z-50 w-[350px] max-w-[calc(100vw-16px)] rounded-lg bg-[#252525] p-3 shadow-[0_0_0_1px_rgba(255,255,255,0.094),0_3px_6px_rgba(0,0,0,0.2),0_9px_24px_rgba(0,0,0,0.4)]"
+              className="fixed z-50 w-[350px] max-w-[calc(100vw-16px)] rounded-lg bg-popover p-3 shadow-[0_0_0_1px_var(--border),0_3px_6px_rgba(0,0,0,0.1),0_9px_24px_rgba(0,0,0,0.2)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.094),0_3px_6px_rgba(0,0,0,0.2),0_9px_24px_rgba(0,0,0,0.4)]"
               ref={popoverRef}
               style={popoverStyle}
             >
@@ -213,19 +213,19 @@ function CommentItem({
       <CommentAvatar author={author} src={entry.avatarSrc} />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2 pt-0.5">
-          <span className="truncate text-[14px] font-semibold text-[rgba(255,255,255,0.81)]">
+          <span className="truncate text-[14px] font-semibold text-popover-foreground/85">
             {author}
           </span>
         </div>
         {quote ? (
           <div className="mt-1.5 flex items-stretch gap-2">
             <span className="w-[3px] shrink-0 rounded-full bg-[rgba(255,212,0,0.65)]" />
-            <span className="truncate text-[14px] text-[rgba(255,255,255,0.81)]">
+            <span className="truncate text-[14px] text-popover-foreground/85">
               {quote}
             </span>
           </div>
         ) : null}
-        <div className="mt-1.5 text-[14px] leading-normal text-[rgba(255,255,255,0.81)]">
+        <div className="mt-1.5 text-[14px] leading-normal text-popover-foreground/85">
           {entry.content}
         </div>
         {entry.reactions?.length ? (
@@ -260,8 +260,8 @@ function ReactionPill({ emoji }: { emoji: string }) {
       className={cn(
         "flex h-6 items-center gap-1 rounded-full border px-2 text-[12px] leading-none transition-colors",
         active
-          ? "border-[rgba(35,131,226,0.57)] bg-[rgba(35,131,226,0.14)] text-[#529cca]"
-          : "border-[rgba(255,255,255,0.13)] text-[rgba(255,255,255,0.65)] hover:bg-[rgba(255,255,255,0.055)]",
+          ? "border-[rgba(35,131,226,0.57)] bg-[rgba(35,131,226,0.14)] text-[#2383e2] dark:text-[#529cca]"
+          : "border-border text-muted-foreground hover:bg-accent",
       )}
       onClick={() => setActive((value) => !value)}
       type="button"

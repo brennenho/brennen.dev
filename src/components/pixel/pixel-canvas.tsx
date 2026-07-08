@@ -3,7 +3,9 @@
 import { getGameConfig } from "@/lib/games/config";
 import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PIXEL_PALETTES } from "./display";
 import { createDinoScene } from "./games/dino/scene";
 import type { PixelScene, PixelSceneStatus } from "./scene";
 
@@ -29,6 +31,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const statusRef = useRef<PixelSceneStatus>("cover");
   const [isInteractive, setIsInteractive] = useState(false);
   const [status, setStatus] = useState<PixelSceneStatus>("cover");
+  const { resolvedTheme } = useTheme();
 
   const resize = useCallback(() => {
     const canvas = canvasRef.current;
@@ -259,6 +262,12 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   }, [resize, submitScore]);
 
   useEffect(() => {
+    sceneRef.current?.setPalette(
+      resolvedTheme === "light" ? PIXEL_PALETTES.light : PIXEL_PALETTES.dark,
+    );
+  }, [resolvedTheme]);
+
+  useEffect(() => {
     const storedHighScore = window.localStorage.getItem(
       DINO_HIGH_SCORE_STORAGE_KEY,
     );
@@ -338,7 +347,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       aria-disabled={!isInteractive}
       tabIndex={isInteractive ? 0 : -1}
       className={cn(
-        "group relative block h-[250px] w-full overflow-hidden bg-black text-left outline-none",
+        "group relative block h-[250px] w-full overflow-hidden bg-[#efeeeb] text-left outline-none dark:bg-black",
         isInteractive ? "cursor-pointer" : "cursor-default",
         className,
       )}
@@ -352,17 +361,17 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         role="img"
       />
       {isInteractive && status === "cover" && (
-        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-white/80 px-2 py-1 text-xs font-semibold text-[#37352f] dark:bg-[#191919]/80 dark:text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
           click or press space
         </span>
       )}
       {isInteractive && status === "playing" && (
-        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-white/80 px-2 py-1 text-xs font-semibold text-[#37352f] dark:bg-[#191919]/80 dark:text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
           esc to exit
         </span>
       )}
       {isInteractive && status === "over" && (
-        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-[#191919]/80 px-2 py-1 text-xs font-semibold text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-white/80 px-2 py-1 text-xs font-semibold text-[#37352f] dark:bg-[#191919]/80 dark:text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
           click to restart
         </span>
       )}

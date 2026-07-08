@@ -67,13 +67,13 @@ const components = {
   },
   pre({ children }: ComponentPropsWithoutRef<"pre">) {
     return (
-      <pre className="overflow-x-auto rounded-md bg-[#202020] p-4 font-mono text-[13px] leading-[1.5] text-[#f1f1ef]">
+      <pre className="bg-muted text-foreground overflow-x-auto rounded-md p-4 font-mono text-[13px] leading-normal">
         {children}
       </pre>
     );
   },
   strong({ children }: ComponentPropsWithoutRef<"strong">) {
-    return <strong className="font-bold text-[#f1f1ef]">{children}</strong>;
+    return <strong className="text-foreground font-bold">{children}</strong>;
   },
   ul({ children }: ComponentPropsWithoutRef<"ul">) {
     return <List>{children}</List>;

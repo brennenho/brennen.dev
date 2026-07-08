@@ -40,7 +40,7 @@ export async function WorkspaceShell({
   );
 
   return (
-    <div className="min-h-screen bg-[#191919] text-[#f1f1ef]">
+    <div className="min-h-screen bg-background text-foreground">
       <DesktopWorkspaceSidebar
         activePath={activePath}
         musingItems={musingItems}
@@ -94,12 +94,14 @@ function WorkspaceTopbar({
   pageTitle: string;
 }) {
   return (
-    <header className="sticky top-0 z-40 hidden h-[45px] items-center justify-between border-b border-transparent bg-[#191919]/95 px-3 text-[14px] text-[#b3b3b1] backdrop-blur min-[900px]:flex">
+    <header className="sticky top-0 z-40 hidden h-[45px] items-center justify-between border-b border-transparent bg-background/95 px-3 text-[14px] text-muted-foreground backdrop-blur min-[900px]:flex">
       <div className="flex min-w-0 items-center gap-2">
         <span className="text-[18px] leading-none">{pageIcon}</span>
-        <span className="truncate font-medium text-[#efefed]">{pageTitle}</span>
-        <Lock className="h-3.5 w-3.5 shrink-0 text-[#858582]" />
-        <span className="hidden text-[#858582] sm:inline">Private</span>
+        <span className="truncate font-medium text-foreground">
+          {pageTitle}
+        </span>
+        <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <span className="hidden text-muted-foreground sm:inline">Private</span>
       </div>
 
       <div className="flex items-center gap-4">
