@@ -1,9 +1,27 @@
 import bitmapFont from "./bitmap-font.json";
 
-type MatrixOptions = {
-  offColor?: string;
-  onColor?: string;
+export type PixelPalette = {
+  background: string;
+  offColor: string;
+  onColor: string;
+  /** Lit dots cover only ~20% of a cell; scaling them up keeps sprites
+   * legible when dark dots sit on a light background. */
+  onDotScale?: number;
 };
+
+export const PIXEL_PALETTES = {
+  dark: {
+    background: "#050505",
+    offColor: "#252525",
+    onColor: "#d8d8d4",
+  },
+  light: {
+    background: "#efeeeb",
+    offColor: "#dedcd7",
+    onColor: "#171613",
+    onDotScale: 1.4,
+  },
+} as const satisfies Record<"dark" | "light", PixelPalette>;
 
 type BitmapGlyph = {
   data: string[];
@@ -20,14 +38,16 @@ export class PixelDisplay {
   private originY = 0;
   private width = 1;
   private height = 1;
+  private palette: PixelPalette = PIXEL_PALETTES.dark;
 
   columns = 1;
   rows = 1;
 
-  constructor(
-    private readonly context: CanvasRenderingContext2D,
-    private readonly options: MatrixOptions = {},
-  ) {}
+  constructor(private readonly context: CanvasRenderingContext2D) {}
+
+  setPalette(palette: PixelPalette) {
+    this.palette = palette;
+  }
 
   resize(width: number, height: number, scale: number) {
     this.width = width;
@@ -144,11 +164,12 @@ export class PixelDisplay {
   }
 
   render() {
-    const offColor = this.options.offColor ?? "#252525";
-    const onColor = this.options.onColor ?? "#d8d8d4";
+    const { background, offColor, onColor, onDotScale = 1 } = this.palette;
+    const offRadius = this.dotSize / 2;
+    const onRadius = offRadius * onDotScale;
 
     this.context.clearRect(0, 0, this.width, this.height);
-    this.context.fillStyle = "#050505";
+    this.context.fillStyle = background;
     this.context.fillRect(0, 0, this.width, this.height);
 
     for (let row = 0; row < this.rows; row++) {
@@ -158,7 +179,7 @@ export class PixelDisplay {
         const y = this.originY + row * this.cellSize + this.cellSize / 2;
 
         this.context.beginPath();
-        this.context.arc(x, y, this.dotSize / 2, 0, Math.PI * 2);
+        this.context.arc(x, y, value > 0 ? onRadius : offRadius, 0, Math.PI * 2);
         this.context.fillStyle = value > 0 ? onColor : offColor;
         this.context.globalAlpha = value > 0 ? value / 255 : 1;
         this.context.fill();

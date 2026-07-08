@@ -9,7 +9,7 @@ type TopbarActionsProps = {
 };
 
 const actionClassName =
-  "cursor-pointer rounded px-2 py-1 transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]";
+  "cursor-pointer rounded px-2 py-1 transition-colors hover:bg-accent hover:text-foreground";
 
 export function TopbarActions({ isFavorite }: TopbarActionsProps) {
   const [copied, setCopied] = useState(false);
@@ -37,7 +37,7 @@ export function TopbarActions({ isFavorite }: TopbarActionsProps) {
         type="button"
         onClick={copyPageLink}
         className={cn(
-          "inline-flex w-16 justify-center font-medium text-[#efefed]",
+          "inline-flex w-16 justify-center font-medium text-foreground",
           actionClassName,
         )}
       >
@@ -46,7 +46,7 @@ export function TopbarActions({ isFavorite }: TopbarActionsProps) {
       <span
         aria-label={isFavorite ? "Favorited" : "Not favorited"}
         className={cn(
-          "px-2 py-1 text-[#d6d6d4]",
+          "px-2 py-1 text-muted-foreground",
           isFavorite && "text-[#f5c542]",
         )}
       >

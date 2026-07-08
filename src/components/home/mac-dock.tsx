@@ -149,19 +149,19 @@ function DockItem({
     width: `${baseButtonSize}px`,
   } satisfies CSSProperties;
   const itemClassName =
-    "group/dock relative flex h-full w-full origin-bottom cursor-default items-center justify-center border-0 bg-transparent p-0 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none";
+    "group/dock relative flex h-full w-full origin-bottom cursor-default items-center justify-center border-0 bg-transparent p-0 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none";
   const itemContent = (
     <>
-      <span className="pointer-events-none absolute top-[-2.18rem] left-1/2 hidden -translate-x-1/2 items-center justify-center rounded-[6px] border border-white/10 bg-[#2f2f2f]/72 px-2 py-1 text-[11px] leading-none font-medium whitespace-nowrap text-[#f4f4f3] opacity-0 shadow-[0_8px_18px_rgba(0,0,0,0.2)] backdrop-blur-xl transition-[opacity,transform] duration-150 ease-out group-hover/dock:-translate-y-0.5 group-hover/dock:opacity-100 group-focus-visible/dock:-translate-y-0.5 group-focus-visible/dock:opacity-100 min-[700px]:flex">
+      <span className="pointer-events-none absolute top-[-2.18rem] left-1/2 hidden -translate-x-1/2 items-center justify-center rounded-[6px] border border-black/10 bg-[#f5f5f4]/85 px-2 py-1 text-[11px] leading-none font-medium whitespace-nowrap text-[#37352f] opacity-0 shadow-[0_8px_18px_rgba(0,0,0,0.12)] backdrop-blur-xl transition-[opacity,transform] duration-150 ease-out group-hover/dock:-translate-y-0.5 group-hover/dock:opacity-100 group-focus-visible/dock:-translate-y-0.5 group-focus-visible/dock:opacity-100 min-[700px]:flex dark:border-white/10 dark:bg-[#2f2f2f]/72 dark:text-[#f4f4f3] dark:shadow-[0_8px_18px_rgba(0,0,0,0.2)]">
         {app.name}
-        <span className="absolute bottom-[-4px] h-[7px] w-[7px] rotate-45 border-r border-b border-white/10 bg-[#2f2f2f]/72" />
+        <span className="absolute bottom-[-4px] h-[7px] w-[7px] rotate-45 border-r border-b border-black/10 bg-[#f5f5f4]/85 dark:border-white/10 dark:bg-[#2f2f2f]/72" />
       </span>
       <span className="relative block h-full w-full transition-[filter] duration-150 ease-out group-hover/dock:drop-shadow-[0_7px_9px_rgba(0,0,0,0.2)] group-focus-visible/dock:drop-shadow-[0_7px_9px_rgba(0,0,0,0.2)]">
         <DockIcon app={app} />
       </span>
       {app.running ? (
         <span
-          className="absolute left-1/2 -translate-x-1/2 translate-y-full rounded-full bg-white/70"
+          className="absolute left-1/2 -translate-x-1/2 translate-y-full rounded-full bg-black/50 dark:bg-white/70"
           style={{
             bottom: `${baseButtonSize * 0.015}px`,
             height: `${baseButtonSize * 0.075}px`,
@@ -241,7 +241,7 @@ export function MacDock() {
     <div ref={ref} className="w-full max-w-full overflow-visible pt-5 pb-3">
       <nav
         aria-label="Mac dock"
-        className="mx-auto flex w-fit max-w-full justify-center shadow-[0_0_0.1rem_rgba(0,0,0,0.8)]"
+        className="mx-auto flex w-fit max-w-full justify-center shadow-[0_0_0.1rem_rgba(0,0,0,0.25)] dark:shadow-[0_0_0.1rem_rgba(0,0,0,0.8)]"
         onPointerLeave={() => {
           setHoveredIndex(null);
           setMousePosition(null);
@@ -258,7 +258,7 @@ export function MacDock() {
         }}
       >
         <ul
-          className="flex h-full list-none items-end gap-0 border border-white/18 bg-[rgba(83,83,83,0.25)] backdrop-blur-[1.8rem]"
+          className="flex h-full list-none items-end gap-0 border border-black/8 bg-[rgba(240,240,238,0.45)] backdrop-blur-[1.8rem] dark:border-white/18 dark:bg-[rgba(83,83,83,0.25)]"
           style={{
             borderRadius: `${dockRadius}px`,
             padding: `${dockPadding}px`,

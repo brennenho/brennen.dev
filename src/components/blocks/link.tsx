@@ -7,7 +7,7 @@ type TextLinkProps = Omit<ComponentPropsWithoutRef<"a">, "href"> & {
 };
 
 const textLinkClassName =
-  "text-[#d4d4d1] underline decoration-[#858582] decoration-1 underline-offset-2 transition-colors hover:text-[#f1f1ef] hover:decoration-[#b8b8b5]";
+  "text-foreground/85 underline decoration-muted-foreground decoration-1 underline-offset-2 transition-colors hover:text-foreground hover:decoration-foreground/60";
 
 export function TextLink({
   children,

@@ -87,7 +87,7 @@ export function FontShuffleName() {
       aria-label="brennen"
       onPointerEnter={playAnimation}
       className={cn(
-        "relative inline-grid align-baseline text-[#00a877]",
+        "relative inline-grid align-baseline text-primary",
         settled && "font-serif italic",
       )}
     >

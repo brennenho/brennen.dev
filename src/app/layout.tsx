@@ -4,6 +4,7 @@ import { PostHogProvider } from "@/components/analytics";
 import { Toaster } from "@/components/ui/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 
 const FAVICONS = {
   production: "/favicon.ico",
@@ -44,11 +45,18 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <PostHogProvider>{children}</PostHogProvider>
-        <SpeedInsights />
-        <Toaster richColors visibleToasts={1} />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <PostHogProvider>{children}</PostHogProvider>
+          <SpeedInsights />
+          <Toaster richColors visibleToasts={1} />
+        </ThemeProvider>
       </body>
     </html>
   );

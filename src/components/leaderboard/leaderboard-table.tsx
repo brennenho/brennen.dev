@@ -68,7 +68,7 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
       newPageLabel={null}
       rowClassName={(row) =>
         row.isCurrentPlayer
-          ? "bg-[#25382f] shadow-[inset_3px_0_0_#4EC38A] hover:bg-[#2d4438]"
+          ? "bg-[#edf3ec] shadow-[inset_3px_0_0_#448361] hover:bg-[#e3ede1] dark:bg-[#25382f] dark:shadow-[inset_3px_0_0_#4EC38A] dark:hover:bg-[#2d4438]"
           : undefined
       }
       rows={rows}

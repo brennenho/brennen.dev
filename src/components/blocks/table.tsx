@@ -71,12 +71,14 @@ export function Table<Row>({
   const hasToolbar = viewLabel != null || newButtonLabel != null;
 
   return (
-    <div className={cn("text-[14px] leading-normal text-[#d4d4d1]", className)}>
+    <div
+      className={cn("text-[14px] leading-normal text-foreground/85", className)}
+    >
       {hasToolbar ? (
         <div className="mb-3 flex items-center justify-between">
           {viewLabel != null ? (
             <button
-              className="inline-flex h-8 items-center gap-2 rounded-full bg-[#30302f] px-4 text-[14px] font-semibold text-[#f1f1ef]"
+              className="inline-flex h-8 items-center gap-2 rounded-full bg-secondary px-4 text-[14px] font-semibold text-secondary-foreground"
               type="button"
             >
               <Table2 className="h-4 w-4" />
@@ -89,7 +91,7 @@ export function Table<Row>({
             newButtonAction ? (
               <button
                 aria-label={newButtonAction.ariaLabel}
-                className="h-7 w-[70px] cursor-pointer rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+                className="h-7 w-[70px] cursor-pointer rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
                 onClick={newButtonAction.onClick}
                 type="button"
               >
@@ -99,7 +101,7 @@ export function Table<Row>({
               <Link
                 aria-label={newButtonLink.ariaLabel}
                 className={cn(
-                  "inline-flex h-7 w-[70px] items-center justify-center rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none",
+                  "inline-flex h-7 w-[70px] items-center justify-center rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none",
                   newButtonLink.className,
                 )}
                 href={newButtonLink.href}
@@ -110,7 +112,7 @@ export function Table<Row>({
               </Link>
             ) : (
               <button
-                className="h-7 w-[70px] cursor-pointer rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+                className="h-7 w-[70px] cursor-pointer rounded-sm bg-[#2883DF] text-[14px] font-medium text-white focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
                 type="button"
               >
                 {newButtonLabel}
@@ -129,14 +131,14 @@ export function Table<Row>({
           )}
         >
           <thead>
-            <tr className="border-b border-[#30302f] text-left text-[14px] text-[#a7a7a4]">
+            <tr className="border-b border-border text-left text-[14px] text-muted-foreground">
               {columns.map((column, index) => {
                 const Icon = column.icon;
 
                 return (
                   <th
                     className={cn(
-                      index > 0 && "border-l border-[#30302f]",
+                      index > 0 && "border-l border-border",
                       "px-2 py-1.5",
                       column.headerClassName,
                     )}
@@ -163,7 +165,7 @@ export function Table<Row>({
                   return (
                     <tr
                       className={cn(
-                        "border-b border-[#30302f] text-[#f1f1ef] hover:bg-[#242423]",
+                        "border-b border-border text-foreground hover:bg-accent",
                         resolvedRowClassName,
                       )}
                       key={getRowKey(row, index)}
@@ -174,7 +176,7 @@ export function Table<Row>({
                         return (
                           <td
                             className={cn(
-                              columnIndex > 0 && "border-l border-[#30302f]",
+                              columnIndex > 0 && "border-l border-border",
                               rowLink ? "p-0" : "px-2 py-1.5",
                               typeof column.cellClassName === "function"
                                 ? column.cellClassName(row, index)
@@ -190,7 +192,7 @@ export function Table<Row>({
                                     : undefined
                                 }
                                 className={cn(
-                                  "flex min-h-9 w-full cursor-pointer items-center px-2 py-1.5 text-inherit focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none",
+                                  "flex min-h-9 w-full cursor-pointer items-center px-2 py-1.5 text-inherit focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none",
                                   rowLink.className,
                                 )}
                                 href={rowLink.href}
@@ -213,7 +215,7 @@ export function Table<Row>({
             {rows.length === 0 && emptyState != null ? (
               <tr>
                 <td
-                  className="px-2 py-2.5 text-[14px] font-medium text-[#81817e]"
+                  className="px-2 py-2.5 text-[14px] font-medium text-muted-foreground"
                   colSpan={columns.length}
                 >
                   {emptyState}
@@ -223,13 +225,13 @@ export function Table<Row>({
             {newPageLabel != null ? (
               <tr>
                 <td
-                  className="px-2 py-2.5 text-[14px] font-medium text-[#81817e]"
+                  className="px-2 py-2.5 text-[14px] font-medium text-muted-foreground"
                   colSpan={columns.length}
                 >
                   {newPageAction ? (
                     <button
                       aria-label={newPageAction.ariaLabel}
-                      className="inline-flex cursor-pointer items-center gap-2 rounded-sm text-left focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none"
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-sm text-left focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
                       onClick={newPageAction.onClick}
                       type="button"
                     >
@@ -240,7 +242,7 @@ export function Table<Row>({
                     <Link
                       aria-label={newPageLink.ariaLabel}
                       className={cn(
-                        "inline-flex items-center gap-2 rounded-sm focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:outline-none",
+                        "inline-flex items-center gap-2 rounded-sm focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none",
                         newPageLink.className,
                       )}
                       href={newPageLink.href}

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 const pageTitleClassName =
-  "text-[42px] leading-[1.12] font-bold tracking-normal text-[#f1f1ef] sm:text-[48px]";
+  "text-[42px] leading-[1.12] font-bold tracking-normal text-foreground sm:text-[48px]";
 
 export function PageTitle({
   children,
@@ -28,7 +28,7 @@ export function SectionTitle({
   return (
     <h2
       className={cn(
-        "text-[24px] leading-tight font-bold text-[#f1f1ef] sm:text-[26px]",
+        "text-[24px] leading-tight font-bold text-foreground sm:text-[26px]",
         className,
       )}
     >
@@ -47,7 +47,7 @@ export function SubsectionTitle({
   return (
     <h3
       className={cn(
-        "text-[20px] leading-tight font-bold text-[#f1f1ef]",
+        "text-[20px] leading-tight font-bold text-foreground",
         className,
       )}
     >

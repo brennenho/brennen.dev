@@ -70,7 +70,7 @@ export function EditedCommitLink({
         href={commitUrl}
         target="_blank"
         rel="noreferrer"
-        className="rounded px-2 py-1 text-[#858582] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]"
+        className="rounded px-2 py-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         title={`${commitTitle} - ${displayDate.timestamp}`}
       >
         Edited {displayDate.dateLabel}
@@ -84,27 +84,27 @@ export function EditedCommitLink({
         href={commitUrl}
         target="_blank"
         rel="noreferrer"
-        className="inline-block cursor-pointer rounded px-2 py-1 text-[#858582] transition-colors hover:bg-[#2f2f2e] hover:text-[#f1f1ef]"
+        className="inline-block cursor-pointer rounded px-2 py-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         title="View on GitHub"
       >
         Edited {displayDate.dateLabel}
       </Link>
       <span className="absolute top-full right-0 z-50 hidden w-max max-w-[460px] pt-1.5 group-focus-within:block group-hover:block">
-        <span className="block overflow-hidden rounded-lg border border-[#3a3a39] bg-[#202020] text-left text-[#b8b8b5]">
-          <span className="block border-b border-[#303030] px-3 py-2 text-[13px] font-semibold text-[#b8b8b5]">
+        <span className="block overflow-hidden rounded-lg border border-border bg-popover text-left text-muted-foreground shadow-md">
+          <span className="block border-b border-border px-3 py-2 text-[13px] font-semibold text-muted-foreground">
             Last Edited
           </span>
           <Link
             href={commitUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex max-w-[360px] items-start gap-4 px-3 py-2 text-[13px] transition-colors hover:bg-[#252525]"
+            className="flex max-w-[360px] items-start gap-4 px-3 py-2 text-[13px] transition-colors hover:bg-accent"
             title="View on GitHub"
           >
-            <span className="max-w-[320px] min-w-[180px] font-semibold text-wrap text-[#f1f1ef]">
+            <span className="max-w-[320px] min-w-[180px] font-semibold text-wrap text-popover-foreground">
               {commitTitle}
             </span>
-            <span className="shrink-0 whitespace-nowrap text-[#858582]">
+            <span className="shrink-0 whitespace-nowrap text-muted-foreground">
               {displayDate.timestamp}
             </span>
           </Link>

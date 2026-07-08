@@ -82,7 +82,7 @@ export default async function MusingPage({
       <PageContent>
         <PageIcon>{post.emoji}</PageIcon>
         <PageTitle>{post.title}</PageTitle>
-        <p className="-mt-[10px] text-[14px] leading-[1.4] font-medium text-[#858582]">
+        <p className="text-muted-foreground mt-[-10px] text-[14px] leading-[1.4] font-medium">
           {formatMusingDate(post.date)} • {post.readTime}
           {views !== null && views > 0 && (
             <>
