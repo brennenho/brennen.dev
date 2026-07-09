@@ -131,6 +131,26 @@
   --block-inline-code-color: #ff6472;
 }
 
+/* Match react-tweet embeds to the site palette in both themes.
+   The `html` prefix out-specifies the package's own light/dark and
+   prefers-color-scheme rules, so the site vars always win. */
+html .react-tweet-theme {
+  --tweet-container-margin: 0;
+  --tweet-font-family: inherit;
+  --tweet-body-font-size: 1rem;
+  --tweet-border: 1px solid var(--border);
+  --tweet-font-color: var(--foreground);
+  --tweet-font-color-secondary: var(--muted-foreground);
+  --tweet-bg-color: var(--card);
+  --tweet-bg-color-hover: var(--muted);
+  --tweet-color-blue-secondary: var(--primary);
+  --tweet-color-blue-secondary-hover: color-mix(
+    in srgb,
+    var(--primary) 10%,
+    transparent
+  );
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

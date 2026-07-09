@@ -1,5 +1,6 @@
 export { Callout } from "./callout";
 export { Comment, Discussion } from "./comment";
+export { Divider } from "./divider";
 export { PageTitle, SectionTitle, SubsectionTitle } from "./heading";
 export { InlineCode } from "./inline-code";
 export { TextLink } from "./link";
@@ -15,3 +16,4 @@ export {
   type TableProps,
   type TableRowLink,
 } from "./table";
+export { Tweet } from "./tweet";

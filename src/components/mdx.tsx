@@ -2,6 +2,7 @@ import {
   Callout,
   Comment,
   Discussion,
+  Divider,
   InlineCode,
   List,
   Paragraph,
@@ -9,6 +10,7 @@ import {
   Spacer,
   SubsectionTitle,
   TextLink,
+  Tweet,
 } from "@/components/blocks";
 import { cn } from "@/lib/utils";
 import type { MDXRemoteProps } from "next-mdx-remote/rsc";
@@ -54,7 +56,7 @@ const components = {
     return <SubsectionTitle className="pt-4">{children}</SubsectionTitle>;
   },
   hr() {
-    return <Spacer />;
+    return <Divider />;
   },
   li({ children }: ComponentPropsWithoutRef<"li">) {
     return <li className="pl-1">{children}</li>;
@@ -81,6 +83,8 @@ const components = {
   Callout: MdxCallout,
   Comment,
   Discussion,
+  Spacer,
+  Tweet,
 } satisfies MDXRemoteProps["components"];
 
 export function MdxContent({ source }: { source: string }) {

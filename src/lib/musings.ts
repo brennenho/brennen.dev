@@ -67,14 +67,41 @@ function formatMusingMonth(value: string) {
   return `${month} ’${year}`;
 }
 
+const PROSE_WORDS_PER_MINUTE = 200;
+const CODE_WORDS_PER_MINUTE = 80;
+const FIRST_IMAGE_SECONDS = 12;
+const MIN_IMAGE_SECONDS = 3;
+
+function countWords(text: string) {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
 function calculateReadTime(content: string) {
+  let seconds = 0;
+  let imageCount = 0;
+
   const plainText = content
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`[^`]*`/g, " ")
+    .replace(/```[\s\S]*?```/g, (block) => {
+      seconds +=
+        (countWords(block.replace(/```\w*/g, " ")) / CODE_WORDS_PER_MINUTE) *
+        60;
+      return " ";
+    })
+    .replace(/!\[[^\]]*\]\([^)]*\)|<img\b[^>]*>/g, () => {
+      seconds += Math.max(
+        MIN_IMAGE_SECONDS,
+        FIRST_IMAGE_SECONDS - imageCount++,
+      );
+      return " ";
+    })
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/<[^>]+>/g, " ")
-    .replace(/[#*_~[\]()>{}.-]/g, " ");
-  const words = plainText.trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.max(1, Math.ceil(words / 225));
+    .replace(/`([^`]*)`/g, "$1")
+    .replace(/^(?:import|export)\s.*$/gm, " ")
+    .replace(/[#*_~>]/g, " ");
+
+  seconds += (countWords(plainText) / PROSE_WORDS_PER_MINUTE) * 60;
+  const minutes = Math.max(1, Math.round(seconds / 60));
 
   return `${minutes} min read`;
 }
