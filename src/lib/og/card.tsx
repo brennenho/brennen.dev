@@ -22,6 +22,7 @@ type OgCardOptions = {
   cover?: "pixel" | "solid";
   coverColor?: string;
   emoji: string;
+  footer?: string;
   title: string;
 };
 
@@ -29,6 +30,7 @@ export async function renderOgCard({
   cover,
   coverColor = PRIMARY_GREEN,
   emoji,
+  footer = "brennen.dev",
   title,
 }: OgCardOptions) {
   const hasCover = Boolean(cover);
@@ -102,12 +104,15 @@ export async function renderOgCard({
         <div
           style={{
             color: "#858582",
+            display: "block",
             fontSize: 32,
             fontWeight: 700,
+            lineClamp: 1,
+            lineHeight: 1.2,
             marginTop: 20,
           }}
         >
-          brennen.dev
+          {footer}
         </div>
       </div>
     </div>,

@@ -1,4 +1,8 @@
-import { getMusingPost, getMusingSummaries } from "@/lib/musings";
+import {
+  formatMusingDate,
+  getMusingPost,
+  getMusingSummaries,
+} from "@/lib/musings";
 import {
   OG_IMAGE_CONTENT_TYPE,
   OG_IMAGE_SIZE,
@@ -26,6 +30,9 @@ export default async function OpengraphImage({
   return renderOgCard({
     cover: "solid",
     emoji: post?.emoji ?? "💭",
+    footer: post
+      ? `${formatMusingDate(post.date)} • ${post.readTime}`
+      : undefined,
     title: post?.title ?? "musings",
   });
 }
