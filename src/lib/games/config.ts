@@ -1,11 +1,13 @@
+import { getMaxDinoScoreForElapsed } from "@/lib/games/dino-scoring";
+
 const GAME_CONFIGS = {
   dino: {
+    getMaxScoreForElapsed: getMaxDinoScoreForElapsed,
     maxScore: 20_000,
     runEndpoint: "/api/games/dino/run",
     runTokenMaxAgeSeconds: 60 * 30,
     scoreEndpoint: "/api/games/dino/score",
     scoreGraceSeconds: 4,
-    scoreRatePerSecond: 12,
   },
 } as const;
 

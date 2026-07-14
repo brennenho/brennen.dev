@@ -59,11 +59,9 @@ export function verifyGameScoreRun({
 
   if (
     submission.score >
-    getMaxAllowedScore({
-      elapsedMs: run.elapsedMs,
-      scoreGraceSeconds: gameConfig.scoreGraceSeconds,
-      scoreRatePerSecond: gameConfig.scoreRatePerSecond,
-    })
+    gameConfig.getMaxScoreForElapsed(
+      run.elapsedMs + gameConfig.scoreGraceSeconds * 1000,
+    )
   ) {
     return {
       error: "impossible-score",
@@ -74,18 +72,4 @@ export function verifyGameScoreRun({
   return {
     ok: true,
   };
-}
-
-function getMaxAllowedScore({
-  elapsedMs,
-  scoreGraceSeconds,
-  scoreRatePerSecond,
-}: {
-  elapsedMs: number;
-  scoreGraceSeconds: number;
-  scoreRatePerSecond: number;
-}) {
-  return Math.floor(
-    (elapsedMs / 1000 + scoreGraceSeconds) * scoreRatePerSecond,
-  );
 }
