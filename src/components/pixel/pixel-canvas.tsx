@@ -2,9 +2,15 @@
 
 import { getGameConfig } from "@/lib/games/config";
 import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
+import {
+  createGameRunSubmissionCoordinator,
+  type GameRunSubmissionCoordinator,
+  type ReadyGameScoreSubmission,
+} from "@/lib/games/run-submission";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { PIXEL_PALETTES } from "./display";
 import { createDinoScene } from "./games/dino/scene";
 import type { PixelScene, PixelSceneStatus } from "./scene";
@@ -21,13 +27,9 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const sceneRef = useRef<PixelScene | null>(null);
   const frameRef = useRef<number | null>(null);
   const actionHeldRef = useRef(false);
-  const isStartingRunRef = useRef(false);
+  const activeRunRef = useRef<GameRunSubmissionCoordinator | null>(null);
   const lastTimeRef = useRef<number>(0);
   const highScoreRef = useRef(0);
-  const pendingScoreRef = useRef<number | null>(null);
-  const runRequestIdRef = useRef(0);
-  const runTokenRef = useRef<string | null>(null);
-  const submittedRunRef = useRef(false);
   const statusRef = useRef<PixelSceneStatus>("cover");
   const [isInteractive, setIsInteractive] = useState(false);
   const [status, setStatus] = useState<PixelSceneStatus>("cover");
@@ -53,11 +55,15 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       method: "POST",
     });
 
-    if (!response.ok) return null;
-
     const body = (await response.json().catch(() => null)) as unknown;
 
-    if (!isRunResponse(body)) return null;
+    if (!response.ok) {
+      throw new Error(getGameApiError(body) ?? "Unable to verify this run.");
+    }
+
+    if (!isRunResponse(body)) {
+      throw new Error("The run verification response was invalid.");
+    }
 
     return body;
   }, []);
@@ -65,7 +71,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   const setHighScoreValue = useCallback((score: number) => {
     if (!Number.isFinite(score) || score < 0) return;
 
-    const nextHighScore = Math.floor(score);
+    const nextHighScore = Math.max(highScoreRef.current, Math.floor(score));
     highScoreRef.current = nextHighScore;
     sceneRef.current?.setHighScore(nextHighScore);
 
@@ -80,104 +86,110 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
   }, []);
 
   const sendScore = useCallback(
-    (runToken: string, score: number) => {
-      const body = JSON.stringify({ runToken, score });
-
-      void fetch(DINO_CONFIG.scoreEndpoint, {
-        body,
+    async ({ runToken, score }: ReadyGameScoreSubmission) => {
+      const response = await fetch(DINO_CONFIG.scoreEndpoint, {
+        body: JSON.stringify({ runToken, score }),
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
         },
         keepalive: true,
         method: "POST",
-      })
-        .then(async (response) => {
-          const body = (await response.json().catch(() => null)) as unknown;
+      });
+      const body = (await response.json().catch(() => null)) as unknown;
 
-          if (isScoreResponse(body)) {
-            setHighScoreValue(body.highScore);
+      if (!response.ok) {
+        throw new ScoreSubmissionError(
+          getGameApiError(body) ?? "The leaderboard rejected this score.",
+          isRetryableStatus(response.status),
+        );
+      }
 
-            if (body.isNewHighScore) {
-              window.dispatchEvent(new Event(GAME_LEADERBOARD_UPDATED_EVENT));
-            }
-          }
-        })
-        .catch((error: unknown) => {
-          if (process.env.NODE_ENV === "development") {
-            console.warn("Unable to submit Dino score", error);
-          }
-        });
+      if (!isScoreResponse(body)) {
+        throw new ScoreSubmissionError(
+          "The leaderboard returned an invalid response.",
+          true,
+        );
+      }
+
+      setHighScoreValue(body.highScore);
+
+      if (body.isNewHighScore) {
+        window.dispatchEvent(new Event(GAME_LEADERBOARD_UPDATED_EVENT));
+      }
     },
     [setHighScoreValue],
   );
 
-  const start = useCallback(() => {
-    if (isStartingRunRef.current) return;
+  const submitScore = useCallback(
+    (submission: ReadyGameScoreSubmission) => {
+      const attempt = () => {
+        void sendScore(submission).catch((error: unknown) => {
+          const retryable =
+            !(error instanceof ScoreSubmissionError) || error.retryable;
 
-    const runRequestId = runRequestIdRef.current + 1;
-    runRequestIdRef.current = runRequestId;
-    isStartingRunRef.current = true;
-    pendingScoreRef.current = null;
-    runTokenRef.current = null;
-    submittedRunRef.current = false;
+          toast.error("Score wasn't saved", {
+            action: retryable
+              ? {
+                  label: "Retry",
+                  onClick: attempt,
+                }
+              : undefined,
+            description:
+              error instanceof ScoreSubmissionError
+                ? error.message
+                : "Check your connection and try again.",
+          });
+        });
+      };
+
+      attempt();
+    },
+    [sendScore],
+  );
+
+  const start = useCallback(() => {
+    const runSubmission = createGameRunSubmissionCoordinator(submitScore);
+    activeRunRef.current = runSubmission;
     sceneRef.current?.start();
     statusRef.current = "playing";
     setStatus("playing");
 
     void startRun()
       .then((run) => {
-        if (!run || runRequestIdRef.current !== runRequestId) return;
-
         setHighScoreValue(run.highScore);
-
-        const pendingScore = pendingScoreRef.current;
-        if (pendingScore !== null) {
-          pendingScoreRef.current = null;
-          sendScore(run.runToken, pendingScore);
-          return;
-        }
-
-        runTokenRef.current = run.runToken;
+        runSubmission.setRunToken(run.runToken);
       })
       .catch((error: unknown) => {
-        if (process.env.NODE_ENV === "development") {
-          console.warn("Unable to start Dino run", error);
+        const shouldNotify =
+          activeRunRef.current === runSubmission ||
+          runSubmission.hasCompleted();
+
+        runSubmission.cancel();
+
+        if (activeRunRef.current === runSubmission) {
+          activeRunRef.current = null;
         }
-      })
-      .finally(() => {
-        if (runRequestIdRef.current === runRequestId) {
-          isStartingRunRef.current = false;
-        }
+
+        if (!shouldNotify) return;
+
+        toast.error("This run won't be saved", {
+          description:
+            error instanceof Error
+              ? error.message
+              : "Unable to start score verification.",
+        });
       });
-  }, [sendScore, setHighScoreValue, startRun]);
+  }, [setHighScoreValue, startRun, submitScore]);
 
   const reset = useCallback(() => {
     actionHeldRef.current = false;
-    pendingScoreRef.current = null;
-    runRequestIdRef.current += 1;
-    runTokenRef.current = null;
-    isStartingRunRef.current = false;
-    submittedRunRef.current = false;
+    activeRunRef.current?.cancel();
+    activeRunRef.current = null;
     sceneRef.current?.reset();
     statusRef.current = "cover";
     setStatus("cover");
   }, []);
-
-  const submitScore = useCallback(
-    (score: number) => {
-      const runToken = runTokenRef.current;
-
-      if (!runToken) {
-        pendingScoreRef.current = score;
-        return;
-      }
-
-      runTokenRef.current = null;
-      sendScore(runToken, score);
-    },
-    [sendScore],
-  );
 
   const trigger = useCallback(() => {
     if (!isInteractive) return;
@@ -239,13 +251,9 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         statusRef.current = nextStatus;
         setStatus(nextStatus);
 
-        if (
-          previousStatus === "playing" &&
-          nextStatus === "over" &&
-          !submittedRunRef.current
-        ) {
-          submittedRunRef.current = true;
-          submitScore(scene.score());
+        if (previousStatus === "playing" && nextStatus === "over") {
+          activeRunRef.current?.complete(scene.score());
+          activeRunRef.current = null;
         }
       }
       scene.render();
@@ -259,7 +267,7 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
       window.removeEventListener("resize", resize);
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
-  }, [resize, submitScore]);
+  }, [resize]);
 
   useEffect(() => {
     sceneRef.current?.setPalette(
@@ -361,17 +369,17 @@ export function PixelCanvas({ className }: PixelCanvasProps) {
         role="img"
       />
       {isInteractive && status === "cover" && (
-        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-white/80 px-2 py-1 text-xs font-semibold text-[#37352f] dark:bg-[#191919]/80 dark:text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-white/80 px-2 py-1 text-xs font-semibold text-[#37352f] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 dark:bg-[#191919]/80 dark:text-[#d9d9d7]">
           click or press space
         </span>
       )}
       {isInteractive && status === "playing" && (
-        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-white/80 px-2 py-1 text-xs font-semibold text-[#37352f] dark:bg-[#191919]/80 dark:text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-white/80 px-2 py-1 text-xs font-semibold text-[#37352f] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 dark:bg-[#191919]/80 dark:text-[#d9d9d7]">
           esc to exit
         </span>
       )}
       {isInteractive && status === "over" && (
-        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-white/80 px-2 py-1 text-xs font-semibold text-[#37352f] dark:bg-[#191919]/80 dark:text-[#d9d9d7] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+        <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded bg-white/80 px-2 py-1 text-xs font-semibold text-[#37352f] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 dark:bg-[#191919]/80 dark:text-[#d9d9d7]">
           click to restart
         </span>
       )}
@@ -413,4 +421,31 @@ function isScoreResponse(value: unknown): value is {
     typeof value.highScore === "number" &&
     typeof value.isNewHighScore === "boolean"
   );
+}
+
+function getGameApiError(value: unknown) {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    !("error" in value) ||
+    typeof value.error !== "string"
+  ) {
+    return null;
+  }
+
+  return value.error;
+}
+
+function isRetryableStatus(status: number) {
+  return status === 408 || status === 425 || status === 429 || status >= 500;
+}
+
+class ScoreSubmissionError extends Error {
+  readonly retryable: boolean;
+
+  constructor(message: string, retryable: boolean) {
+    super(message);
+    this.name = "ScoreSubmissionError";
+    this.retryable = retryable;
+  }
 }
