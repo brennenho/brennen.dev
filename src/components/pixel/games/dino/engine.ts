@@ -10,6 +10,13 @@ import {
   type CactusVariant,
   type Sprite,
 } from "./assets";
+import {
+  DINO_FRAME_MS,
+  DINO_MAX_SPEED,
+  DINO_SPEED_ACCELERATION_PER_FRAME,
+  DINO_START_SPEED,
+  getDinoScoreForDistance,
+} from "@/lib/games/dino-scoring";
 
 export type DinoMode = "cover" | "playing" | "over";
 
@@ -33,9 +40,6 @@ type PositionedSprite = {
   y: number;
 };
 
-const FRAME_MS = 1000 / 60;
-const CHROME_FPS = 60;
-const CHROME_MS_PER_FRAME = 1000 / CHROME_FPS;
 const CHROME_DEFAULT_WIDTH = 600;
 const CHROME_TREX_WIDTH = 44;
 const CHROME_TREX_HEIGHT = 47;
@@ -44,15 +48,11 @@ const CHROME_INITIAL_JUMP_VELOCITY = 10;
 const CHROME_DROP_VELOCITY = 5;
 const CHROME_MIN_JUMP_HEIGHT = 30;
 const CHROME_MAX_JUMP_HEIGHT = 63;
-const CHROME_START_SPEED = 6;
-const CHROME_MAX_SPEED = 13;
 const CHROME_GAP_COEFFICIENT = 0.6;
 const CHROME_MAX_GAP_COEFFICIENT = 1.5;
 const CHROME_OBSTACLE_MIN_GAP = 120;
-const CHROME_ACCELERATION = 0.001;
 const CHROME_MOBILE_SPEED_COEFFICIENT = 1.2;
 const CHROME_MAX_OBSTACLE_DUPLICATION = 2;
-const CHROME_DISTANCE_COEFFICIENT = 0.025;
 // Chrome's late-game gaps can exceed the viewport, leaving the screen briefly
 // cactus-free. Cap gaps below one screen so the next cactus always enters
 // before the previous one exits.
@@ -68,11 +68,11 @@ export class DinoEngine {
   obstacles: DinoObstacle[] = [];
   playerOffset = 0;
   score = 0;
-  speed = chromeFrameSpeedToColumns(CHROME_START_SPEED);
+  speed = chromeFrameSpeedToColumns(DINO_START_SPEED);
   worldOffset = 0;
 
   private columns = 1;
-  private currentSpeed = CHROME_START_SPEED;
+  private currentSpeed = DINO_START_SPEED;
   private distanceRan = 0;
   private groundRowValue = 15;
   private obstacleHistory: CactusType[] = [];
@@ -93,7 +93,7 @@ export class DinoEngine {
     this.playerOffset = 0;
     this.score = 0;
     this.distanceRan = 0;
-    this.currentSpeed = CHROME_START_SPEED;
+    this.currentSpeed = DINO_START_SPEED;
     this.syncDisplaySpeed();
     this.elapsed = 0;
     this.worldOffset = 0;
@@ -110,7 +110,7 @@ export class DinoEngine {
     this.playerOffset = 0;
     this.score = 0;
     this.distanceRan = 0;
-    this.currentSpeed = CHROME_START_SPEED;
+    this.currentSpeed = DINO_START_SPEED;
     this.syncDisplaySpeed();
     this.elapsed = 0;
     this.worldOffset = 0;
@@ -145,8 +145,8 @@ export class DinoEngine {
 
     const distance = this.frameDistance(delta);
     this.worldOffset += distance * TREX_X_SCALE;
-    this.distanceRan += (this.currentSpeed * delta) / CHROME_MS_PER_FRAME;
-    this.score = chromeScore(this.distanceRan);
+    this.distanceRan += (this.currentSpeed * delta) / DINO_FRAME_MS;
+    this.score = getDinoScoreForDistance(this.distanceRan);
     this.updateJump(delta);
     this.updateObstacles(distance);
 
@@ -334,17 +334,18 @@ export class DinoEngine {
   }
 
   private accelerate(delta: number) {
-    if (this.currentSpeed >= CHROME_MAX_SPEED) return;
+    if (this.currentSpeed >= DINO_MAX_SPEED) return;
 
     this.currentSpeed = Math.min(
-      CHROME_MAX_SPEED,
-      this.currentSpeed + CHROME_ACCELERATION * (delta / FRAME_MS),
+      DINO_MAX_SPEED,
+      this.currentSpeed +
+        DINO_SPEED_ACCELERATION_PER_FRAME * (delta / DINO_FRAME_MS),
     );
     this.syncDisplaySpeed();
   }
 
   private frameDistance(delta: number) {
-    return (this.effectiveSpeed() * delta) / CHROME_MS_PER_FRAME;
+    return (this.effectiveSpeed() * delta) / DINO_FRAME_MS;
   }
 
   private syncDisplaySpeed() {
@@ -396,15 +397,15 @@ function spriteWidth(sprite: Sprite) {
 }
 
 function chromeFrameVelocityToRows(value: number) {
-  return (value * TREX_Y_SCALE) / FRAME_MS;
+  return (value * TREX_Y_SCALE) / DINO_FRAME_MS;
 }
 
 function chromeFrameGravityToRows(value: number) {
-  return (value * TREX_Y_SCALE) / (FRAME_MS * FRAME_MS);
+  return (value * TREX_Y_SCALE) / (DINO_FRAME_MS * DINO_FRAME_MS);
 }
 
 function chromeFrameSpeedToColumns(value: number) {
-  return (value * TREX_X_SCALE) / FRAME_MS;
+  return (value * TREX_X_SCALE) / DINO_FRAME_MS;
 }
 
 function spritesOverlap(first: PositionedSprite, second: PositionedSprite) {
@@ -488,10 +489,6 @@ function isDuplicateObstacle(
 
 function randomInteger(minimum: number, maximum: number) {
   return Math.floor(minimum + Math.random() * (maximum - minimum + 1));
-}
-
-function chromeScore(distanceRan: number) {
-  return Math.round(Math.ceil(distanceRan) * CHROME_DISTANCE_COEFFICIENT);
 }
 
 function isObstacleVisible(obstacle: DinoObstacle) {

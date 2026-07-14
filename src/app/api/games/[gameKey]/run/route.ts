@@ -46,16 +46,17 @@ export async function POST(_request: Request, { params }: RouteContext) {
     ? existingToken
     : createPlayerToken();
   const playerTokenHash = hashPlayerToken(token);
+  const runToken = createGameRunToken({
+    gameKey,
+    playerTokenHash,
+    secret,
+  });
   const response = NextResponse.json({
     highScore: await getHighScore({
       gameKey,
       playerTokenHash,
     }),
-    runToken: createGameRunToken({
-      gameKey,
-      playerTokenHash,
-      secret,
-    }),
+    runToken,
   });
 
   response.headers.set("Cache-Control", "no-store");
