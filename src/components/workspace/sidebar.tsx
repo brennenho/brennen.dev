@@ -2,10 +2,12 @@
 
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
 import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
+import { createLocalPage, useLocalPages } from "@/lib/local-pages";
 import { cn } from "@/lib/utils";
-import { Mail, Plus } from "lucide-react";
+import { HardDrive, Mail, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { favoriteItems, type SidebarItem } from "./sidebar-data";
 import { ThemeToggle } from "./theme-toggle";
@@ -23,6 +25,8 @@ export function WorkspaceSidebar({
   musingItems: SidebarItem[];
   onNavigate?: () => void;
 }) {
+  const router = useRouter();
+  const localPages = useLocalPages();
   const [leaderboardHighlighted, setLeaderboardHighlighted] = useState(false);
 
   useEffect(() => {
@@ -58,17 +62,23 @@ export function WorkspaceSidebar({
     onNavigate?.();
   }
 
+  function handleCreatePage() {
+    const page = createLocalPage("sidebar");
+    router.push(`/musings/${page.id}`);
+    handleNavigate();
+  }
+
   return (
     <aside
       className={cn(
-        "flex h-full flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground",
+        "border-sidebar-border bg-sidebar text-sidebar-foreground flex h-full flex-col border-r",
         className,
       )}
     >
       <div className="flex h-[45px] items-center justify-between px-3">
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-2.5 text-[14px] font-semibold text-foreground"
+          className="text-foreground flex min-w-0 items-center gap-2.5 text-[14px] font-semibold"
           onClick={onNavigate}
         >
           <Image
@@ -100,7 +110,12 @@ export function WorkspaceSidebar({
 
         <SidebarGroup
           action={
-            <button aria-label="Add musing" className="rounded p-1">
+            <button
+              type="button"
+              aria-label="New page"
+              className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer rounded p-1 transition-colors"
+              onClick={handleCreatePage}
+            >
               <Plus className="h-4 w-4" />
             </button>
           }
@@ -114,11 +129,29 @@ export function WorkspaceSidebar({
               onNavigate={handleNavigate}
             />
           ))}
+          {localPages.map((page) => (
+            <SidebarLink
+              key={page.id}
+              active={activePath === `/musings/${page.id}`}
+              item={{
+                href: `/musings/${page.id}`,
+                icon: page.emoji,
+                label: page.title || "Untitled",
+              }}
+              onNavigate={handleNavigate}
+              trailing={
+                <HardDrive
+                  aria-label="Saved in this browser"
+                  className="text-muted-foreground ml-auto h-3.5 w-3.5 shrink-0"
+                />
+              }
+            />
+          ))}
         </SidebarGroup>
       </nav>
 
-      <div className="border-t border-sidebar-border px-4 py-3">
-        <div className="flex items-center gap-3.5 text-sidebar-foreground">
+      <div className="border-sidebar-border border-t px-4 py-3">
+        <div className="text-sidebar-foreground flex items-center gap-3.5">
           <SocialLink href="mailto:web@brennen.dev" label="Email">
             <Mail className="h-4.5 w-4.5" />
           </SocialLink>
@@ -152,7 +185,7 @@ function SidebarGroup({
 }) {
   return (
     <div>
-      <div className="mb-1.5 flex items-center justify-between px-2 text-[12px] font-semibold text-muted-foreground">
+      <div className="text-muted-foreground mb-1.5 flex items-center justify-between px-2 text-[12px] font-semibold">
         <span>{title}</span>
         {action}
       </div>
@@ -166,32 +199,35 @@ function SidebarLink({
   highlighted = false,
   item,
   onNavigate,
+  trailing,
 }: {
   active: boolean;
   highlighted?: boolean;
   item: SidebarItem;
   onNavigate?: () => void;
+  trailing?: ReactNode;
 }) {
   return (
     <Link
       href={item.href}
       onClick={onNavigate}
       className={cn(
-        "relative flex h-8 items-center gap-2 rounded-sm px-2 text-sidebar-foreground transition-[background-color,box-shadow,color] duration-300 hover:bg-sidebar-accent",
+        "text-sidebar-foreground hover:bg-sidebar-accent relative flex h-8 items-center gap-2 rounded-sm px-2 transition-[background-color,box-shadow,color] duration-300",
         active && "bg-sidebar-primary text-sidebar-primary-foreground",
         highlighted &&
-          "bg-[#fbf3db] text-sidebar-primary-foreground shadow-[0_0_0_1px_rgba(245,197,66,0.28),0_0_18px_rgba(245,197,66,0.16)] dark:bg-[#3d3726]",
+          "text-sidebar-primary-foreground bg-[#fbf3db] shadow-[0_0_0_1px_rgba(245,197,66,0.28),0_0_18px_rgba(245,197,66,0.16)] dark:bg-[#3d3726]",
       )}
     >
       <span className="w-5 text-[18px] leading-none">{item.icon}</span>
       <span className="truncate">{item.label}</span>
+      {trailing}
       {highlighted ? (
         <>
           <span
             aria-hidden="true"
             className="ml-auto h-1.5 w-1.5 rounded-full bg-[#f5c542] shadow-[0_0_10px_rgba(245,197,66,0.75)]"
           />
-          <span className="animate-in fade-in slide-in-from-left-1 pointer-events-none absolute top-1/2 left-full z-50 ml-3 hidden -translate-y-1/2 rounded-sm border border-border bg-popover px-2.5 py-1.5 text-[12px] leading-none font-semibold whitespace-nowrap text-popover-foreground shadow-lg min-[900px]:block">
+          <span className="animate-in fade-in slide-in-from-left-1 border-border bg-popover text-popover-foreground pointer-events-none absolute top-1/2 left-full z-50 ml-3 hidden -translate-y-1/2 rounded-sm border px-2.5 py-1.5 text-[12px] leading-none font-semibold whitespace-nowrap shadow-lg min-[900px]:block">
             Saved new high score
           </span>
         </>
