@@ -27,12 +27,12 @@ describe("verifyGameScoreRun", () => {
     (elapsedSeconds) => {
       expect(
         verifyAt(elapsedSeconds, simulateDinoScore(elapsedSeconds)),
-      ).toEqual({ ok: true });
+      ).toMatchObject({ ok: true });
     },
   );
 
   it("accepts the maximum leaderboard score once it is reachable", () => {
-    expect(verifyAt(1_058, getGameConfig("dino").maxScore)).toEqual({
+    expect(verifyAt(1_058, getGameConfig("dino").maxScore)).toMatchObject({
       ok: true,
     });
   });
@@ -58,6 +58,21 @@ describe("verifyGameScoreRun", () => {
       error: "invalid-run",
       ok: false,
     });
+  });
+
+  it("returns the nonce and expiration needed to consume the run", () => {
+    const runToken = createToken(60);
+    const result = verifyGameScoreRun({
+      gameKey: "dino",
+      playerTokenHash: PLAYER_TOKEN_HASH,
+      submission: { runToken, score: 1 },
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error("Expected the run to be valid.");
+
+    expect(result.run.expiresAt).toBe(NOW - 60_000 + 30 * 60 * 1000);
+    expect(result.run.nonce).toMatch(/^[A-Za-z0-9_-]{22}$/);
   });
 });
 
