@@ -1,7 +1,9 @@
 import { PageContent, PageIcon, PageTitle } from "@/components/blocks";
+import { LocalPageEditor } from "@/components/local/local-page-editor";
 import { MdxContent } from "@/components/mdx";
 import { WorkspaceShell } from "@/components/workspace";
 import { getPageEditedMetadata } from "@/lib/git";
+import { isLocalPageId } from "@/lib/local-page-id";
 import {
   formatMusingDate,
   getMusingPost,
@@ -24,7 +26,19 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getMusingPost(slug);
 
-  if (!post) return {};
+  if (!post) {
+    if (!isLocalPageId(slug)) return {};
+
+    return {
+      title: {
+        absolute: "Untitled • Brennen Ho",
+      },
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
 
   const description = `${formatMusingDate(post.date)} • ${post.readTime}`;
 
@@ -57,7 +71,19 @@ export default async function MusingPage({
   const post = await getMusingPost(slug);
 
   if (!post) {
-    notFound();
+    if (!isLocalPageId(slug)) notFound();
+
+    return (
+      <WorkspaceShell
+        activePath={`/musings/${slug}`}
+        localPageId={slug}
+        pageIcon="📝"
+        pageTitle="Untitled"
+        shareUrl="https://brennen.dev"
+      >
+        <LocalPageEditor id={slug} />
+      </WorkspaceShell>
+    );
   }
 
   const [

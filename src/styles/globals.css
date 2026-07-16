@@ -151,6 +151,118 @@ html .react-tweet-theme {
   );
 }
 
+.local-editor .tiptap {
+  min-height: 320px;
+  padding-bottom: 4rem;
+  color: var(--foreground);
+  outline: none;
+}
+
+.local-editor .tiptap > * + * {
+  margin-top: 10px;
+}
+
+.local-editor .tiptap p,
+.local-editor .tiptap li {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.local-editor .tiptap h1,
+.local-editor .tiptap h2,
+.local-editor .tiptap h3 {
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.local-editor .tiptap h1 {
+  font-size: 26px;
+}
+
+.local-editor .tiptap h2 {
+  font-size: 23px;
+}
+
+.local-editor .tiptap h3 {
+  font-size: 20px;
+}
+
+.local-editor .tiptap ul,
+.local-editor .tiptap ol {
+  padding-left: 1.5rem;
+}
+
+.local-editor .tiptap ul {
+  list-style: disc;
+}
+
+.local-editor .tiptap ol {
+  list-style: decimal;
+}
+
+.local-editor .tiptap li + li {
+  margin-top: 6px;
+}
+
+.local-editor .tiptap blockquote {
+  position: relative;
+  border-radius: var(--radius-md);
+  background: var(--muted);
+  padding: 0.875rem 1rem 0.875rem 3rem;
+}
+
+.local-editor .tiptap blockquote::before {
+  position: absolute;
+  top: 0.875rem;
+  left: 1rem;
+  content: "💭";
+}
+
+.local-editor .tiptap hr {
+  margin-block: 1rem;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.local-editor .tiptap a {
+  color: color-mix(in srgb, var(--foreground) 85%, transparent);
+  text-decoration: underline;
+  text-decoration-color: var(--muted-foreground);
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.local-editor .tiptap code {
+  border-radius: 0.25rem;
+  background: var(--block-inline-code-bg);
+  padding: 0.125rem 0.375rem;
+  color: var(--block-inline-code-color);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.local-editor .tiptap pre {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  background: var(--muted);
+  padding: 0.875rem 1rem;
+}
+
+.local-editor .tiptap pre code {
+  background: transparent;
+  padding: 0;
+  color: var(--foreground);
+}
+
+.local-editor .tiptap p.is-editor-empty:first-child::before {
+  height: 0;
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  pointer-events: none;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
