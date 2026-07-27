@@ -29,6 +29,7 @@ type SpotifyTrack = {
 export function SpotifyMention() {
   const [track, setTrack] = useState<SpotifyTrack | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
   const [now, setNow] = useState(0);
   const [fetchedAt, setFetchedAt] = useState(0);
   const [open, setOpen] = useState(false);
@@ -47,13 +48,25 @@ export function SpotifyMention() {
     async function fetchTrack() {
       try {
         const response = await fetch("/api/spotify");
-        if (!response.ok) return;
+        if (!response.ok) {
+          if (mounted) {
+            setTrack(null);
+            setUnavailable(true);
+          }
+          return;
+        }
         const data = (await response.json()) as SpotifyTrack;
         if (mounted) {
           const timestamp = Date.now();
           setFetchedAt(timestamp);
           setTrack(data);
           setNow(timestamp);
+          setUnavailable(false);
+        }
+      } catch {
+        if (mounted) {
+          setTrack(null);
+          setUnavailable(true);
         }
       } finally {
         if (mounted) setLoaded(true);
@@ -114,10 +127,9 @@ export function SpotifyMention() {
   const image = track?.item.album.images
     ?.slice()
     .sort((a, b) => b.width - a.width)[0];
-  const song = track?.item.name ?? "Landslide";
+  const song = track?.item.name ?? "";
   const artist =
-    track?.item.artists.map((entry) => entry.name).join(", ") ??
-    "Fleetwood Mac";
+    track?.item.artists.map((entry) => entry.name).join(", ") ?? "";
   const href =
     track?.item.external_urls?.spotify ??
     track?.item.uri?.replace(
@@ -135,6 +147,21 @@ export function SpotifyMention() {
   }, [duration, fetchedAt, now, track]);
   const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
   const isLive = track?.is_playing ?? false;
+
+  if (loaded && unavailable) {
+    return (
+      <span className="inline-flex flex-wrap items-center gap-2 align-middle">
+        <span>Listening activity:</span>
+        <span className="bg-secondary text-secondary-foreground inline-flex max-w-full items-center gap-2 rounded-md px-2 py-1 text-[15px] leading-tight font-bold">
+          <SpotifyLogo className="h-5 w-5 shrink-0 text-[#1ed760]" />
+          <span className="text-muted-foreground shrink-0">Spotify</span>
+          <span className="wrap-break-words min-w-0 text-wrap">
+            temporarily unavailable
+          </span>
+        </span>
+      </span>
+    );
+  }
 
   function updatePlacement() {
     const rect = mentionRef.current?.getBoundingClientRect();
@@ -196,10 +223,10 @@ export function SpotifyMention() {
           href={href}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex max-w-full items-center gap-2 rounded-md bg-secondary px-2 py-1 text-[15px] leading-tight font-bold text-secondary-foreground transition-colors hover:bg-[#e6e6e4] dark:hover:bg-[#3d3d3c]"
+          className="bg-secondary text-secondary-foreground inline-flex max-w-full items-center gap-2 rounded-md px-2 py-1 text-[15px] leading-tight font-bold transition-colors hover:bg-[#e6e6e4] dark:hover:bg-[#3d3d3c]"
         >
           <SpotifyLogo className="h-5 w-5 shrink-0 text-[#1ed760]" />
-          <span className="shrink-0 text-muted-foreground">Spotify</span>
+          <span className="text-muted-foreground shrink-0">Spotify</span>
           {loaded ? (
             <span className="wrap-break-words min-w-0 text-wrap">{song}</span>
           ) : (
@@ -217,11 +244,9 @@ export function SpotifyMention() {
           }}
           className={cn("fixed z-50", open ? "block" : "hidden")}
         >
-          <Card
-            className="w-full rounded-md border-border bg-popover p-4 text-popover-foreground shadow-md dark:shadow-none"
-          >
+          <Card className="border-border bg-popover text-popover-foreground w-full rounded-md p-4 shadow-md dark:shadow-none">
             <CardContent className="flex flex-row items-center gap-4 p-0">
-              <div className="flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border border-border bg-muted shadow-none">
+              <div className="border-border bg-muted flex aspect-square h-[50px] w-[50px] items-center justify-center overflow-hidden rounded-lg border shadow-none">
                 {track && image ? (
                   <Image
                     src={image.url}
@@ -241,7 +266,7 @@ export function SpotifyMention() {
                     {track ? (
                       <>
                         <div className="flex flex-row items-center justify-between">
-                          <div className="line-clamp-2 text-sm font-semibold text-popover-foreground">
+                          <div className="text-popover-foreground line-clamp-2 text-sm font-semibold">
                             {song}
                           </div>
                           {isLive ? (
@@ -255,13 +280,13 @@ export function SpotifyMention() {
                           ) : (
                             <Badge
                               variant="secondary"
-                              className="flex items-center gap-1.5 self-start bg-secondary text-secondary-foreground"
+                              className="bg-secondary text-secondary-foreground flex items-center gap-1.5 self-start"
                             >
                               offline
                             </Badge>
                           )}
                         </div>
-                        <div className="line-clamp-1 text-xs text-muted-foreground italic">
+                        <div className="text-muted-foreground line-clamp-1 text-xs italic">
                           {artist}
                         </div>
                       </>
@@ -275,7 +300,7 @@ export function SpotifyMention() {
                 </div>
 
                 {track && isLive && duration > 0 ? (
-                  <div className="flex flex-row items-center gap-1 text-xs font-medium text-popover-foreground tabular-nums">
+                  <div className="text-popover-foreground flex flex-row items-center gap-1 text-xs font-medium tabular-nums">
                     {formatTime(progress)}
                     <Progress
                       value={progressPercent}
