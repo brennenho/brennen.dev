@@ -1,5 +1,14 @@
 import { Bonsai } from "@/components/bonsai";
 import { Heading } from "@/components/typography";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "bonsai",
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default function TreePage() {
   return (
