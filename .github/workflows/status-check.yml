@@ -21,3 +21,35 @@ jobs:
           else
             echo "website is up"
           fi
+
+      - name: check spotify authorization
+        run: |
+          response_body="$(mktemp)"
+          trap 'rm -f "$response_body"' EXIT
+
+          for attempt in 1 2 3; do
+            http_status="000"
+            spotify_status=""
+
+            if http_status="$(curl -sS -o "$response_body" -w "%{http_code}" https://brennen.dev/api/spotify/health)"; then
+              spotify_status="$(jq -r '.status // empty' "$response_body" 2>/dev/null || true)"
+            fi
+
+            if [ "$http_status" = "200" ] && [ "$spotify_status" = "healthy" ]; then
+              echo "spotify authorization is healthy"
+              exit 0
+            fi
+
+            if [ "$http_status" = "503" ] && [ "$spotify_status" = "reauthorization_required" ]; then
+              echo "::error title=Spotify reauthorization required::Run pnpm spotify:reauthorize, update SPOTIFY_REFRESH_TOKEN in Vercel, and redeploy."
+              exit 1
+            fi
+
+            if [ "$attempt" -lt 3 ]; then
+              echo "spotify health check attempt $attempt failed; retrying"
+              sleep 10
+            fi
+          done
+
+          echo "::error title=Spotify health check unavailable::Spotify or the health endpoint is temporarily unavailable; reauthorization is not yet indicated."
+          exit 1

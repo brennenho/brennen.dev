@@ -12,6 +12,20 @@ const token_schema = z.object({
   scope: z.string(),
 });
 
+const token_error_schema = z.object({
+  error: z.string(),
+});
+
+export type SpotifyAuthErrorKind =
+  "reauthorization_required" | "upstream_unavailable" | "configuration_error";
+
+export class SpotifyAuthError extends Error {
+  constructor(readonly kind: SpotifyAuthErrorKind) {
+    super(kind);
+    this.name = "SpotifyAuthError";
+  }
+}
+
 const track_schema = z.object({
   uri: z.string(),
   name: z.string(),
@@ -43,13 +57,13 @@ const playing_schema = z.object({
   progress_ms: z.number().optional(),
 });
 
-const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
+export async function getSpotifyAccessToken() {
+  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
 
-async function getAccessToken() {
-  if (!(REFRESH_TOKEN && CLIENT_SECRET && CLIENT_ID)) {
-    return null;
+  if (!(refreshToken && clientSecret && clientId)) {
+    throw new SpotifyAuthError("configuration_error");
   }
 
   const authOptions = {
@@ -58,25 +72,56 @@ async function getAccessToken() {
       "content-type": "application/x-www-form-urlencoded",
       Authorization:
         "Basic " +
-        Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
+        Buffer.from(clientId + ":" + clientSecret).toString("base64"),
     },
     form: {
       grant_type: "refresh_token",
-      refresh_token: REFRESH_TOKEN,
+      refresh_token: refreshToken,
     },
-    json: true,
   };
 
-  const response = await fetch(authOptions.url, {
-    method: "post",
-    body: new URLSearchParams(authOptions.form),
-    headers: authOptions.headers,
-    next: { revalidate: 3600, tags: [TOKEN_CACHE_TAG] },
-  });
-  const res_data = (await response.json()) as z.infer<typeof token_schema>;
-  const token_data = token_schema.parse(res_data);
+  let response: Response;
 
-  return token_data.access_token;
+  try {
+    response = await fetch(authOptions.url, {
+      method: "post",
+      body: new URLSearchParams(authOptions.form),
+      headers: authOptions.headers,
+      next: { revalidate: 3600, tags: [TOKEN_CACHE_TAG] },
+    });
+  } catch {
+    throw new SpotifyAuthError("upstream_unavailable");
+  }
+
+  let responseData: unknown;
+
+  try {
+    responseData = await response.json();
+  } catch {
+    throw new SpotifyAuthError("upstream_unavailable");
+  }
+
+  if (!response.ok) {
+    const tokenError = token_error_schema.safeParse(responseData);
+
+    if (
+      response.status === 400 &&
+      tokenError.success &&
+      tokenError.data.error === "invalid_grant"
+    ) {
+      throw new SpotifyAuthError("reauthorization_required");
+    }
+
+    throw new SpotifyAuthError("upstream_unavailable");
+  }
+
+  const tokenData = token_schema.safeParse(responseData);
+
+  if (!tokenData.success) {
+    throw new SpotifyAuthError("upstream_unavailable");
+  }
+
+  return tokenData.data.access_token;
 }
 
 function callWithTokenRevalidation<T, P extends unknown[]>(
@@ -84,10 +129,7 @@ function callWithTokenRevalidation<T, P extends unknown[]>(
   revalidateCall = false,
 ) {
   return async (...params: P): Promise<T | number> => {
-    const token = await getAccessToken();
-    if (!token) {
-      return 404;
-    }
+    const token = await getSpotifyAccessToken();
 
     const status = await f(token, ...params);
 
