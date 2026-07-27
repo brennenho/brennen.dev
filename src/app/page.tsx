@@ -56,11 +56,11 @@ export default async function HomePage() {
               </Comment>
             </li>
             <li>
-              I’m fascinated in applied ai and product development, especially
+              I’m fascinated by applied AI and product development, especially
               at the intersection of software and hardware
             </li>
             <li>
-              On campus, I’m involved in the Code the Change (co-president),
+              On campus, I’m involved with Code the Change (co-president),
               DILL Lab, LavaLab, TroyLabs, and Makers
             </li>
             <li>
