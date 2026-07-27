@@ -19,16 +19,23 @@ import {
   isValidPlayerToken,
 } from "@/lib/games/player-token";
 import { getPageEditedMetadata } from "@/lib/git";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
+export const metadata: Metadata = {
+  title: "leaderboard",
+  robots: {
+    index: false,
+    follow: true,
+  },
   openGraph: {
     title: "leaderboard",
-    url: "https://brennen.dev/leaderboard",
-    siteName: "Brennen Ho",
+    url: `${SITE_URL}/leaderboard`,
+    siteName: SITE_NAME,
     type: "website",
   },
   twitter: {
