@@ -18,6 +18,10 @@ type VerifyGameScoreRunOptions = {
 type VerifyGameScoreRunResult =
   | {
       ok: true;
+      run: {
+        expiresAt: number;
+        nonce: string;
+      };
     }
   | {
       error: "misconfigured" | "invalid-run" | "impossible-score";
@@ -71,5 +75,10 @@ export function verifyGameScoreRun({
 
   return {
     ok: true,
+    run: {
+      expiresAt:
+        run.payload.startedAt + gameConfig.runTokenMaxAgeSeconds * 1000,
+      nonce: run.payload.nonce,
+    },
   };
 }
