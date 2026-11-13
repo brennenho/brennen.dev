@@ -1,4 +1,4 @@
-# [brennen.dev](https://brennnen.dev)
+# [brennen.dev](https://brennen.dev)
 
 ![status](https://img.shields.io/website?url=https%3A%2F%2Fbrennen.dev&up_message=live&down_color=offline&style=flat-square&label=status)
 ![last updated](https://img.shields.io/github/last-commit/brennenho/brennen.dev/main?style=flat-square&label=last%20updated)
