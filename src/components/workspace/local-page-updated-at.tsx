@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocalPage } from "@/lib/local-pages";
+import { useLocalPage, useLocalPagesSaved } from "@/lib/local-pages";
 
 export function LocalPageUpdatedAt({
   id,
@@ -10,6 +10,7 @@ export function LocalPageUpdatedAt({
   variant: "desktop" | "mobile";
 }) {
   const page = useLocalPage(id);
+  const saved = useLocalPagesSaved();
 
   if (!page) {
     return (
@@ -45,9 +46,9 @@ export function LocalPageUpdatedAt({
           ? "text-muted-foreground rounded px-2 py-1"
           : "text-muted-foreground hidden rounded px-2 py-1 sm:inline-block"
       }
-      title={`Last edited ${timestamp} · Saved in this browser`}
+      title={`Last edited ${timestamp} · ${saved ? "Saved in this browser" : "Not saved"}`}
     >
-      Edited {dateLabel}
+      {saved ? `Edited ${dateLabel}` : "Not saved"}
     </span>
   );
 }

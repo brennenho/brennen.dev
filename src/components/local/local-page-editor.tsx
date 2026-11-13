@@ -7,6 +7,7 @@ import {
   updateLocalPage,
   useLocalPage,
   useLocalPagesReady,
+  useLocalPagesSaved,
   type LocalPage,
 } from "@/lib/local-pages";
 import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
@@ -76,6 +77,7 @@ function MissingLocalPage() {
 
 function EditableLocalPage({ page }: { page: LocalPage }) {
   const router = useRouter();
+  const saved = useLocalPagesSaved();
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const pendingContentRef = useRef<JSONContent | null>(null);
   const saveTimerRef = useRef<number | null>(null);
@@ -116,7 +118,31 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
     [page.id],
   );
 
-  useEffect(() => flushContent, [flushContent]);
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === "hidden") flushContent();
+    }
+
+    window.addEventListener("pagehide", flushContent);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("pagehide", flushContent);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      flushContent();
+    };
+  }, [flushContent]);
+
+  useEffect(() => {
+    // Storage events update the page object, but Tiptap only reads its initial
+    // content once. Apply external edits without emitting another save or
+    // replacing edits that this tab has not flushed yet.
+    if (!editor || pendingContentRef.current) return;
+    if (JSON.stringify(editor.getJSON()) === JSON.stringify(page.content))
+      return;
+
+    editor.commands.setContent(page.content ?? "", { emitUpdate: false });
+  }, [editor, page.content]);
 
   useEffect(() => {
     const title = `${page.title || "Untitled"} • Brennen Ho`;
@@ -189,7 +215,11 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
       <div className="text-muted-foreground mb-4 flex items-center gap-2 text-[14px] font-medium">
         <span>Private</span>
         <span aria-hidden="true">•</span>
-        <span>Saved in this browser</span>
+        <span role={saved ? undefined : "status"}>
+          {saved
+            ? "Saved in this browser"
+            : "Not saved — browser storage is unavailable"}
+        </span>
         <button
           type="button"
           onClick={handleDelete}

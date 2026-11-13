@@ -25,6 +25,7 @@ type LocalPagePatch = Partial<Pick<LocalPage, "title" | "emoji" | "content">>;
 let pages: readonly LocalPage[] = EMPTY_PAGES;
 let initialized = false;
 let storageWarningShown = false;
+let storageWriteFailed = false;
 const listeners = new Set<() => void>();
 
 function parsePages(value: string | null): LocalPage[] {
@@ -71,9 +72,10 @@ function initialize() {
   }
 
   window.addEventListener("storage", (event) => {
-    if (event.key !== STORAGE_KEY) return;
+    if (event.key !== STORAGE_KEY && event.key !== null) return;
+    if (storageWriteFailed) return;
 
-    pages = parsePages(event.newValue);
+    readLatestPages();
     emitChange();
   });
 
@@ -87,7 +89,23 @@ function emitChange() {
 function persistPages() {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ pages }));
+    storageWriteFailed = false;
   } catch {
+    storageWriteFailed = true;
+    showStorageWarning();
+  }
+}
+
+function readLatestPages() {
+  // Another tab may have saved before its storage event reaches this tab.
+  // Read before mutations so editing one page cannot erase unrelated pages.
+  // Retain in-memory edits if the previous storage write failed.
+  if (storageWriteFailed) return;
+
+  try {
+    pages = parsePages(window.localStorage.getItem(STORAGE_KEY));
+  } catch {
+    storageWriteFailed = true;
     showStorageWarning();
   }
 }
@@ -136,12 +154,21 @@ export function useLocalPagesReady() {
   return ready;
 }
 
+export function useLocalPagesSaved() {
+  return useSyncExternalStore(
+    subscribe,
+    () => !storageWriteFailed,
+    () => true,
+  );
+}
+
 export function useLocalPage(id: string) {
   return useLocalPages().find((page) => page.id === id);
 }
 
 export function createLocalPage(source: LocalPageCreationSource) {
   initialize();
+  readLatestPages();
 
   let id = generateLocalPageId();
   while (pages.some((page) => page.id === id)) {
@@ -172,6 +199,7 @@ export function createLocalPage(source: LocalPageCreationSource) {
 
 export function updateLocalPage(id: string, patch: LocalPagePatch) {
   initialize();
+  readLatestPages();
 
   let changed = false;
   pages = pages.map((page) => {
@@ -189,6 +217,7 @@ export function updateLocalPage(id: string, patch: LocalPagePatch) {
 
 export function deleteLocalPage(id: string) {
   initialize();
+  readLatestPages();
 
   const nextPages = pages.filter((page) => page.id !== id);
   if (nextPages.length === pages.length) return;
