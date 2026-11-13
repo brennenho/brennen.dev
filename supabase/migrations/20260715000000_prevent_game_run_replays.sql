@@ -6,14 +6,9 @@ alter table public.game_leaderboard_entries
   add constraint game_leaderboard_entries_consumed_runs_array
     check (jsonb_typeof(consumed_runs) = 'array');
 
-drop function if exists public.submit_game_score(
-  text,
-  text,
-  text,
-  integer,
-  text,
-  text
-);
+-- Keep the six-argument overload for the currently deployed application and
+-- rollbacks. PostgREST selects the new overload when run claims are supplied.
+-- Deploy this migration before the application that sends those claims.
 
 create function public.submit_game_score(
   p_game_key text,
