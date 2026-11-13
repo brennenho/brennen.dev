@@ -7,7 +7,9 @@ import {
   getMusingPost,
   getMusingSummaries,
 } from "@/lib/musings";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { formatViewCount, getViewCount } from "@/lib/views";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
@@ -20,7 +22,7 @@ export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
-}) {
+}): Promise<Metadata> {
   const { slug } = await params;
   const post = await getMusingPost(slug);
 
@@ -29,15 +31,16 @@ export async function generateMetadata({
   const description = `${formatMusingDate(post.date)} • ${post.readTime}`;
 
   return {
-    title: {
-      absolute: `${post.title} • Brennen Ho`,
+    title: post.title,
+    alternates: {
+      canonical: post.href,
     },
     description,
     openGraph: {
       title: post.title,
       description,
-      url: `https://brennen.dev${post.href}`,
-      siteName: "Brennen Ho",
+      url: `${SITE_URL}${post.href}`,
+      siteName: SITE_NAME,
       type: "article",
     },
     twitter: {
