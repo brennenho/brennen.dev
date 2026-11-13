@@ -132,6 +132,7 @@ export function WorkspaceSidebar({
           {localPages.map((page) => (
             <SidebarLink
               key={page.id}
+              privatePage
               active={activePath === `/musings/${page.id}`}
               item={{
                 href: `/musings/${page.id}`,
@@ -200,12 +201,14 @@ function SidebarLink({
   item,
   onNavigate,
   trailing,
+  privatePage = false,
 }: {
   active: boolean;
   highlighted?: boolean;
   item: SidebarItem;
   onNavigate?: () => void;
   trailing?: ReactNode;
+  privatePage?: boolean;
 }) {
   return (
     <Link
@@ -214,6 +217,7 @@ function SidebarLink({
       className={cn(
         "text-sidebar-foreground hover:bg-sidebar-accent relative flex h-8 items-center gap-2 rounded-sm px-2 transition-[background-color,box-shadow,color] duration-300",
         active && "bg-sidebar-primary text-sidebar-primary-foreground",
+        privatePage && "ph-no-capture",
         highlighted &&
           "text-sidebar-primary-foreground bg-[#fbf3db] shadow-[0_0_0_1px_rgba(245,197,66,0.28),0_0_18px_rgba(245,197,66,0.16)] dark:bg-[#3d3726]",
       )}

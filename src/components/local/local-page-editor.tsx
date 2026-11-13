@@ -179,7 +179,7 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
   }
 
   return (
-    <PageContent className="local-page">
+    <PageContent className="local-page ph-no-capture">
       <div className="relative mb-1 w-fit">
         <button
           type="button"
