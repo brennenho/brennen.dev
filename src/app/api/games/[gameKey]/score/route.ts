@@ -67,18 +67,27 @@ export async function POST(request: Request, { params }: RouteContext) {
 
   const country = getCountry(request.headers);
 
-  const entry = await submitGameScore({
+  const scoreResult = await submitGameScore({
     country,
     gameKey,
     playerTokenHash,
+    run: runValidation.run,
     score: scoreSubmission.score,
     supabase,
   });
 
-  if (!entry) {
+  if (!scoreResult.ok) {
+    if (scoreResult.error === "run-reused") {
+      return gameApiError(
+        "This game run has already submitted a different score.",
+        409,
+      );
+    }
+
     return gameApiError("Unable to save score.", 500);
   }
 
+  const { entry } = scoreResult;
   const response = NextResponse.json({
     name: entry.name,
     highScore: entry.high_score,
