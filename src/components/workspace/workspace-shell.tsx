@@ -2,33 +2,39 @@ import { getMusingSummaries } from "@/lib/musings";
 import { Lock } from "lucide-react";
 import type { ReactNode } from "react";
 import { EditedCommitLink } from "./edited-commit-link";
+import { LocalPageUpdatedAt } from "./local-page-updated-at";
 import { MobileWorkspaceTopbar } from "./mobile-workspace-topbar";
+import { PageIdentity } from "./page-identity";
 import { WorkspaceSidebar as WorkspaceSidebarNav } from "./sidebar";
 import { isFavoritePath, type SidebarItem } from "./sidebar-data";
 import { TopbarActions } from "./topbar-actions";
 
 type WorkspaceShellProps = {
   children: ReactNode;
-  editedCommitDate: string;
-  editedCommitTimestamp: string;
-  editedCommitTitle: string;
-  editedCommitUrl: string;
-  editedDate: string;
+  editedCommitDate?: string;
+  editedCommitTimestamp?: string;
+  editedCommitTitle?: string;
+  editedCommitUrl?: string;
+  editedDate?: string;
   activePath?: string;
+  localPageId?: string;
   pageIcon?: string;
   pageTitle?: string;
+  shareUrl?: string;
 };
 
 export async function WorkspaceShell({
   children,
-  editedCommitDate,
-  editedCommitTimestamp,
-  editedCommitTitle,
-  editedCommitUrl,
-  editedDate,
+  editedCommitDate = "",
+  editedCommitTimestamp = "",
+  editedCommitTitle = "",
+  editedCommitUrl = "",
+  editedDate = "",
   activePath = "/",
+  localPageId,
   pageIcon = "👋",
   pageTitle = "hey, i’m brennen",
+  shareUrl,
 }: WorkspaceShellProps) {
   const isFavorite = isFavoritePath(activePath);
   const musingItems: SidebarItem[] = (await getMusingSummaries()).map(
@@ -40,7 +46,7 @@ export async function WorkspaceShell({
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="bg-background text-foreground min-h-screen">
       <DesktopWorkspaceSidebar
         activePath={activePath}
         musingItems={musingItems}
@@ -54,9 +60,11 @@ export async function WorkspaceShell({
           editedCommitUrl={editedCommitUrl}
           editedDate={editedDate}
           isFavorite={isFavorite}
+          localPageId={localPageId}
           musingItems={musingItems}
           pageIcon={pageIcon}
           pageTitle={pageTitle}
+          shareUrl={shareUrl}
         />
         <WorkspaceTopbar
           editedCommitDate={editedCommitDate}
@@ -65,8 +73,10 @@ export async function WorkspaceShell({
           editedCommitUrl={editedCommitUrl}
           editedDate={editedDate}
           isFavorite={isFavorite}
+          localPageId={localPageId}
           pageIcon={pageIcon}
           pageTitle={pageTitle}
+          shareUrl={shareUrl}
         />
         {children}
       </div>
@@ -81,8 +91,10 @@ function WorkspaceTopbar({
   editedCommitUrl,
   editedDate,
   isFavorite,
+  localPageId,
   pageIcon,
   pageTitle,
+  shareUrl,
 }: {
   editedCommitDate: string;
   editedCommitTimestamp: string;
@@ -90,30 +102,37 @@ function WorkspaceTopbar({
   editedCommitUrl: string;
   editedDate: string;
   isFavorite: boolean;
+  localPageId?: string;
   pageIcon: string;
   pageTitle: string;
+  shareUrl?: string;
 }) {
   return (
-    <header className="sticky top-0 z-40 hidden h-[45px] items-center justify-between border-b border-transparent bg-background/95 px-3 text-[14px] text-muted-foreground backdrop-blur min-[900px]:flex">
+    <header className="bg-background/95 text-muted-foreground sticky top-0 z-40 hidden h-[45px] items-center justify-between border-b border-transparent px-3 text-[14px] backdrop-blur min-[900px]:flex">
       <div className="flex min-w-0 items-center gap-2">
-        <span className="text-[18px] leading-none">{pageIcon}</span>
-        <span className="truncate font-medium text-foreground">
-          {pageTitle}
-        </span>
-        <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="hidden text-muted-foreground sm:inline">Private</span>
+        <PageIdentity
+          icon={pageIcon}
+          localPageId={localPageId}
+          title={pageTitle}
+        />
+        <Lock className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+        <span className="text-muted-foreground hidden sm:inline">Private</span>
       </div>
 
       <div className="flex items-center gap-4">
-        <EditedCommitLink
-          commitDate={editedCommitDate}
-          commitTitle={editedCommitTitle}
-          commitUrl={editedCommitUrl}
-          fallbackDateLabel={editedDate}
-          fallbackTimestamp={editedCommitTimestamp}
-          variant="desktop"
-        />
-        <TopbarActions isFavorite={isFavorite} />
+        {localPageId ? (
+          <LocalPageUpdatedAt id={localPageId} variant="desktop" />
+        ) : (
+          <EditedCommitLink
+            commitDate={editedCommitDate}
+            commitTitle={editedCommitTitle}
+            commitUrl={editedCommitUrl}
+            fallbackDateLabel={editedDate}
+            fallbackTimestamp={editedCommitTimestamp}
+            variant="desktop"
+          />
+        )}
+        <TopbarActions isFavorite={isFavorite} shareUrl={shareUrl} />
       </div>
     </header>
   );

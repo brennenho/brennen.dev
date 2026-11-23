@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { Check, Lock, Menu, Share2, Star, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EditedCommitLink } from "./edited-commit-link";
+import { LocalPageUpdatedAt } from "./local-page-updated-at";
+import { PageIdentity } from "./page-identity";
 import { WorkspaceSidebar } from "./sidebar";
 import type { SidebarItem } from "./sidebar-data";
 
@@ -15,9 +17,11 @@ type MobileWorkspaceTopbarProps = {
   editedCommitUrl: string;
   editedDate: string;
   isFavorite: boolean;
+  localPageId?: string;
   musingItems: SidebarItem[];
   pageIcon: string;
   pageTitle: string;
+  shareUrl?: string;
 };
 
 export function MobileWorkspaceTopbar({
@@ -28,9 +32,11 @@ export function MobileWorkspaceTopbar({
   editedCommitUrl,
   editedDate,
   isFavorite,
+  localPageId,
   musingItems,
   pageIcon,
   pageTitle,
+  shareUrl,
 }: MobileWorkspaceTopbarProps) {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
@@ -53,7 +59,7 @@ export function MobileWorkspaceTopbar({
 
   async function copyPageLink() {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(shareUrl ?? window.location.href);
       setCopied(true);
     } catch {
       setCopied(false);
@@ -62,37 +68,42 @@ export function MobileWorkspaceTopbar({
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-12 items-center justify-between border-b border-transparent bg-background/95 px-2 text-[14px] text-muted-foreground backdrop-blur min-[900px]:hidden">
+      <header className="bg-background/95 text-muted-foreground sticky top-0 z-40 flex h-12 items-center justify-between border-b border-transparent px-2 text-[14px] backdrop-blur min-[900px]:hidden">
         <div className="flex min-w-0 flex-1 items-center gap-1">
           <button
             type="button"
             aria-label="Open sidebar"
             onClick={() => setOpen(true)}
-            className="cursor-pointer rounded-sm p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer rounded-sm p-2 transition-colors"
           >
             <Menu className="h-5 w-5" />
           </button>
-          <span className="text-[18px] leading-none">{pageIcon}</span>
-          <span className="min-w-0 truncate font-medium text-foreground">
-            {pageTitle}
-          </span>
-          <Lock className="hidden h-3.5 w-3.5 shrink-0 text-muted-foreground min-[430px]:block" />
+          <PageIdentity
+            icon={pageIcon}
+            localPageId={localPageId}
+            title={pageTitle}
+          />
+          <Lock className="text-muted-foreground hidden h-3.5 w-3.5 shrink-0 min-[430px]:block" />
         </div>
 
         <div className="ml-2 flex shrink-0 items-center gap-1">
-          <EditedCommitLink
-            commitDate={editedCommitDate}
-            commitTitle={editedCommitTitle}
-            commitUrl={editedCommitUrl}
-            fallbackDateLabel={editedDate}
-            fallbackTimestamp={editedCommitTimestamp}
-            variant="mobile"
-          />
+          {localPageId ? (
+            <LocalPageUpdatedAt id={localPageId} variant="mobile" />
+          ) : (
+            <EditedCommitLink
+              commitDate={editedCommitDate}
+              commitTitle={editedCommitTitle}
+              commitUrl={editedCommitUrl}
+              fallbackDateLabel={editedDate}
+              fallbackTimestamp={editedCommitTimestamp}
+              variant="mobile"
+            />
+          )}
           <button
             type="button"
             aria-label={copied ? "Copied page link" : "Copy page link"}
             onClick={copyPageLink}
-            className="cursor-pointer rounded-sm p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer rounded-sm p-2 transition-colors"
           >
             {copied ? (
               <Check className="h-[18px] w-[18px]" />
@@ -103,7 +114,7 @@ export function MobileWorkspaceTopbar({
           <span
             aria-label={isFavorite ? "Favorited" : "Not favorited"}
             className={cn(
-              "hidden p-2 text-muted-foreground min-[430px]:block",
+              "text-muted-foreground hidden p-2 min-[430px]:block",
               isFavorite && "text-[#f5c542]",
             )}
           >
@@ -131,7 +142,7 @@ export function MobileWorkspaceTopbar({
                 type="button"
                 aria-label="Close sidebar"
                 onClick={() => setOpen(false)}
-                className="cursor-pointer rounded-sm p-2 text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer rounded-sm p-2 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>

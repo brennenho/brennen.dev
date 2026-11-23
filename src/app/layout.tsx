@@ -3,7 +3,6 @@ import "@/styles/globals.css";
 import { PostHogProvider } from "@/components/analytics";
 import { Toaster } from "@/components/ui/sonner";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { type Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 
@@ -57,7 +56,6 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <PostHogProvider>{children}</PostHogProvider>
-          <SpeedInsights />
           <Toaster richColors visibleToasts={1} />
         </ThemeProvider>
       </body>

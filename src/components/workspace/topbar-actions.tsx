@@ -6,12 +6,13 @@ import { useEffect, useState } from "react";
 
 type TopbarActionsProps = {
   isFavorite: boolean;
+  shareUrl?: string;
 };
 
 const actionClassName =
   "cursor-pointer rounded px-2 py-1 transition-colors hover:bg-accent hover:text-foreground";
 
-export function TopbarActions({ isFavorite }: TopbarActionsProps) {
+export function TopbarActions({ isFavorite, shareUrl }: TopbarActionsProps) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -24,7 +25,7 @@ export function TopbarActions({ isFavorite }: TopbarActionsProps) {
 
   async function copyPageLink() {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(shareUrl ?? window.location.href);
       setCopied(true);
     } catch {
       setCopied(false);
@@ -37,7 +38,7 @@ export function TopbarActions({ isFavorite }: TopbarActionsProps) {
         type="button"
         onClick={copyPageLink}
         className={cn(
-          "inline-flex w-16 justify-center font-medium text-foreground",
+          "text-foreground inline-flex w-16 justify-center font-medium",
           actionClassName,
         )}
       >
@@ -46,7 +47,7 @@ export function TopbarActions({ isFavorite }: TopbarActionsProps) {
       <span
         aria-label={isFavorite ? "Favorited" : "Not favorited"}
         className={cn(
-          "px-2 py-1 text-muted-foreground",
+          "text-muted-foreground px-2 py-1",
           isFavorite && "text-[#f5c542]",
         )}
       >
