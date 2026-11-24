@@ -1,29 +1,10 @@
 import { getMusingSummaries } from "@/lib/musings";
-import type { ReactNode } from "react";
-import { EditedCommitLink } from "./edited-commit-link";
+import type { ComponentProps } from "react";
 import { WorkspaceView } from "./workspace-view";
 
-type WorkspaceShellProps = {
-  children?: ReactNode;
-  editedCommitDate?: string;
-  editedCommitTimestamp?: string;
-  editedCommitTitle?: string;
-  editedCommitUrl?: string;
-  editedDate?: string;
-  activePath?: string;
-  localPageId?: string;
-  pageIcon?: string;
-  pageTitle?: string;
-};
-
-export async function WorkspaceShell({
-  editedCommitDate = "",
-  editedCommitTimestamp = "",
-  editedCommitTitle = "",
-  editedCommitUrl = "",
-  editedDate = "",
-  ...props
-}: WorkspaceShellProps) {
+export async function WorkspaceShell(
+  props: Omit<ComponentProps<typeof WorkspaceView>, "musingItems">,
+) {
   const musingItems = (await getMusingSummaries()).map(
     ({ href, emoji, label }) => ({
       href,
@@ -31,19 +12,5 @@ export async function WorkspaceShell({
       label,
     }),
   );
-  return (
-    <WorkspaceView
-      {...props}
-      musingItems={musingItems}
-      edited={
-        <EditedCommitLink
-          commitDate={editedCommitDate}
-          commitTitle={editedCommitTitle}
-          commitUrl={editedCommitUrl}
-          fallbackDateLabel={editedDate}
-          fallbackTimestamp={editedCommitTimestamp}
-        />
-      }
-    />
-  );
+  return <WorkspaceView {...props} musingItems={musingItems} />;
 }
