@@ -22,7 +22,7 @@ import {
 import { localEditorExtensions } from "./editor-extensions";
 import { EmojiPicker } from "./emoji-picker";
 
-export function LocalPageEditor({ id }: { id: string }) {
+export function PageEditor({ id }: { id: string }) {
   const page = useLocalPage(id);
   const ready = useLocalPagesReady();
 

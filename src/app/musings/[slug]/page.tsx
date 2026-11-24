@@ -1,5 +1,5 @@
 import { PageContent, PageIcon, PageTitle } from "@/components/blocks";
-import { LocalPageEditor } from "@/components/local/local-page-editor";
+import { PageEditor } from "@/components/local/page-editor";
 import { MdxContent } from "@/components/mdx";
 import { WorkspaceShell } from "@/components/workspace";
 import { getPageEditedMetadata } from "@/lib/git";
@@ -83,7 +83,7 @@ export default async function MusingPage({
         pageIcon=""
         pageTitle={DEFAULT_LOCAL_PAGE_TITLE}
       >
-        <LocalPageEditor id={slug} />
+        <PageEditor id={slug} />
       </WorkspaceShell>
     );
   }
