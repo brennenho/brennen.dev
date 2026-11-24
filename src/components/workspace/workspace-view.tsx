@@ -1,19 +1,20 @@
 "use client";
 
 import { DeletePage } from "@/components/local/delete-page";
-import { UpdatedAt } from "@/components/local/updated-at";
-import { useLocalPage } from "@/lib/local-pages";
+import type { PageCommit } from "@/lib/git";
+import { useLocalPage, useLocalPagesSaved } from "@/lib/local-pages";
 import { cn } from "@/lib/utils";
 import { Lock, Menu, Star, X } from "lucide-react";
 import { useRef, type ReactNode } from "react";
 import { ShareButton } from "./share-button";
 import { WorkspaceSidebar } from "./sidebar";
 import { isFavoritePath, type SidebarItem } from "./sidebar-data";
+import { UpdatedAt } from "./updated-at";
 
 export function WorkspaceView({
   activePath = "/",
   children,
-  edited,
+  commit,
   localPageId,
   musingItems,
   pageIcon = "👋",
@@ -21,7 +22,7 @@ export function WorkspaceView({
 }: {
   activePath?: string;
   children: ReactNode;
-  edited: ReactNode;
+  commit?: PageCommit;
   localPageId?: string;
   musingItems: SidebarItem[];
   pageIcon?: string;
@@ -29,6 +30,10 @@ export function WorkspaceView({
 }) {
   const drawer = useRef<HTMLDialogElement>(null);
   const page = useLocalPage(localPageId);
+  const saved = useLocalPagesSaved();
+  const edit = localPageId
+    ? page && { timestamp: page.updatedAt, saved }
+    : commit;
   const icon = page?.emoji ?? pageIcon;
   const { title = "" } = page ?? {};
   const favorite = isFavoritePath(activePath);
@@ -97,9 +102,7 @@ export function WorkspaceView({
             <span className="hidden min-[900px]:inline">Private</span>
           </div>
           <div className="flex shrink-0 items-center gap-1 min-[900px]:gap-4">
-            {localPageId
-              ? page && <UpdatedAt timestamp={page.updatedAt} />
-              : edited}
+            {edit && <UpdatedAt {...edit} />}
             <ShareButton key={activePath} disabled={Boolean(localPageId)} />
             {page && <DeletePage page={page} />}
             {!localPageId && (
