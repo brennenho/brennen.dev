@@ -3,7 +3,11 @@
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
 import { DeletePage } from "@/components/local/delete-page";
 import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
-import { createLocalPage, useLocalPages } from "@/lib/local-pages";
+import {
+  DEFAULT_LOCAL_PAGE_TITLE,
+  createLocalPage,
+  useLocalPages,
+} from "@/lib/local-pages";
 import { cn } from "@/lib/utils";
 import { Mail, Plus } from "lucide-react";
 import Image from "next/image";
@@ -148,7 +152,7 @@ export function WorkspaceSidebar({
                   item={{
                     href,
                     icon: page.emoji,
-                    label: page.title || "Untitled",
+                    label: page.title || DEFAULT_LOCAL_PAGE_TITLE,
                   }}
                   onNavigate={handleNavigate}
                 />

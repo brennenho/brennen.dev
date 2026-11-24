@@ -1,6 +1,10 @@
 "use client";
 
-import { deleteLocalPage, type LocalPage } from "@/lib/local-pages";
+import {
+  DEFAULT_LOCAL_PAGE_TITLE,
+  deleteLocalPage,
+  type LocalPage,
+} from "@/lib/local-pages";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -17,7 +21,7 @@ export function DeletePage({
   onNavigate?: () => void;
 }) {
   const router = useRouter();
-  const title = page.title || "Untitled";
+  const title = page.title || DEFAULT_LOCAL_PAGE_TITLE;
   const label = sidebar ? `Delete “${title}”` : "Delete page";
 
   function handleDelete() {

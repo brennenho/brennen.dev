@@ -36,6 +36,7 @@ afterEach(() => {
 describe("browser-local pages", () => {
   it("persists creation, edits, and deletion without sending the content to analytics", () => {
     const page = store.createLocalPage("sidebar");
+    expect(readPages()).toMatchObject([{ title: "", emoji: "" }]);
     store.updateLocalPage(page.id, { title: "Private title", emoji: "🌱" });
     expect(readPages()).toMatchObject([
       { id: page.id, title: "Private title", emoji: "🌱" },
@@ -47,6 +48,9 @@ describe("browser-local pages", () => {
         source: "sidebar",
       },
     );
+
+    store.updateLocalPage(page.id, { emoji: "" });
+    expect(readPages()).toMatchObject([{ title: "Private title", emoji: "" }]);
 
     store.deleteLocalPage(page.id);
     expect(readPages()).toEqual([]);

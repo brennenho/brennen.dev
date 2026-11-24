@@ -1,5 +1,4 @@
 import { PageContent, PageIcon, PageTitle } from "@/components/blocks";
-import { PageEditor } from "@/components/local/page-editor";
 import { MdxContent } from "@/components/mdx";
 import { WorkspaceShell } from "@/components/workspace";
 import { getPageEditedMetadata } from "@/lib/git";
@@ -32,9 +31,7 @@ export async function generateMetadata({
     if (!isLocalPageId(slug)) return {};
 
     return {
-      title: {
-        absolute: "Untitled • Brennen Ho",
-      },
+      title: null,
       robots: {
         index: false,
         follow: false,
@@ -77,14 +74,7 @@ export default async function MusingPage({
     if (!isLocalPageId(slug)) notFound();
 
     return (
-      <WorkspaceShell
-        activePath={`/musings/${slug}`}
-        localPageId={slug}
-        pageIcon="📝"
-        pageTitle="Untitled"
-      >
-        <PageEditor id={slug} />
-      </WorkspaceShell>
+      <WorkspaceShell activePath={`/musings/${slug}`} localPageId={slug} />
     );
   }
 

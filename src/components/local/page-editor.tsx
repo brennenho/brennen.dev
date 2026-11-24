@@ -1,43 +1,34 @@
 "use client";
 
-import { PageContent } from "@/components/blocks";
+import { PageContent, PageIcon, PageTitle } from "@/components/blocks";
+import { Button } from "@/components/ui/button";
 import {
   createLocalPage,
+  DEFAULT_LOCAL_PAGE_TITLE,
+  MISSING_MUSING,
   updateLocalPage,
-  useLocalPage,
-  useLocalPagesReady,
   useLocalPagesSaved,
   type LocalPage,
 } from "@/lib/local-pages";
-import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
+import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
+import { Selection } from "@tiptap/pm/state";
 import { useRouter } from "next/navigation";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
+import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import { localEditorExtensions } from "./editor-extensions";
 import { EmojiPicker } from "./emoji-picker";
 
-export function PageEditor({ id }: { id: string }) {
-  const page = useLocalPage(id);
-  const ready = useLocalPagesReady();
-
-  if (!ready) {
-    return (
-      <PageContent>
-        <span className="sr-only">Loading page</span>
-      </PageContent>
-    );
+export function PageEditor({ page }: { page: LocalPage | null | undefined }) {
+  let content;
+  if (page === undefined) {
+    content = <span className="sr-only">Loading page</span>;
+  } else if (page) {
+    content = <EditableLocalPage key={page.id} page={page} />;
+  } else {
+    content = <MissingLocalPage />;
   }
 
-  if (!page) {
-    return <MissingLocalPage />;
-  }
-
-  return <EditableLocalPage key={page.id} page={page} />;
+  return <PageContent className="ph-no-capture">{content}</PageContent>;
 }
 
 function MissingLocalPage() {
@@ -49,36 +40,30 @@ function MissingLocalPage() {
   }
 
   return (
-    <PageContent>
-      <div className="flex max-w-xl flex-col gap-4 pt-10">
-        <span className="text-[56px] leading-none">📝</span>
-        <h1 className="text-foreground text-[32px] leading-tight font-bold sm:text-[38px]">
-          This page isn’t available in this browser.
-        </h1>
-        <p className="text-muted-foreground text-[16px] leading-relaxed font-medium">
-          Local pages only exist in the browser where they were created. It may
-          have been deleted, or this link may have been opened somewhere else.
-        </p>
-        <div>
-          <button
-            type="button"
-            onClick={createNewPage}
-            className="bg-foreground text-background cursor-pointer rounded-md px-3 py-2 text-[14px] font-semibold transition-opacity hover:opacity-85"
-          >
-            Create a new page
-          </button>
-        </div>
-      </div>
-    </PageContent>
+    <>
+      <PageIcon>{MISSING_MUSING.emoji}</PageIcon>
+      <PageTitle>{MISSING_MUSING.title}</PageTitle>
+      <p className="text-muted-foreground max-w-md leading-relaxed">
+        Musings are saved in your browser and can&apos;t be shared. Clearing
+        cookies will also erase them.
+      </p>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={createNewPage}
+        className="mt-2 cursor-pointer self-start"
+      >
+        Create page
+      </Button>
+    </>
   );
 }
 
 function EditableLocalPage({ page }: { page: LocalPage }) {
   const saved = useLocalPagesSaved();
   const titleRef = useRef<HTMLTextAreaElement>(null);
-  const pendingContentRef = useRef<JSONContent | null>(null);
+  const pendingContentRef = useRef<ProseMirrorNode | null>(null);
   const saveTimerRef = useRef<number | null>(null);
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   const flushContent = useCallback(() => {
     if (saveTimerRef.current !== null) {
@@ -86,9 +71,10 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
       saveTimerRef.current = null;
     }
 
-    if (pendingContentRef.current) {
-      updateLocalPage(page.id, { content: pendingContentRef.current });
+    const doc = pendingContentRef.current;
+    if (doc) {
       pendingContentRef.current = null;
+      updateLocalPage(page.id, { content: doc.toJSON() as JSONContent });
     }
   }, [page.id]);
 
@@ -103,7 +89,7 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
         },
       },
       onUpdate: ({ editor: nextEditor }) => {
-        pendingContentRef.current = nextEditor.getJSON();
+        pendingContentRef.current = nextEditor.state.doc;
 
         if (saveTimerRef.current !== null) {
           window.clearTimeout(saveTimerRef.current);
@@ -142,17 +128,6 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
   }, [editor, page.content]);
 
   useEffect(() => {
-    const title = `${page.title || "Untitled"} • Brennen Ho`;
-    document.title = title;
-
-    const timeout = window.setTimeout(() => {
-      document.title = title;
-    }, 100);
-
-    return () => window.clearTimeout(timeout);
-  }, [page.title]);
-
-  useEffect(() => {
     const textarea = titleRef.current;
     if (!textarea) return;
 
@@ -161,59 +136,48 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
   }, [page.title]);
 
   function handleTitleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key !== "Enter") return;
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
 
     event.preventDefault();
-    editor?.commands.focus("start");
+    if (!editor) return;
+    const { state, view } = editor;
+    view.dispatch(
+      state.tr.setSelection(Selection.atStart(state.doc)).scrollIntoView(),
+    );
+    view.focus();
   }
 
   return (
-    <PageContent className="local-page ph-no-capture">
-      <div className="relative mb-1 w-fit">
-        <button
-          type="button"
-          aria-label="Change page icon"
-          aria-expanded={emojiPickerOpen}
-          className="hover:bg-accent cursor-pointer rounded-md text-[72px] leading-none transition-colors sm:text-[78px]"
-          onClick={() => setEmojiPickerOpen((open) => !open)}
-        >
-          {page.emoji}
-        </button>
-        {emojiPickerOpen ? (
-          <EmojiPicker
-            onClose={() => setEmojiPickerOpen(false)}
-            onSelect={(emoji) => updateLocalPage(page.id, { emoji })}
-          />
-        ) : null}
-      </div>
+    <>
+      <div className="local-page-heading">
+        <EmojiPicker
+          icon={page.emoji}
+          onSelect={(emoji) => updateLocalPage(page.id, { emoji })}
+        />
 
-      <textarea
-        ref={titleRef}
-        rows={1}
-        value={page.title}
-        autoFocus={!page.title && page.content === null}
-        aria-label="Page title"
-        placeholder="Untitled"
-        onChange={(event) =>
-          updateLocalPage(page.id, { title: event.target.value })
-        }
-        onKeyDown={handleTitleKeyDown}
-        className="text-foreground placeholder:text-muted-foreground/55 mb-[10px] w-full resize-none overflow-hidden bg-transparent text-[42px] leading-[1.12] font-bold tracking-normal outline-none sm:text-[48px]"
-      />
-
-      <div className="text-muted-foreground mb-4 flex items-center gap-2 text-[14px] font-medium">
-        <span>Private</span>
-        <span aria-hidden="true">•</span>
-        <span role={saved ? undefined : "status"}>
-          {saved
-            ? "Saved in this browser"
-            : "Not saved — browser storage is unavailable"}
-        </span>
+        <textarea
+          ref={titleRef}
+          rows={1}
+          value={page.title}
+          autoFocus={!page.title && page.content === null}
+          aria-label="Page title"
+          placeholder={DEFAULT_LOCAL_PAGE_TITLE}
+          onChange={(event) =>
+            updateLocalPage(page.id, { title: event.target.value })
+          }
+          onKeyDown={handleTitleKeyDown}
+          className="text-foreground placeholder:text-muted-foreground/55 mb-[10px] w-full resize-none overflow-hidden bg-transparent text-[42px] leading-[1.12] font-bold tracking-normal outline-none sm:text-[48px]"
+        />
       </div>
+      {!saved && (
+        <p className="text-muted-foreground text-sm" role="status">
+          Not saved — browser storage is unavailable
+        </p>
+      )}
 
       <div className="local-editor">
         <EditorContent editor={editor} />
       </div>
-    </PageContent>
+    </>
   );
 }

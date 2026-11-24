@@ -4,7 +4,7 @@ import { EditedCommitLink } from "./edited-commit-link";
 import { WorkspaceView } from "./workspace-view";
 
 type WorkspaceShellProps = {
-  children: ReactNode;
+  children?: ReactNode;
   editedCommitDate?: string;
   editedCommitTimestamp?: string;
   editedCommitTitle?: string;
