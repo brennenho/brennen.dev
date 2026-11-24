@@ -7,8 +7,12 @@ export function isLocalPageId(value: string) {
   return LOCAL_PAGE_ID_PATTERN.test(value);
 }
 
+export function getLocalPageIdFromPath(pathname: string) {
+  return LOCAL_PAGE_PATH_PATTERN.exec(pathname)?.[1];
+}
+
 export function isLocalPagePath(pathname: string) {
-  return LOCAL_PAGE_PATH_PATTERN.test(pathname);
+  return getLocalPageIdFromPath(pathname) !== undefined;
 }
 
 export function generateLocalPageId() {

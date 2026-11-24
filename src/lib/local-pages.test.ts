@@ -34,6 +34,29 @@ afterEach(() => {
 });
 
 describe("browser-local pages", () => {
+  it("keeps note navigation in browser history and replaces the recovery entry", () => {
+    const history = { pushState: vi.fn(), replaceState: vi.fn() };
+    const location = { pathname: "/" };
+    Object.assign(browser, { history, location, scrollTo: vi.fn() });
+
+    const page = store.createLocalPage("sidebar");
+    const href = `/musings/${page.id}`;
+    store.openLocalPage(page.id);
+    expect(history.pushState).toHaveBeenCalledExactlyOnceWith(null, "", href);
+
+    location.pathname = href;
+    store.openLocalPage(page.id);
+    expect(history.pushState).toHaveBeenCalledTimes(1);
+
+    const replacement = store.createLocalPage("recovery");
+    store.openLocalPage(replacement.id, { replace: true });
+    expect(history.replaceState).toHaveBeenCalledExactlyOnceWith(
+      null,
+      "",
+      `/musings/${replacement.id}`,
+    );
+  });
+
   it("persists creation, edits, and deletion without sending the content to analytics", () => {
     const page = store.createLocalPage("sidebar");
     expect(readPages()).toMatchObject([{ title: "", emoji: "" }]);

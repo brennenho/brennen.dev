@@ -18,6 +18,7 @@ import { PROFILE_JSON_LD, serializeJsonLd } from "@/lib/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  title: null,
   alternates: {
     canonical: "/",
   },
