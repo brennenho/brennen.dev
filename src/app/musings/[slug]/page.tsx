@@ -9,7 +9,7 @@ import {
   getMusingPost,
   getMusingSummaries,
 } from "@/lib/musings";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { DEFAULT_LOCAL_PAGE_TITLE, SITE_NAME, SITE_URL } from "@/lib/site";
 import { formatViewCount, getViewCount } from "@/lib/views";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -33,7 +33,7 @@ export async function generateMetadata({
 
     return {
       title: {
-        absolute: "Untitled • Brennen Ho",
+        absolute: `${DEFAULT_LOCAL_PAGE_TITLE} • ${SITE_NAME}`,
       },
       robots: {
         index: false,
@@ -80,9 +80,8 @@ export default async function MusingPage({
       <WorkspaceShell
         activePath={`/musings/${slug}`}
         localPageId={slug}
-        pageIcon="📝"
-        pageTitle="Untitled"
-        shareUrl="https://brennen.dev"
+        pageIcon=""
+        pageTitle={DEFAULT_LOCAL_PAGE_TITLE}
       >
         <LocalPageEditor id={slug} />
       </WorkspaceShell>

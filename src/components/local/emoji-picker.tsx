@@ -55,9 +55,11 @@ const EMOJIS = [
 ] as const;
 
 export function EmojiPicker({
+  hasIcon,
   onClose,
   onSelect,
 }: {
+  hasIcon: boolean;
   onClose: () => void;
   onSelect: (emoji: string) => void;
 }) {
@@ -85,6 +87,7 @@ export function EmojiPicker({
       <button
         type="button"
         aria-label="Close emoji picker"
+        tabIndex={-1}
         className="fixed inset-0 z-40 cursor-default"
         onClick={onClose}
       />
@@ -105,14 +108,25 @@ export function EmojiPicker({
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          className="border-border text-muted-foreground hover:text-foreground mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded border-t px-2 pt-2 text-[12px] font-semibold transition-colors"
-          onClick={chooseRandomEmoji}
-        >
-          <Shuffle className="h-3.5 w-3.5" />
-          Shuffle
-        </button>
+        <div className="border-border mt-2 flex gap-1 border-t pt-1">
+          <button
+            type="button"
+            className="text-muted-foreground hover:bg-accent hover:text-foreground flex flex-1 cursor-pointer items-center justify-center gap-2 rounded px-2 py-1.5 text-[12px] font-semibold transition-colors"
+            onClick={chooseRandomEmoji}
+          >
+            <Shuffle className="h-3.5 w-3.5" />
+            Shuffle
+          </button>
+          {hasIcon && (
+            <button
+              type="button"
+              onClick={() => chooseEmoji("")}
+              className="text-muted-foreground hover:bg-accent hover:text-foreground flex-1 cursor-pointer rounded px-2 py-1.5 text-xs font-semibold"
+            >
+              Remove icon
+            </button>
+          )}
+        </div>
       </div>
     </>
   );

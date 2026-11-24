@@ -3,15 +3,14 @@
 import { PageContent } from "@/components/blocks";
 import {
   createLocalPage,
-  deleteLocalPage,
   updateLocalPage,
   useLocalPage,
   useLocalPagesReady,
   useLocalPagesSaved,
   type LocalPage,
 } from "@/lib/local-pages";
+import { DEFAULT_LOCAL_PAGE_TITLE, SITE_NAME } from "@/lib/site";
 import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
-import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   useCallback,
@@ -76,8 +75,8 @@ function MissingLocalPage() {
 }
 
 function EditableLocalPage({ page }: { page: LocalPage }) {
-  const router = useRouter();
   const saved = useLocalPagesSaved();
+  const iconButtonRef = useRef<HTMLButtonElement>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const pendingContentRef = useRef<JSONContent | null>(null);
   const saveTimerRef = useRef<number | null>(null);
@@ -145,7 +144,7 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
   }, [editor, page.content]);
 
   useEffect(() => {
-    const title = `${page.title || "Untitled"} • Brennen Ho`;
+    const title = `${page.title || DEFAULT_LOCAL_PAGE_TITLE} • ${SITE_NAME}`;
     document.title = title;
 
     const timeout = window.setTimeout(() => {
@@ -164,71 +163,80 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
   }, [page.title]);
 
   function handleTitleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key !== "Enter") return;
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
 
     event.preventDefault();
-    editor?.commands.focus("start");
-  }
-
-  function handleDelete() {
-    if (!window.confirm("Delete this page from this browser?")) return;
-
-    flushContent();
-    deleteLocalPage(page.id);
-    router.push("/");
+    if (!editor) return;
+    editor.commands.focus("start");
+    // Tiptap schedules DOM focus on the next frame. Route immediate typing to the body.
+    editor.view.focus();
   }
 
   return (
-    <PageContent className="local-page ph-no-capture">
-      <div className="relative mb-1 w-fit">
-        <button
-          type="button"
-          aria-label="Change page icon"
-          aria-expanded={emojiPickerOpen}
-          className="hover:bg-accent cursor-pointer rounded-md text-[72px] leading-none transition-colors sm:text-[78px]"
-          onClick={() => setEmojiPickerOpen((open) => !open)}
-        >
-          {page.emoji}
-        </button>
-        {emojiPickerOpen ? (
-          <EmojiPicker
-            onClose={() => setEmojiPickerOpen(false)}
-            onSelect={(emoji) => updateLocalPage(page.id, { emoji })}
-          />
-        ) : null}
-      </div>
+    <PageContent className="ph-no-capture">
+      <div className="local-page-heading">
+        <div className="relative mb-1 w-fit">
+          <button
+            type="button"
+            ref={iconButtonRef}
+            aria-label={page.emoji ? "Change page icon" : "Add icon"}
+            aria-haspopup="dialog"
+            aria-expanded={emojiPickerOpen}
+            className={
+              page.emoji
+                ? "hover:bg-accent mb-2 cursor-pointer rounded-md text-[72px] leading-none sm:text-[78px]"
+                : "add-page-icon text-muted-foreground hover:bg-accent focus-visible:bg-accent aria-expanded:bg-accent -ml-2 inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2 text-sm leading-none font-medium dark:hover:bg-white/5"
+            }
+            onClick={() => setEmojiPickerOpen((open) => !open)}
+          >
+            {page.emoji || (
+              <>
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="size-3.5 shrink-0"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8 .75a7.25 7.25 0 1 0 0 14.5A7.25 7.25 0 0 0 8 .75ZM5.5 5.25a.88.88 0 1 0 0 1.76.88.88 0 0 0 0-1.76Zm5 0a.88.88 0 1 0 0 1.76.88.88 0 0 0 0-1.76ZM4.85 9.2a.6.6 0 0 1 .84.12 2.9 2.9 0 0 0 4.62 0 .6.6 0 1 1 .96.72 4.1 4.1 0 0 1-6.54 0 .6.6 0 0 1 .12-.84Z"
+                  />
+                </svg>
+                Add icon
+              </>
+            )}
+          </button>
+          {emojiPickerOpen ? (
+            <EmojiPicker
+              hasIcon={Boolean(page.emoji)}
+              onClose={() => {
+                setEmojiPickerOpen(false);
+                iconButtonRef.current?.focus();
+              }}
+              onSelect={(emoji) => updateLocalPage(page.id, { emoji })}
+            />
+          ) : null}
+        </div>
 
-      <textarea
-        ref={titleRef}
-        rows={1}
-        value={page.title}
-        autoFocus={!page.title && page.content === null}
-        aria-label="Page title"
-        placeholder="Untitled"
-        onChange={(event) =>
-          updateLocalPage(page.id, { title: event.target.value })
-        }
-        onKeyDown={handleTitleKeyDown}
-        className="text-foreground placeholder:text-muted-foreground/55 mb-[10px] w-full resize-none overflow-hidden bg-transparent text-[42px] leading-[1.12] font-bold tracking-normal outline-none sm:text-[48px]"
-      />
-
-      <div className="text-muted-foreground mb-4 flex items-center gap-2 text-[14px] font-medium">
-        <span>Private</span>
-        <span aria-hidden="true">•</span>
-        <span role={saved ? undefined : "status"}>
-          {saved
-            ? "Saved in this browser"
-            : "Not saved — browser storage is unavailable"}
-        </span>
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive ml-auto flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 transition-colors"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          Delete
-        </button>
+        <textarea
+          ref={titleRef}
+          rows={1}
+          value={page.title}
+          autoFocus={!page.title && page.content === null}
+          aria-label="Page title"
+          placeholder={DEFAULT_LOCAL_PAGE_TITLE}
+          onChange={(event) =>
+            updateLocalPage(page.id, { title: event.target.value })
+          }
+          onKeyDown={handleTitleKeyDown}
+          className="text-foreground placeholder:text-muted-foreground/55 mb-[10px] w-full resize-none overflow-hidden bg-transparent text-[42px] leading-[1.12] font-bold tracking-normal outline-none sm:text-[48px]"
+        />
       </div>
+      {!saved && (
+        <p className="text-muted-foreground text-sm" role="status">
+          Not saved — browser storage is unavailable
+        </p>
+      )}
 
       <div className="local-editor">
         <EditorContent editor={editor} />

@@ -179,7 +179,7 @@ export function createLocalPage(source: LocalPageCreationSource) {
   const page: LocalPage = {
     id,
     title: "",
-    emoji: "📝",
+    emoji: "",
     content: null,
     createdAt: now,
     updatedAt: now,

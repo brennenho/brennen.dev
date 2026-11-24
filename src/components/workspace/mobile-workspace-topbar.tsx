@@ -1,13 +1,13 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { Check, Lock, Menu, Share2, Star, X } from "lucide-react";
+import { Lock, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EditedCommitLink } from "./edited-commit-link";
 import { LocalPageUpdatedAt } from "./local-page-updated-at";
 import { PageIdentity } from "./page-identity";
 import { WorkspaceSidebar } from "./sidebar";
 import type { SidebarItem } from "./sidebar-data";
+import { TopbarActions } from "./topbar-actions";
 
 type MobileWorkspaceTopbarProps = {
   activePath: string;
@@ -21,7 +21,6 @@ type MobileWorkspaceTopbarProps = {
   musingItems: SidebarItem[];
   pageIcon: string;
   pageTitle: string;
-  shareUrl?: string;
 };
 
 export function MobileWorkspaceTopbar({
@@ -36,18 +35,8 @@ export function MobileWorkspaceTopbar({
   musingItems,
   pageIcon,
   pageTitle,
-  shareUrl,
 }: MobileWorkspaceTopbarProps) {
-  const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!copied) return;
-
-    const id = window.setTimeout(() => setCopied(false), 1400);
-
-    return () => window.clearTimeout(id);
-  }, [copied]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -56,15 +45,6 @@ export function MobileWorkspaceTopbar({
       document.body.style.overflow = "";
     };
   }, [open]);
-
-  async function copyPageLink() {
-    try {
-      await navigator.clipboard.writeText(shareUrl ?? window.location.href);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  }
 
   return (
     <>
@@ -99,30 +79,7 @@ export function MobileWorkspaceTopbar({
               variant="mobile"
             />
           )}
-          <button
-            type="button"
-            aria-label={copied ? "Copied page link" : "Copy page link"}
-            onClick={copyPageLink}
-            className="text-muted-foreground hover:bg-accent hover:text-foreground cursor-pointer rounded-sm p-2 transition-colors"
-          >
-            {copied ? (
-              <Check className="h-[18px] w-[18px]" />
-            ) : (
-              <Share2 className="h-[18px] w-[18px]" />
-            )}
-          </button>
-          <span
-            aria-label={isFavorite ? "Favorited" : "Not favorited"}
-            className={cn(
-              "text-muted-foreground hidden p-2 min-[430px]:block",
-              isFavorite && "text-[#f5c542]",
-            )}
-          >
-            <Star
-              className="h-5 w-5"
-              fill={isFavorite ? "currentColor" : "none"}
-            />
-          </span>
+          <TopbarActions isFavorite={isFavorite} localPageId={localPageId} />
         </div>
       </header>
 

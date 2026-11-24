@@ -1,5 +1,6 @@
 export const SITE_URL = "https://brennen.dev";
 export const SITE_NAME = "Brennen Ho";
+export const DEFAULT_LOCAL_PAGE_TITLE = "new page";
 export const SITE_DESCRIPTION =
   "I create intuitive products that simplify, accelerate, and personalize — with an emphasis on applied AI.";
 

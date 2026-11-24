@@ -12,19 +12,7 @@ export function LocalPageUpdatedAt({
   const page = useLocalPage(id);
   const saved = useLocalPagesSaved();
 
-  if (!page) {
-    return (
-      <span
-        className={
-          variant === "mobile"
-            ? "text-muted-foreground rounded px-2 py-1"
-            : "text-muted-foreground hidden sm:inline"
-        }
-      >
-        Saved locally
-      </span>
-    );
-  }
+  if (!page) return null;
 
   const date = new Date(page.updatedAt);
   const dateLabel = new Intl.DateTimeFormat("en", {
@@ -46,7 +34,7 @@ export function LocalPageUpdatedAt({
           ? "text-muted-foreground rounded px-2 py-1"
           : "text-muted-foreground hidden rounded px-2 py-1 sm:inline-block"
       }
-      title={`Last edited ${timestamp} · ${saved ? "Saved in this browser" : "Not saved"}`}
+      title={`Last edited ${timestamp}`}
     >
       {saved ? `Edited ${dateLabel}` : "Not saved"}
     </span>

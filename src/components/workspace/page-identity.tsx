@@ -13,17 +13,21 @@ export function PageIdentity({
 }) {
   const localPage = useLocalPage(localPageId ?? "");
 
+  const pageIcon = localPage?.emoji ?? icon;
+
   return (
     <>
-      <span
-        className={`text-[18px] leading-none ${localPageId ? "ph-no-capture" : ""}`}
-      >
-        {localPage?.emoji ?? icon}
-      </span>
+      {pageIcon && (
+        <span
+          className={`text-[18px] leading-none ${localPageId ? "ph-no-capture" : ""}`}
+        >
+          {pageIcon}
+        </span>
+      )}
       <span
         className={`text-foreground min-w-0 truncate font-medium ${localPageId ? "ph-no-capture" : ""}`}
       >
-        {localPage ? localPage.title || "Untitled" : title}
+        {localPage ? localPage.title || title : title}
       </span>
     </>
   );

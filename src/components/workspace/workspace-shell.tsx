@@ -20,7 +20,6 @@ type WorkspaceShellProps = {
   localPageId?: string;
   pageIcon?: string;
   pageTitle?: string;
-  shareUrl?: string;
 };
 
 export async function WorkspaceShell({
@@ -34,7 +33,6 @@ export async function WorkspaceShell({
   localPageId,
   pageIcon = "👋",
   pageTitle = "hey, i’m brennen",
-  shareUrl,
 }: WorkspaceShellProps) {
   const isFavorite = isFavoritePath(activePath);
   const musingItems: SidebarItem[] = (await getMusingSummaries()).map(
@@ -64,7 +62,6 @@ export async function WorkspaceShell({
           musingItems={musingItems}
           pageIcon={pageIcon}
           pageTitle={pageTitle}
-          shareUrl={shareUrl}
         />
         <WorkspaceTopbar
           editedCommitDate={editedCommitDate}
@@ -76,7 +73,6 @@ export async function WorkspaceShell({
           localPageId={localPageId}
           pageIcon={pageIcon}
           pageTitle={pageTitle}
-          shareUrl={shareUrl}
         />
         {children}
       </div>
@@ -94,7 +90,6 @@ function WorkspaceTopbar({
   localPageId,
   pageIcon,
   pageTitle,
-  shareUrl,
 }: {
   editedCommitDate: string;
   editedCommitTimestamp: string;
@@ -105,7 +100,6 @@ function WorkspaceTopbar({
   localPageId?: string;
   pageIcon: string;
   pageTitle: string;
-  shareUrl?: string;
 }) {
   return (
     <header className="bg-background/95 text-muted-foreground sticky top-0 z-40 hidden h-[45px] items-center justify-between border-b border-transparent px-3 text-[14px] backdrop-blur min-[900px]:flex">
@@ -132,7 +126,7 @@ function WorkspaceTopbar({
             variant="desktop"
           />
         )}
-        <TopbarActions isFavorite={isFavorite} shareUrl={shareUrl} />
+        <TopbarActions isFavorite={isFavorite} localPageId={localPageId} />
       </div>
     </header>
   );
