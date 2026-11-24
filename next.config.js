@@ -4,10 +4,18 @@
  */
 import "./src/env.js";
 
+const musingFiles = ["./src/content/musings/*.mdx"];
+
 /** @type {import("next").NextConfig} */
 const config = {
   allowedDevOrigins: ["127.0.0.1"],
   transpilePackages: ["next-mdx-remote"],
+  outputFileTracingIncludes: {
+    "/": musingFiles,
+    "/leaderboard": musingFiles,
+    "/musings/**": musingFiles,
+    "/sitemap.xml": musingFiles,
+  },
 
   images: {
     remotePatterns: [
