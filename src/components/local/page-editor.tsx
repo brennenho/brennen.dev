@@ -1,6 +1,7 @@
 "use client";
 
 import { PageContent } from "@/components/blocks";
+import { Button } from "@/components/ui/button";
 import {
   createLocalPage,
   openLocalPage,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/local-pages";
 import { DEFAULT_LOCAL_PAGE_TITLE, SITE_NAME } from "@/lib/site";
 import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
+import { FileSearch } from "lucide-react";
 import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import { localEditorExtensions } from "./editor-extensions";
 import { EmojiPicker } from "./emoji-picker";
@@ -46,24 +48,26 @@ function MissingLocalPage() {
   }
 
   return (
-    <div className="flex max-w-xl flex-col gap-4 pt-10">
-      <span className="text-[56px] leading-none">📝</span>
-      <h1 className="text-foreground text-[32px] leading-tight font-bold sm:text-[38px]">
-        This page isn’t available in this browser.
+    <div className="flex max-w-md flex-col items-start">
+      <FileSearch
+        aria-hidden="true"
+        strokeWidth={1.5}
+        className="text-muted-foreground mb-5 size-9"
+      />
+      <h1 className="text-foreground text-3xl font-semibold tracking-tight">
+        Page not found
       </h1>
-      <p className="text-muted-foreground text-[16px] leading-relaxed font-medium">
-        Local pages only exist in the browser where they were created. It may
-        have been deleted, or this link may have been opened somewhere else.
+      <p className="text-muted-foreground mt-2 leading-relaxed">
+        Try the browser where you created this page.
       </p>
-      <div>
-        <button
-          type="button"
-          onClick={createNewPage}
-          className="bg-foreground text-background cursor-pointer rounded-md px-3 py-2 text-[14px] font-semibold transition-opacity hover:opacity-85"
-        >
-          Create a new page
-        </button>
-      </div>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={createNewPage}
+        className="mt-5 cursor-pointer"
+      >
+        Create page
+      </Button>
     </div>
   );
 }
