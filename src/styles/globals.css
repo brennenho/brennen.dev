@@ -289,3 +289,7 @@ html .react-tweet-theme {
     box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 0.25);
   }
 }
+
+html:has(.workspace-drawer[open]) {
+  overflow: hidden;
+}

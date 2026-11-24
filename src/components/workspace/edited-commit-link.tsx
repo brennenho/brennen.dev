@@ -14,7 +14,6 @@ type EditedCommitLinkProps = {
   commitUrl: string;
   fallbackDateLabel: string;
   fallbackTimestamp: string;
-  variant: "desktop" | "mobile";
 };
 
 function formatCommitDateParts(value: string, fallback: CommitDateParts) {
@@ -45,7 +44,6 @@ export function EditedCommitLink({
   commitUrl,
   fallbackDateLabel,
   fallbackTimestamp,
-  variant,
 }: EditedCommitLinkProps) {
   const fallback = useMemo(
     () => ({
@@ -64,47 +62,33 @@ export function EditedCommitLink({
     return () => window.cancelAnimationFrame(id);
   }, [commitDate, fallback]);
 
-  if (variant === "mobile") {
-    return (
+  return (
+    <span className="group relative inline-block">
       <Link
         href={commitUrl}
         target="_blank"
         rel="noreferrer"
-        className="rounded px-2 py-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+        className="text-muted-foreground hover:bg-accent hover:text-foreground inline-block cursor-pointer rounded px-2 py-1 transition-colors"
         title={`${commitTitle} - ${displayDate.timestamp}`}
       >
         Edited {displayDate.dateLabel}
       </Link>
-    );
-  }
-
-  return (
-    <span className="group relative hidden sm:inline-block">
-      <Link
-        href={commitUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="inline-block cursor-pointer rounded px-2 py-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        title="View on GitHub"
-      >
-        Edited {displayDate.dateLabel}
-      </Link>
-      <span className="absolute top-full right-0 z-50 hidden w-max max-w-[460px] pt-1.5 group-focus-within:block group-hover:block">
-        <span className="block overflow-hidden rounded-lg border border-border bg-popover text-left text-muted-foreground shadow-md">
-          <span className="block border-b border-border px-3 py-2 text-[13px] font-semibold text-muted-foreground">
+      <span className="absolute top-full right-0 z-50 hidden w-max max-w-[460px] pt-1.5 min-[900px]:group-focus-within:block min-[900px]:group-hover:block">
+        <span className="border-border bg-popover text-muted-foreground block overflow-hidden rounded-lg border text-left shadow-md">
+          <span className="border-border text-muted-foreground block border-b px-3 py-2 text-[13px] font-semibold">
             Last Edited
           </span>
           <Link
             href={commitUrl}
             target="_blank"
             rel="noreferrer"
-            className="flex max-w-[360px] items-start gap-4 px-3 py-2 text-[13px] transition-colors hover:bg-accent"
+            className="hover:bg-accent flex max-w-[360px] items-start gap-4 px-3 py-2 text-[13px] transition-colors"
             title="View on GitHub"
           >
-            <span className="max-w-[320px] min-w-[180px] font-semibold text-wrap text-popover-foreground">
+            <span className="text-popover-foreground max-w-[320px] min-w-[180px] font-semibold text-wrap">
               {commitTitle}
             </span>
-            <span className="shrink-0 whitespace-nowrap text-muted-foreground">
+            <span className="text-muted-foreground shrink-0 whitespace-nowrap">
               {displayDate.timestamp}
             </span>
           </Link>

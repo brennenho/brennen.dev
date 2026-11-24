@@ -82,7 +82,6 @@ export default async function MusingPage({
         localPageId={slug}
         pageIcon="📝"
         pageTitle="Untitled"
-        shareUrl="https://brennen.dev"
       >
         <LocalPageEditor id={slug} />
       </WorkspaceShell>

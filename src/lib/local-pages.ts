@@ -162,8 +162,14 @@ export function useLocalPagesSaved() {
   );
 }
 
-export function useLocalPage(id: string) {
-  return useLocalPages().find((page) => page.id === id);
+export function useLocalPage(id?: string) {
+  const page = useSyncExternalStore(
+    subscribe,
+    () => (id ? pages.find((page) => page.id === id) : undefined),
+    () => undefined,
+  );
+  useEffect(initialize, []);
+  return page;
 }
 
 export function createLocalPage(source: LocalPageCreationSource) {

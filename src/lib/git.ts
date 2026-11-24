@@ -18,9 +18,9 @@ const localSourceExtensions = [".ts", ".tsx", ".js", ".jsx", ".json"];
 const metadataFiles = new Set([
   "src/lib/git.ts",
   "src/components/workspace/edited-commit-link.tsx",
-  "src/components/workspace/mobile-workspace-topbar.tsx",
+  "src/components/workspace/workspace-view.tsx",
   "src/components/workspace/sidebar.tsx",
-  "src/components/workspace/topbar-actions.tsx",
+  "src/components/workspace/share-button.tsx",
   "src/components/workspace/workspace-shell.tsx",
   // Musings data feeds global navigation, but edits there should not mark every
   // page that renders the sidebar as edited.
