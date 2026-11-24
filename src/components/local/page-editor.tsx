@@ -1,6 +1,6 @@
 "use client";
 
-import { PageContent } from "@/components/blocks";
+import { PageContent, PageIcon, PageTitle } from "@/components/blocks";
 import { Button } from "@/components/ui/button";
 import {
   createLocalPage,
@@ -11,9 +11,13 @@ import {
   useLocalPagesSaved,
   type LocalPage,
 } from "@/lib/local-pages";
-import { DEFAULT_LOCAL_PAGE_TITLE, SITE_NAME } from "@/lib/site";
+import {
+  DEFAULT_LOCAL_PAGE_TITLE,
+  MISSING_MUSING_ICON,
+  MISSING_MUSING_TITLE,
+  SITE_NAME,
+} from "@/lib/site";
 import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
-import { FileSearch } from "lucide-react";
 import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import { localEditorExtensions } from "./editor-extensions";
 import { EmojiPicker } from "./emoji-picker";
@@ -32,10 +36,12 @@ export function PageEditor({ id }: { id: string }) {
   }
 
   const { title = "" } = page ?? {};
+  const fallbackTitle =
+    ready && !page ? MISSING_MUSING_TITLE : DEFAULT_LOCAL_PAGE_TITLE;
 
   return (
     <PageContent className="ph-no-capture">
-      <title>{`${title || DEFAULT_LOCAL_PAGE_TITLE} • ${SITE_NAME}`}</title>
+      <title>{`${title || fallbackTitle} • ${SITE_NAME}`}</title>
       {content}
     </PageContent>
   );
@@ -48,27 +54,22 @@ function MissingLocalPage() {
   }
 
   return (
-    <div className="flex max-w-md flex-col items-start">
-      <FileSearch
-        aria-hidden="true"
-        strokeWidth={1.5}
-        className="text-muted-foreground mb-5 size-9"
-      />
-      <h1 className="text-foreground text-3xl font-semibold tracking-tight">
-        Page not found
-      </h1>
-      <p className="text-muted-foreground mt-2 leading-relaxed">
-        Try the browser where you created this page.
+    <>
+      <PageIcon>{MISSING_MUSING_ICON}</PageIcon>
+      <PageTitle>{MISSING_MUSING_TITLE}</PageTitle>
+      <p className="text-muted-foreground max-w-md leading-relaxed">
+        Musings are saved in your browser and can&apos;t be shared. Clearing
+        cookies will also erase them.
       </p>
       <Button
         type="button"
         variant="outline"
         onClick={createNewPage}
-        className="mt-5 cursor-pointer"
+        className="mt-2 cursor-pointer self-start"
       >
         Create page
       </Button>
-    </div>
+    </>
   );
 }
 

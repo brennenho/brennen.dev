@@ -1,6 +1,8 @@
 export const SITE_URL = "https://brennen.dev";
 export const SITE_NAME = "Brennen Ho";
 export const DEFAULT_LOCAL_PAGE_TITLE = "new page";
+export const MISSING_MUSING_TITLE = "404: musing not found";
+export const MISSING_MUSING_ICON = "🚧";
 export const SITE_DESCRIPTION =
   "I create intuitive products that simplify, accelerate, and personalize — with an emphasis on applied AI.";
 

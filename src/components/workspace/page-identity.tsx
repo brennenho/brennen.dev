@@ -1,6 +1,7 @@
 "use client";
 
-import { useLocalPage } from "@/lib/local-pages";
+import { useLocalPage, useLocalPagesReady } from "@/lib/local-pages";
+import { MISSING_MUSING_ICON, MISSING_MUSING_TITLE } from "@/lib/site";
 
 export function PageIdentity({
   icon,
@@ -12,8 +13,10 @@ export function PageIdentity({
   title: string;
 }) {
   const localPage = useLocalPage(localPageId ?? "");
-
-  const pageIcon = localPage?.emoji ?? icon;
+  const ready = useLocalPagesReady();
+  const missing = localPageId && ready && !localPage;
+  const pageIcon = missing ? MISSING_MUSING_ICON : (localPage?.emoji ?? icon);
+  const { title: localTitle = "" } = localPage ?? {};
 
   return (
     <>
@@ -27,7 +30,7 @@ export function PageIdentity({
       <span
         className={`text-foreground min-w-0 truncate font-medium ${localPageId ? "ph-no-capture" : ""}`}
       >
-        {localPage ? localPage.title || title : title}
+        {missing ? MISSING_MUSING_TITLE : localTitle || title}
       </span>
     </>
   );
