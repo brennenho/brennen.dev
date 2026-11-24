@@ -115,7 +115,7 @@ function WorkspaceTopbar({
 
       <div className="flex items-center gap-4">
         {localPageId ? (
-          <UpdatedAt id={localPageId} variant="desktop" />
+          <UpdatedAt id={localPageId} />
         ) : (
           <EditedCommitLink
             commitDate={editedCommitDate}

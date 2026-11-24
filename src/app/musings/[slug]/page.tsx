@@ -32,9 +32,8 @@ export async function generateMetadata({
     if (!isLocalPageId(slug)) return {};
 
     return {
-      title: {
-        absolute: `${DEFAULT_LOCAL_PAGE_TITLE} • ${SITE_NAME}`,
-      },
+      // The editor renders the title from browser-local storage.
+      title: null,
       robots: {
         index: false,
         follow: false,

@@ -62,7 +62,7 @@ export function TopbarActions({ isFavorite, localPageId }: TopbarActionsProps) {
       </button>
       {localPageId ? (
         localPage && (
-          <DeletePage page={localPage} onDeleted={() => router.push("/")} />
+          <DeletePage page={localPage} onDeleted={() => router.replace("/")} />
         )
       ) : (
         <span

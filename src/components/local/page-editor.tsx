@@ -12,13 +12,7 @@ import {
 import { DEFAULT_LOCAL_PAGE_TITLE, SITE_NAME } from "@/lib/site";
 import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
 import { useRouter } from "next/navigation";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import { localEditorExtensions } from "./editor-extensions";
 import { EmojiPicker } from "./emoji-picker";
 
@@ -26,19 +20,23 @@ export function PageEditor({ id }: { id: string }) {
   const page = useLocalPage(id);
   const ready = useLocalPagesReady();
 
+  let content;
   if (!ready) {
-    return (
-      <PageContent>
-        <span className="sr-only">Loading page</span>
-      </PageContent>
-    );
+    content = <span className="sr-only">Loading page</span>;
+  } else if (page) {
+    content = <EditableLocalPage key={page.id} page={page} />;
+  } else {
+    content = <MissingLocalPage />;
   }
 
-  if (!page) {
-    return <MissingLocalPage />;
-  }
+  const { title = "" } = page ?? {};
 
-  return <EditableLocalPage key={page.id} page={page} />;
+  return (
+    <PageContent className="ph-no-capture">
+      <title>{`${title || DEFAULT_LOCAL_PAGE_TITLE} • ${SITE_NAME}`}</title>
+      {content}
+    </PageContent>
+  );
 }
 
 function MissingLocalPage() {
@@ -50,37 +48,33 @@ function MissingLocalPage() {
   }
 
   return (
-    <PageContent>
-      <div className="flex max-w-xl flex-col gap-4 pt-10">
-        <span className="text-[56px] leading-none">📝</span>
-        <h1 className="text-foreground text-[32px] leading-tight font-bold sm:text-[38px]">
-          This page isn’t available in this browser.
-        </h1>
-        <p className="text-muted-foreground text-[16px] leading-relaxed font-medium">
-          Local pages only exist in the browser where they were created. It may
-          have been deleted, or this link may have been opened somewhere else.
-        </p>
-        <div>
-          <button
-            type="button"
-            onClick={createNewPage}
-            className="bg-foreground text-background cursor-pointer rounded-md px-3 py-2 text-[14px] font-semibold transition-opacity hover:opacity-85"
-          >
-            Create a new page
-          </button>
-        </div>
+    <div className="flex max-w-xl flex-col gap-4 pt-10">
+      <span className="text-[56px] leading-none">📝</span>
+      <h1 className="text-foreground text-[32px] leading-tight font-bold sm:text-[38px]">
+        This page isn’t available in this browser.
+      </h1>
+      <p className="text-muted-foreground text-[16px] leading-relaxed font-medium">
+        Local pages only exist in the browser where they were created. It may
+        have been deleted, or this link may have been opened somewhere else.
+      </p>
+      <div>
+        <button
+          type="button"
+          onClick={createNewPage}
+          className="bg-foreground text-background cursor-pointer rounded-md px-3 py-2 text-[14px] font-semibold transition-opacity hover:opacity-85"
+        >
+          Create a new page
+        </button>
       </div>
-    </PageContent>
+    </div>
   );
 }
 
 function EditableLocalPage({ page }: { page: LocalPage }) {
   const saved = useLocalPagesSaved();
-  const iconButtonRef = useRef<HTMLButtonElement>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const pendingContentRef = useRef<JSONContent | null>(null);
   const saveTimerRef = useRef<number | null>(null);
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   const flushContent = useCallback(() => {
     if (saveTimerRef.current !== null) {
@@ -144,17 +138,6 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
   }, [editor, page.content]);
 
   useEffect(() => {
-    const title = `${page.title || DEFAULT_LOCAL_PAGE_TITLE} • ${SITE_NAME}`;
-    document.title = title;
-
-    const timeout = window.setTimeout(() => {
-      document.title = title;
-    }, 100);
-
-    return () => window.clearTimeout(timeout);
-  }, [page.title]);
-
-  useEffect(() => {
     const textarea = titleRef.current;
     if (!textarea) return;
 
@@ -173,50 +156,12 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
   }
 
   return (
-    <PageContent className="ph-no-capture">
+    <>
       <div className="local-page-heading">
-        <div className="relative mb-1 w-fit">
-          <button
-            type="button"
-            ref={iconButtonRef}
-            aria-label={page.emoji ? "Change page icon" : "Add icon"}
-            aria-haspopup="dialog"
-            aria-expanded={emojiPickerOpen}
-            className={
-              page.emoji
-                ? "hover:bg-accent mb-2 cursor-pointer rounded-md text-[72px] leading-none sm:text-[78px]"
-                : "add-page-icon text-muted-foreground hover:bg-accent focus-visible:bg-accent aria-expanded:bg-accent -ml-2 inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2 text-sm leading-none font-medium dark:hover:bg-white/5"
-            }
-            onClick={() => setEmojiPickerOpen((open) => !open)}
-          >
-            {page.emoji || (
-              <>
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="size-3.5 shrink-0"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8 .75a7.25 7.25 0 1 0 0 14.5A7.25 7.25 0 0 0 8 .75ZM5.5 5.25a.88.88 0 1 0 0 1.76.88.88 0 0 0 0-1.76Zm5 0a.88.88 0 1 0 0 1.76.88.88 0 0 0 0-1.76ZM4.85 9.2a.6.6 0 0 1 .84.12 2.9 2.9 0 0 0 4.62 0 .6.6 0 1 1 .96.72 4.1 4.1 0 0 1-6.54 0 .6.6 0 0 1 .12-.84Z"
-                  />
-                </svg>
-                Add icon
-              </>
-            )}
-          </button>
-          {emojiPickerOpen ? (
-            <EmojiPicker
-              hasIcon={Boolean(page.emoji)}
-              onClose={() => {
-                setEmojiPickerOpen(false);
-                iconButtonRef.current?.focus();
-              }}
-              onSelect={(emoji) => updateLocalPage(page.id, { emoji })}
-            />
-          ) : null}
-        </div>
+        <EmojiPicker
+          icon={page.emoji}
+          onSelect={(emoji) => updateLocalPage(page.id, { emoji })}
+        />
 
         <textarea
           ref={titleRef}
@@ -241,6 +186,6 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
       <div className="local-editor">
         <EditorContent editor={editor} />
       </div>
-    </PageContent>
+    </>
   );
 }

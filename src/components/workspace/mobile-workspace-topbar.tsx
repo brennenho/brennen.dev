@@ -68,7 +68,7 @@ export function MobileWorkspaceTopbar({
 
         <div className="ml-2 flex shrink-0 items-center gap-1">
           {localPageId ? (
-            <UpdatedAt id={localPageId} variant="mobile" />
+            <UpdatedAt id={localPageId} />
           ) : (
             <EditedCommitLink
               commitDate={editedCommitDate}

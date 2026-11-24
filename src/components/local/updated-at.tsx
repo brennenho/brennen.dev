@@ -2,41 +2,30 @@
 
 import { useLocalPage, useLocalPagesSaved } from "@/lib/local-pages";
 
-export function UpdatedAt({
-  id,
-  variant,
-}: {
-  id: string;
-  variant: "desktop" | "mobile";
-}) {
+const shortDate = new Intl.DateTimeFormat("en", {
+  month: "short",
+  day: "numeric",
+});
+const dateTime = new Intl.DateTimeFormat("en", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+});
+
+export function UpdatedAt({ id }: { id: string }) {
   const page = useLocalPage(id);
   const saved = useLocalPagesSaved();
 
   if (!page) return null;
 
-  const date = new Date(page.updatedAt);
-  const dateLabel = new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-  }).format(date);
-  const timestamp = new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
-
   return (
     <span
-      className={
-        variant === "mobile"
-          ? "text-muted-foreground rounded px-2 py-1"
-          : "text-muted-foreground hidden rounded px-2 py-1 sm:inline-block"
-      }
-      title={`Last edited ${timestamp}`}
+      className="text-muted-foreground rounded px-2 py-1"
+      title={`Last edited ${dateTime.format(page.updatedAt)}`}
     >
-      {saved ? `Edited ${dateLabel}` : "Not saved"}
+      {saved ? `Edited ${shortDate.format(page.updatedAt)}` : "Not saved"}
     </span>
   );
 }

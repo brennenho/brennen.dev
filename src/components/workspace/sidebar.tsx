@@ -159,7 +159,7 @@ export function WorkspaceSidebar({
                   onDeleted={
                     active
                       ? () => {
-                          router.push("/");
+                          router.replace("/");
                           handleNavigate();
                         }
                       : undefined
