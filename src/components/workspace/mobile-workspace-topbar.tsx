@@ -1,6 +1,6 @@
 "use client";
 
-import { LocalPageUpdatedAt } from "@/components/local/local-page-updated-at";
+import { UpdatedAt } from "@/components/local/updated-at";
 import { Lock, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EditedCommitLink } from "./edited-commit-link";
@@ -68,7 +68,7 @@ export function MobileWorkspaceTopbar({
 
         <div className="ml-2 flex shrink-0 items-center gap-1">
           {localPageId ? (
-            <LocalPageUpdatedAt id={localPageId} variant="mobile" />
+            <UpdatedAt id={localPageId} variant="mobile" />
           ) : (
             <EditedCommitLink
               commitDate={editedCommitDate}

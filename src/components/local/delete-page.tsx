@@ -5,7 +5,7 @@ import { DEFAULT_LOCAL_PAGE_TITLE } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 
-export function DeleteLocalPageButton({
+export function DeletePage({
   page,
   sidebar = false,
   onDeleted,

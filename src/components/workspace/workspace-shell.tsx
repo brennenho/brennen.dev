@@ -1,4 +1,4 @@
-import { LocalPageUpdatedAt } from "@/components/local/local-page-updated-at";
+import { UpdatedAt } from "@/components/local/updated-at";
 import { getMusingSummaries } from "@/lib/musings";
 import { Lock } from "lucide-react";
 import type { ReactNode } from "react";
@@ -115,7 +115,7 @@ function WorkspaceTopbar({
 
       <div className="flex items-center gap-4">
         {localPageId ? (
-          <LocalPageUpdatedAt id={localPageId} variant="desktop" />
+          <UpdatedAt id={localPageId} variant="desktop" />
         ) : (
           <EditedCommitLink
             commitDate={editedCommitDate}

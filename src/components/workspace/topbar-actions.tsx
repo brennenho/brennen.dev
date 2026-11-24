@@ -1,6 +1,6 @@
 "use client";
 
-import { DeleteLocalPageButton } from "@/components/local/delete-local-page-button";
+import { DeletePage } from "@/components/local/delete-page";
 import { useLocalPage } from "@/lib/local-pages";
 import { cn } from "@/lib/utils";
 import { Check, Share2, Star } from "lucide-react";
@@ -62,10 +62,7 @@ export function TopbarActions({ isFavorite, localPageId }: TopbarActionsProps) {
       </button>
       {localPageId ? (
         localPage && (
-          <DeleteLocalPageButton
-            page={localPage}
-            onDeleted={() => router.push("/")}
-          />
+          <DeletePage page={localPage} onDeleted={() => router.push("/")} />
         )
       ) : (
         <span

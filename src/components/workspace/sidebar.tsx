@@ -1,7 +1,7 @@
 "use client";
 
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
-import { DeleteLocalPageButton } from "@/components/local/delete-local-page-button";
+import { DeletePage } from "@/components/local/delete-page";
 import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
 import { createLocalPage, useLocalPages } from "@/lib/local-pages";
 import { DEFAULT_LOCAL_PAGE_TITLE } from "@/lib/site";
@@ -153,7 +153,7 @@ export function WorkspaceSidebar({
                   }}
                   onNavigate={handleNavigate}
                 />
-                <DeleteLocalPageButton
+                <DeletePage
                   sidebar
                   page={page}
                   onDeleted={

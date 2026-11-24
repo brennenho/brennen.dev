@@ -2,7 +2,7 @@
 
 import { useLocalPage, useLocalPagesSaved } from "@/lib/local-pages";
 
-export function LocalPageUpdatedAt({
+export function UpdatedAt({
   id,
   variant,
 }: {
