@@ -3,7 +3,6 @@
 import { PageContent } from "@/components/blocks";
 import {
   createLocalPage,
-  deleteLocalPage,
   updateLocalPage,
   useLocalPage,
   useLocalPagesReady,
@@ -11,7 +10,6 @@ import {
   type LocalPage,
 } from "@/lib/local-pages";
 import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
-import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   useCallback,
@@ -76,7 +74,6 @@ function MissingLocalPage() {
 }
 
 function EditableLocalPage({ page }: { page: LocalPage }) {
-  const router = useRouter();
   const saved = useLocalPagesSaved();
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const pendingContentRef = useRef<JSONContent | null>(null);
@@ -170,14 +167,6 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
     editor?.commands.focus("start");
   }
 
-  function handleDelete() {
-    if (!window.confirm("Delete this page from this browser?")) return;
-
-    flushContent();
-    deleteLocalPage(page.id);
-    router.push("/");
-  }
-
   return (
     <PageContent className="local-page ph-no-capture">
       <div className="relative mb-1 w-fit">
@@ -220,14 +209,6 @@ function EditableLocalPage({ page }: { page: LocalPage }) {
             ? "Saved in this browser"
             : "Not saved — browser storage is unavailable"}
         </span>
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive ml-auto flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 transition-colors"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          Delete
-        </button>
       </div>
 
       <div className="local-editor">

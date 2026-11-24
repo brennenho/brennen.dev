@@ -1,10 +1,11 @@
 "use client";
 
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
+import { DeletePage } from "@/components/local/delete-page";
 import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
 import { createLocalPage, useLocalPages } from "@/lib/local-pages";
 import { cn } from "@/lib/utils";
-import { HardDrive, Mail, Plus } from "lucide-react";
+import { Mail, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -129,25 +130,37 @@ export function WorkspaceSidebar({
               onNavigate={handleNavigate}
             />
           ))}
-          {localPages.map((page) => (
-            <SidebarLink
-              key={page.id}
-              privatePage
-              active={activePath === `/musings/${page.id}`}
-              item={{
-                href: `/musings/${page.id}`,
-                icon: page.emoji,
-                label: page.title || "Untitled",
-              }}
-              onNavigate={handleNavigate}
-              trailing={
-                <HardDrive
-                  aria-label="Saved in this browser"
-                  className="text-muted-foreground ml-auto h-3.5 w-3.5 shrink-0"
+          {localPages.map((page) => {
+            const href = `/musings/${page.id}`;
+            const active = activePath === href;
+
+            return (
+              <div
+                key={page.id}
+                className={cn(
+                  "ph-no-capture hover:bg-sidebar-accent has-[:focus-visible]:bg-sidebar-accent flex items-center rounded-sm transition-colors duration-300",
+                  active && "bg-sidebar-primary",
+                )}
+              >
+                <SidebarLink
+                  privatePage
+                  active={active}
+                  item={{
+                    href,
+                    icon: page.emoji,
+                    label: page.title || "Untitled",
+                  }}
+                  onNavigate={handleNavigate}
                 />
-              }
-            />
-          ))}
+                <DeletePage
+                  sidebar
+                  page={page}
+                  active={active}
+                  onNavigate={handleNavigate}
+                />
+              </div>
+            );
+          })}
         </SidebarGroup>
       </nav>
 
@@ -200,31 +213,32 @@ function SidebarLink({
   highlighted = false,
   item,
   onNavigate,
-  trailing,
   privatePage = false,
 }: {
   active: boolean;
   highlighted?: boolean;
   item: SidebarItem;
   onNavigate?: () => void;
-  trailing?: ReactNode;
   privatePage?: boolean;
 }) {
   return (
     <Link
       href={item.href}
+      aria-current={active ? "page" : undefined}
       onClick={onNavigate}
       className={cn(
-        "text-sidebar-foreground hover:bg-sidebar-accent relative flex h-8 items-center gap-2 rounded-sm px-2 transition-[background-color,box-shadow,color] duration-300",
-        active && "bg-sidebar-primary text-sidebar-primary-foreground",
-        privatePage && "ph-no-capture",
+        "text-sidebar-foreground relative flex h-8 items-center gap-2 rounded-sm px-2 transition-[background-color,box-shadow,color] duration-300",
+        active && "text-sidebar-primary-foreground",
+        active && !privatePage && "bg-sidebar-primary",
+        privatePage ? "min-w-0 flex-1" : "hover:bg-sidebar-accent",
         highlighted &&
           "text-sidebar-primary-foreground bg-[#fbf3db] shadow-[0_0_0_1px_rgba(245,197,66,0.28),0_0_18px_rgba(245,197,66,0.16)] dark:bg-[#3d3726]",
       )}
     >
-      <span className="w-5 text-[18px] leading-none">{item.icon}</span>
+      {item.icon && (
+        <span className="w-5 text-[18px] leading-none">{item.icon}</span>
+      )}
       <span className="truncate">{item.label}</span>
-      {trailing}
       {highlighted ? (
         <>
           <span

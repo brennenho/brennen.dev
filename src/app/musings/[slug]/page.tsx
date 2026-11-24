@@ -82,28 +82,20 @@ export default async function MusingPage({
         localPageId={slug}
         pageIcon="📝"
         pageTitle="Untitled"
-        shareUrl="https://brennen.dev"
       >
         <LocalPageEditor id={slug} />
       </WorkspaceShell>
     );
   }
 
-  const [
-    { commitDate, dateLabel, commitTimestamp, commitTitle, commitUrl },
-    views,
-  ] = await Promise.all([
+  const [commit, views] = await Promise.all([
     getPageEditedMetadata(post.filePath),
     getViewCount(post.href),
   ]);
 
   return (
     <WorkspaceShell
-      editedCommitDate={commitDate}
-      editedCommitTimestamp={commitTimestamp}
-      editedCommitTitle={commitTitle}
-      editedCommitUrl={commitUrl}
-      editedDate={dateLabel}
+      commit={commit}
       activePath={post.href}
       pageIcon={post.emoji}
       pageTitle={post.title}
