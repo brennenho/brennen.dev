@@ -3,7 +3,11 @@
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
 import { DeletePage } from "@/components/local/delete-page";
 import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
-import { createLocalPage, useLocalPages } from "@/lib/local-pages";
+import {
+  createLocalPage,
+  openLocalPage,
+  useLocalPages,
+} from "@/lib/local-pages";
 import { DEFAULT_LOCAL_PAGE_TITLE } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { Mail, Plus } from "lucide-react";
@@ -66,7 +70,7 @@ export function WorkspaceSidebar({
 
   function handleCreatePage() {
     const page = createLocalPage("sidebar");
-    router.push(`/musings/${page.id}`);
+    openLocalPage(page.id);
     handleNavigate();
   }
 
@@ -144,7 +148,7 @@ export function WorkspaceSidebar({
                 )}
               >
                 <SidebarLink
-                  privatePage
+                  localPageId={page.id}
                   active={active}
                   item={{
                     href,
@@ -220,24 +224,31 @@ function SidebarLink({
   highlighted = false,
   item,
   onNavigate,
-  privatePage = false,
+  localPageId,
 }: {
   active: boolean;
   highlighted?: boolean;
   item: SidebarItem;
   onNavigate?: () => void;
-  privatePage?: boolean;
+  localPageId?: string;
 }) {
   return (
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
-      onClick={onNavigate}
+      prefetch={localPageId ? false : undefined}
+      onNavigate={(event) => {
+        if (localPageId) {
+          event.preventDefault();
+          openLocalPage(localPageId);
+        }
+        onNavigate?.();
+      }}
       className={cn(
         "text-sidebar-foreground relative flex h-8 items-center gap-2 rounded-sm px-2 transition-[background-color,box-shadow,color] duration-300",
         active && "text-sidebar-primary-foreground",
-        active && !privatePage && "bg-sidebar-primary",
-        privatePage ? "min-w-0 flex-1" : "hover:bg-sidebar-accent",
+        active && !localPageId && "bg-sidebar-primary",
+        localPageId ? "min-w-0 flex-1" : "hover:bg-sidebar-accent",
         highlighted &&
           "text-sidebar-primary-foreground bg-[#fbf3db] shadow-[0_0_0_1px_rgba(245,197,66,0.28),0_0_18px_rgba(245,197,66,0.16)] dark:bg-[#3d3726]",
       )}

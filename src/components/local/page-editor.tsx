@@ -3,6 +3,7 @@
 import { PageContent } from "@/components/blocks";
 import {
   createLocalPage,
+  openLocalPage,
   updateLocalPage,
   useLocalPage,
   useLocalPagesReady,
@@ -11,7 +12,6 @@ import {
 } from "@/lib/local-pages";
 import { DEFAULT_LOCAL_PAGE_TITLE, SITE_NAME } from "@/lib/site";
 import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import { localEditorExtensions } from "./editor-extensions";
 import { EmojiPicker } from "./emoji-picker";
@@ -40,11 +40,9 @@ export function PageEditor({ id }: { id: string }) {
 }
 
 function MissingLocalPage() {
-  const router = useRouter();
-
   function createNewPage() {
     const page = createLocalPage("recovery");
-    router.replace(`/musings/${page.id}`);
+    openLocalPage(page.id, { replace: true });
   }
 
   return (

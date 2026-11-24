@@ -1,5 +1,4 @@
 import { PageContent, PageIcon, PageTitle } from "@/components/blocks";
-import { PageEditor } from "@/components/local/page-editor";
 import { MdxContent } from "@/components/mdx";
 import { WorkspaceShell } from "@/components/workspace";
 import { getPageEditedMetadata } from "@/lib/git";
@@ -9,7 +8,7 @@ import {
   getMusingPost,
   getMusingSummaries,
 } from "@/lib/musings";
-import { DEFAULT_LOCAL_PAGE_TITLE, SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { formatViewCount, getViewCount } from "@/lib/views";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -44,7 +43,7 @@ export async function generateMetadata({
   const description = `${formatMusingDate(post.date)} • ${post.readTime}`;
 
   return {
-    title: post.title,
+    title: null,
     alternates: {
       canonical: post.href,
     },
@@ -75,16 +74,7 @@ export default async function MusingPage({
   if (!post) {
     if (!isLocalPageId(slug)) notFound();
 
-    return (
-      <WorkspaceShell
-        activePath={`/musings/${slug}`}
-        localPageId={slug}
-        pageIcon=""
-        pageTitle={DEFAULT_LOCAL_PAGE_TITLE}
-      >
-        <PageEditor id={slug} />
-      </WorkspaceShell>
-    );
+    return <WorkspaceShell activePath={`/musings/${slug}`} />;
   }
 
   const [
