@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   DEFAULT_LOCAL_PAGE_TITLE,
   deleteLocalPage,
@@ -34,22 +35,24 @@ export function DeletePage({
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
+      size="icon"
       aria-label={label}
       title={label}
       onClick={handleDelete}
       className={cn(
-        "ph-no-capture text-muted-foreground hover:text-destructive focus-visible:outline-ring inline-flex shrink-0 cursor-pointer items-center justify-center rounded transition-colors focus-visible:outline-2",
+        "ph-no-capture text-muted-foreground hover:text-destructive cursor-pointer",
         sidebar
-          ? "size-8"
-          : "hover:bg-destructive/10 size-10 min-[900px]:size-8",
+          ? "size-8 hover:bg-transparent dark:hover:bg-transparent"
+          : "hover:bg-destructive/10 dark:hover:bg-destructive/10 size-10 min-[900px]:size-8",
       )}
     >
       <Trash2
         aria-hidden="true"
         className={sidebar ? "size-3.5" : "size-[18px]"}
       />
-    </button>
+    </Button>
   );
 }
