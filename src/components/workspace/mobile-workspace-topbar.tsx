@@ -1,9 +1,9 @@
 "use client";
 
+import { LocalPageUpdatedAt } from "@/components/local/local-page-updated-at";
 import { Lock, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EditedCommitLink } from "./edited-commit-link";
-import { LocalPageUpdatedAt } from "./local-page-updated-at";
 import { PageIdentity } from "./page-identity";
 import { WorkspaceSidebar } from "./sidebar";
 import type { SidebarItem } from "./sidebar-data";

@@ -1,6 +1,7 @@
 "use client";
 
 import { GithubIcon, LinkedInIcon, XIcon } from "@/components/icons";
+import { DeleteLocalPageButton } from "@/components/local/delete-local-page-button";
 import { GAME_LEADERBOARD_UPDATED_EVENT } from "@/lib/games/events";
 import { createLocalPage, useLocalPages } from "@/lib/local-pages";
 import { DEFAULT_LOCAL_PAGE_TITLE } from "@/lib/site";
@@ -10,7 +11,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { DeleteLocalPageButton } from "./delete-local-page-button";
 import { favoriteItems, type SidebarItem } from "./sidebar-data";
 import { ThemeToggle } from "./theme-toggle";
 

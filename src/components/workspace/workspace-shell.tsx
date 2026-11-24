@@ -1,8 +1,8 @@
+import { LocalPageUpdatedAt } from "@/components/local/local-page-updated-at";
 import { getMusingSummaries } from "@/lib/musings";
 import { Lock } from "lucide-react";
 import type { ReactNode } from "react";
 import { EditedCommitLink } from "./edited-commit-link";
-import { LocalPageUpdatedAt } from "./local-page-updated-at";
 import { MobileWorkspaceTopbar } from "./mobile-workspace-topbar";
 import { PageIdentity } from "./page-identity";
 import { WorkspaceSidebar as WorkspaceSidebarNav } from "./sidebar";

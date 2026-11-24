@@ -1,11 +1,11 @@
 "use client";
 
+import { DeleteLocalPageButton } from "@/components/local/delete-local-page-button";
 import { useLocalPage } from "@/lib/local-pages";
 import { cn } from "@/lib/utils";
 import { Check, Share2, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { DeleteLocalPageButton } from "./delete-local-page-button";
 
 type TopbarActionsProps = {
   isFavorite: boolean;
