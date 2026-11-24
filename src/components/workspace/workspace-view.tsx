@@ -2,12 +2,13 @@
 
 import { DeletePage } from "@/components/local/delete-page";
 import { PageEditor } from "@/components/local/page-editor";
-import { UpdatedAt } from "@/components/local/updated-at";
+import type { PageCommit } from "@/lib/git";
 import { getLocalPageIdFromPath } from "@/lib/local-page-id";
 import {
   DEFAULT_LOCAL_PAGE_TITLE,
   MISSING_MUSING,
   useLocalPage,
+  useLocalPagesSaved,
 } from "@/lib/local-pages";
 import { SITE_NAME } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -17,18 +18,19 @@ import { useRef, type ReactNode } from "react";
 import { ShareButton } from "./share-button";
 import { WorkspaceSidebar } from "./sidebar";
 import { isFavoritePath, type SidebarItem } from "./sidebar-data";
+import { UpdatedAt } from "./updated-at";
 
 export function WorkspaceView({
   activePath: serverPath = "/",
   children,
-  edited,
+  commit,
   musingItems,
   pageIcon = "👋",
   pageTitle = "hey, i’m brennen",
 }: {
   activePath?: string;
   children?: ReactNode;
-  edited: ReactNode;
+  commit?: PageCommit;
   musingItems: SidebarItem[];
   pageIcon?: string;
   pageTitle?: string;
@@ -39,6 +41,10 @@ export function WorkspaceView({
     ? undefined
     : getLocalPageIdFromPath(activePath);
   const page = useLocalPage(localPageId);
+  const saved = useLocalPagesSaved();
+  const edit = localPageId
+    ? page && { timestamp: page.updatedAt, saved }
+    : commit;
   const identity = localPageId
     ? (page ?? (page === null ? MISSING_MUSING : { title: "", emoji: "" }))
     : { title: pageTitle, emoji: pageIcon };
@@ -115,9 +121,7 @@ export function WorkspaceView({
             <span className="hidden min-[900px]:inline">Private</span>
           </div>
           <div className="flex shrink-0 items-center gap-1 min-[900px]:gap-4">
-            {localPageId
-              ? page && <UpdatedAt timestamp={page.updatedAt} />
-              : edited}
+            {edit && <UpdatedAt {...edit} />}
             <ShareButton key={activePath} disabled={Boolean(localPageId)} />
             {page && <DeletePage page={page} />}
             {!localPageId && (

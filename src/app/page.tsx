@@ -25,8 +25,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const { commitDate, dateLabel, commitTimestamp, commitTitle, commitUrl } =
-    await getPageEditedMetadata("src/app/page.tsx");
+  const commit = await getPageEditedMetadata("src/app/page.tsx");
 
   return (
     <>
@@ -36,14 +35,7 @@ export default async function HomePage() {
           __html: serializeJsonLd(PROFILE_JSON_LD),
         }}
       />
-      <WorkspaceShell
-        editedCommitDate={commitDate}
-        editedCommitTimestamp={commitTimestamp}
-        editedCommitTitle={commitTitle}
-        editedCommitUrl={commitUrl}
-        editedDate={dateLabel}
-        activePath="/"
-      >
+      <WorkspaceShell commit={commit} activePath="/">
         <main className="pb-24">
           <div className="relative">
             <PixelCanvas className="h-[160px] sm:h-[195px] md:h-[250px]" />

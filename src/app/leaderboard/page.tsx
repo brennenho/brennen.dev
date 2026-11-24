@@ -73,18 +73,13 @@ type CurrentPlayerLeaderboardStatus = {
 };
 
 export default async function LeaderboardPage() {
-  const { commitDate, dateLabel, commitTimestamp, commitTitle, commitUrl } =
-    await getPageEditedMetadata("src/app/leaderboard/page.tsx");
+  const commit = await getPageEditedMetadata("src/app/leaderboard/page.tsx");
   const { currentPlayerStatus, leaderboardRows } =
     await getLeaderboardPageData();
 
   return (
     <WorkspaceShell
-      editedCommitDate={commitDate}
-      editedCommitTimestamp={commitTimestamp}
-      editedCommitTitle={commitTitle}
-      editedCommitUrl={commitUrl}
-      editedDate={dateLabel}
+      commit={commit}
       activePath="/leaderboard"
       pageIcon="🏆"
       pageTitle="leaderboard"

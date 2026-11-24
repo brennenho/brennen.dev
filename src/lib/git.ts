@@ -17,7 +17,7 @@ type CommitMetadata = {
 const localSourceExtensions = [".ts", ".tsx", ".js", ".jsx", ".json"];
 const metadataFiles = new Set([
   "src/lib/git.ts",
-  "src/components/workspace/edited-commit-link.tsx",
+  "src/components/workspace/updated-at.tsx",
   "src/components/workspace/workspace-view.tsx",
   "src/components/workspace/sidebar.tsx",
   "src/components/workspace/share-button.tsx",
@@ -247,37 +247,7 @@ async function getGitHubCommitForPaths(paths: string[]) {
     )[0];
 }
 
-function formatEditedDateLabel(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Jan 1";
-  }
-
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-  }).format(date);
-}
-
-function formatCommitTimestamp(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Jan 1, 2026";
-  }
-
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZoneName: "short",
-  }).format(date);
-}
-
-export async function getEditedMetadata(paths?: string | string[]) {
+async function getEditedMetadata(paths?: string | string[]) {
   const scopedPaths = normalizePaths(paths);
   const isScopedLookup = scopedPaths.length > 0;
   const vercelSha = getVercelCommitSha();
@@ -306,12 +276,13 @@ export async function getEditedMetadata(paths?: string | string[]) {
         });
   const commit = localCommit ?? githubCommit ?? fallbackCommit;
 
+  const timestamp = Date.parse(commit.date ?? FALLBACK_DATE);
   return {
-    commitDate: commit.date ?? FALLBACK_DATE,
-    commitTimestamp: formatCommitTimestamp(commit.date ?? FALLBACK_DATE),
-    commitTitle: commit.title ?? "Latest commit",
-    dateLabel: formatEditedDateLabel(commit.date ?? FALLBACK_DATE),
-    commitUrl: commit.url ?? `${REPO_URL}/commits/main`,
+    timestamp: Number.isFinite(timestamp)
+      ? timestamp
+      : Date.parse(FALLBACK_DATE),
+    title: commit.title ?? "Latest commit",
+    url: commit.url ?? `${REPO_URL}/commits/main`,
   };
 }
 
@@ -319,8 +290,4 @@ export async function getPageEditedMetadata(pagePath: string) {
   return getEditedMetadata(collectEditedPaths(pagePath));
 }
 
-export async function getEditedDateLabel(paths?: string | string[]) {
-  const { dateLabel } = await getEditedMetadata(paths);
-
-  return dateLabel;
-}
+export type PageCommit = Awaited<ReturnType<typeof getPageEditedMetadata>>;
