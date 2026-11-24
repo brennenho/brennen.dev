@@ -27,7 +27,7 @@ import { cookies } from "next/headers";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "leaderboard",
+  title: null,
   robots: {
     index: false,
     follow: true,

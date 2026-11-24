@@ -42,7 +42,7 @@ export async function generateMetadata({
   const description = `${formatMusingDate(post.date)} • ${post.readTime}`;
 
   return {
-    title: post.title,
+    title: null,
     alternates: {
       canonical: post.href,
     },
@@ -73,9 +73,7 @@ export default async function MusingPage({
   if (!post) {
     if (!isLocalPageId(slug)) notFound();
 
-    return (
-      <WorkspaceShell activePath={`/musings/${slug}`} localPageId={slug} />
-    );
+    return <WorkspaceShell activePath={`/musings/${slug}`} />;
   }
 
   const [

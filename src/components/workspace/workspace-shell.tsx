@@ -11,7 +11,6 @@ type WorkspaceShellProps = {
   editedCommitUrl?: string;
   editedDate?: string;
   activePath?: string;
-  localPageId?: string;
   pageIcon?: string;
   pageTitle?: string;
 };

@@ -3,24 +3,25 @@
 import { DeletePage } from "@/components/local/delete-page";
 import { PageEditor } from "@/components/local/page-editor";
 import { UpdatedAt } from "@/components/local/updated-at";
-import { SITE_NAME } from "@/lib/site";
+import { getLocalPageIdFromPath } from "@/lib/local-page-id";
 import {
   DEFAULT_LOCAL_PAGE_TITLE,
   MISSING_MUSING,
   useLocalPage,
 } from "@/lib/local-pages";
+import { SITE_NAME } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { Lock, Menu, Star, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useRef, type ReactNode } from "react";
 import { ShareButton } from "./share-button";
 import { WorkspaceSidebar } from "./sidebar";
 import { isFavoritePath, type SidebarItem } from "./sidebar-data";
 
 export function WorkspaceView({
-  activePath = "/",
+  activePath: serverPath = "/",
   children,
   edited,
-  localPageId,
   musingItems,
   pageIcon = "👋",
   pageTitle = "hey, i’m brennen",
@@ -28,24 +29,31 @@ export function WorkspaceView({
   activePath?: string;
   children?: ReactNode;
   edited: ReactNode;
-  localPageId?: string;
   musingItems: SidebarItem[];
   pageIcon?: string;
   pageTitle?: string;
 }) {
   const drawer = useRef<HTMLDialogElement>(null);
+  const activePath = usePathname() ?? serverPath;
+  const localPageId = musingItems.some((item) => item.href === activePath)
+    ? undefined
+    : getLocalPageIdFromPath(activePath);
   const page = useLocalPage(localPageId);
   const identity = localPageId
     ? (page ?? (page === null ? MISSING_MUSING : { title: "", emoji: "" }))
     : { title: pageTitle, emoji: pageIcon };
   const title = identity.title || DEFAULT_LOCAL_PAGE_TITLE;
+  const publicTitle =
+    serverPath === "/" ? SITE_NAME : `${pageTitle} · ${SITE_NAME}`;
   const favorite = isFavoritePath(activePath);
+
   function closeDrawer() {
     drawer.current?.close();
   }
 
   return (
     <div className="bg-background text-foreground min-h-screen">
+      <title>{localPageId ? `${title} • ${SITE_NAME}` : publicTitle}</title>
       <WorkspaceSidebar
         activePath={activePath}
         musingItems={musingItems}
@@ -128,14 +136,7 @@ export function WorkspaceView({
             )}
           </div>
         </header>
-        {localPageId ? (
-          <>
-            <title>{`${title} • ${SITE_NAME}`}</title>
-            <PageEditor page={page} />
-          </>
-        ) : (
-          children
-        )}
+        {localPageId ? <PageEditor page={page} /> : children}
       </div>
     </div>
   );

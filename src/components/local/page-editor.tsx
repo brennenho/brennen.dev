@@ -6,13 +6,13 @@ import {
   createLocalPage,
   DEFAULT_LOCAL_PAGE_TITLE,
   MISSING_MUSING,
+  openLocalPage,
   updateLocalPage,
   useLocalPagesSaved,
   type LocalPage,
 } from "@/lib/local-pages";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { Selection } from "@tiptap/pm/state";
-import { useRouter } from "next/navigation";
 import { EditorContent, useEditor, type JSONContent } from "@tiptap/react";
 import { useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import { localEditorExtensions } from "./editor-extensions";
@@ -32,11 +32,9 @@ export function PageEditor({ page }: { page: LocalPage | null | undefined }) {
 }
 
 function MissingLocalPage() {
-  const router = useRouter();
-
   function createNewPage() {
     const page = createLocalPage("recovery");
-    router.replace(`/musings/${page.id}`);
+    openLocalPage(page.id, { replace: true });
   }
 
   return (

@@ -169,6 +169,15 @@ export function useLocalPage(id?: string) {
   return page;
 }
 
+export function openLocalPage(id: string, { replace = false } = {}) {
+  const href = `/musings/${id}`;
+  if (window.location.pathname === href) return;
+
+  if (replace) window.history.replaceState(null, "", href);
+  else window.history.pushState(null, "", href);
+  window.scrollTo(0, 0);
+}
+
 export function createLocalPage(source: LocalPageCreationSource) {
   initialize();
   readLatestPages();
