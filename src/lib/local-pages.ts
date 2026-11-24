@@ -6,6 +6,12 @@ import posthog from "posthog-js";
 import { useEffect, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 
+export const DEFAULT_LOCAL_PAGE_TITLE = "new page";
+export const MISSING_MUSING = {
+  emoji: "🚧",
+  title: "404: musing not found",
+} as const;
+
 const STORAGE_KEY = "brennen.dev:local-pages:v1";
 const EMPTY_PAGES: readonly LocalPage[] = Object.freeze([]);
 
@@ -142,18 +148,6 @@ export function useLocalPages() {
   return snapshot;
 }
 
-export function useLocalPagesReady() {
-  const ready = useSyncExternalStore(
-    subscribe,
-    () => initialized,
-    () => false,
-  );
-
-  useEffect(() => initialize(), []);
-
-  return ready;
-}
-
 export function useLocalPagesSaved() {
   return useSyncExternalStore(
     subscribe,
@@ -165,7 +159,10 @@ export function useLocalPagesSaved() {
 export function useLocalPage(id?: string) {
   const page = useSyncExternalStore(
     subscribe,
-    () => (id ? pages.find((page) => page.id === id) : undefined),
+    () =>
+      initialized && id
+        ? (pages.find((page) => page.id === id) ?? null)
+        : undefined,
     () => undefined,
   );
   useEffect(initialize, []);
@@ -185,7 +182,7 @@ export function createLocalPage(source: LocalPageCreationSource) {
   const page: LocalPage = {
     id,
     title: "",
-    emoji: "📝",
+    emoji: "",
     content: null,
     createdAt: now,
     updatedAt: now,

@@ -1,8 +1,15 @@
 "use client";
 
 import { DeletePage } from "@/components/local/delete-page";
+import { PageEditor } from "@/components/local/page-editor";
 import type { PageCommit } from "@/lib/git";
-import { useLocalPage, useLocalPagesSaved } from "@/lib/local-pages";
+import { SITE_NAME } from "@/lib/site";
+import {
+  DEFAULT_LOCAL_PAGE_TITLE,
+  MISSING_MUSING,
+  useLocalPage,
+  useLocalPagesSaved,
+} from "@/lib/local-pages";
 import { cn } from "@/lib/utils";
 import { Lock, Menu, Star, X } from "lucide-react";
 import { useRef, type ReactNode } from "react";
@@ -21,7 +28,7 @@ export function WorkspaceView({
   pageTitle = "hey, i’m brennen",
 }: {
   activePath?: string;
-  children: ReactNode;
+  children?: ReactNode;
   commit?: PageCommit;
   localPageId?: string;
   musingItems: SidebarItem[];
@@ -34,8 +41,10 @@ export function WorkspaceView({
   const edit = localPageId
     ? page && { timestamp: page.updatedAt, saved }
     : commit;
-  const icon = page?.emoji ?? pageIcon;
-  const { title = "" } = page ?? {};
+  const identity = localPageId
+    ? (page ?? (page === null ? MISSING_MUSING : { title: "", emoji: "" }))
+    : { title: pageTitle, emoji: pageIcon };
+  const title = identity.title || DEFAULT_LOCAL_PAGE_TITLE;
   const favorite = isFavoritePath(activePath);
   function closeDrawer() {
     drawer.current?.close();
@@ -94,9 +103,11 @@ export function WorkspaceView({
             >
               <Menu className="size-5" />
             </button>
-            {icon && <span className="text-[18px] leading-none">{icon}</span>}
+            {identity.emoji && (
+              <span className="text-[18px] leading-none">{identity.emoji}</span>
+            )}
             <span className="text-foreground truncate font-medium">
-              {title || pageTitle}
+              {title}
             </span>
             <Lock className="hidden size-3.5 shrink-0 min-[430px]:block" />
             <span className="hidden min-[900px]:inline">Private</span>
@@ -121,7 +132,14 @@ export function WorkspaceView({
             )}
           </div>
         </header>
-        {children}
+        {localPageId ? (
+          <>
+            <title>{`${title} • ${SITE_NAME}`}</title>
+            <PageEditor page={page} />
+          </>
+        ) : (
+          children
+        )}
       </div>
     </div>
   );

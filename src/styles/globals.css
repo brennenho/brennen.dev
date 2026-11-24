@@ -255,7 +255,14 @@ html .react-tweet-theme {
   color: var(--foreground);
 }
 
-.local-editor .tiptap p.is-editor-empty:first-child::before {
+@media (hover: hover) {
+  .local-page-heading:not(:hover)
+    .add-page-icon:not(:focus-visible):not([aria-expanded="true"]) {
+    opacity: 0;
+  }
+}
+
+.local-editor .tiptap:focus p.is-editor-empty:first-child::before {
   height: 0;
   color: var(--muted-foreground);
   content: attr(data-placeholder);
